@@ -7,14 +7,14 @@ These skills follow the [Agent Skills specification](https://agentskills.io/spec
 ### Marketplace
 
 ```
-/plugin marketplace add kepano/obsidian-skills
+/plugin marketplace add arch3rPro/obsidian-skills
 /plugin install obsidian@obsidian-skills
 ```
 
 ### npx skills
 
 ```
-npx skills add git@github.com:kepano/obsidian-skills.git
+npx skills add git@github.com:arch3rPro/obsidian-skills.git
 ```
 
 ### Manually
@@ -32,7 +32,7 @@ Copy the `skills/` directory into your Codex skills path (typically `~/.codex/sk
 Clone the entire repo into the OpenCode skills directory (`~/.opencode/skills/`):
 
 ```sh
-git clone https://github.com/kepano/obsidian-skills.git ~/.opencode/skills/obsidian-skills
+git clone https://github.com/arch3rPro/obsidian-skills.git ~/.opencode/skills/obsidian-skills
 ```
 
 Do not copy only the inner `skills/` folder — clone the full repo so the directory structure is `~/.opencode/skills/obsidian-skills/skills/<skill-name>/SKILL.md`.
