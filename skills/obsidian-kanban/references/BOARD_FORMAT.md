@@ -9,31 +9,35 @@ The goal is to preserve a clean Markdown board that the Obsidian Kanban plugin c
 
 A typical board file contains:
 
-1. Markdown headings for lists
-2. Checkbox cards under each list
-3. Optional nested lines for metadata or subtasks
-4. An optional plugin settings block at the end
+1. YAML frontmatter with `kanban-plugin: board`
+2. Markdown headings for lists
+3. Checkbox cards under each list
+4. Optional nested lines for metadata or subtasks
+5. An optional plugin settings block at the end
 
 Example:
 
 ~~~~markdown
+---
+kanban-plugin: board
+---
+
 ## Inbox
 
-- [ ] Capture conference ideas
-  - priority: P2
-  - due: 2026-05-10
-  - tags: #events
+- [ ] Capture conference ideas @{2026-05-10} @@{10:00} #events #computer
 
 ## Next Actions
 
-- [ ] [[Draft keynote outline]]
-  - priority: P1
-  - due: 2026-05-03
+- [ ] [[Draft keynote outline]] @{2026-05-03} @@{09:30} #writing #computer
   - [ ] Confirm audience
   - [ ] Collect references
 
+***
+
+## Archive
+
 %% kanban:settings
-```json
+```
 {
   "kanban-plugin": "board"
 }
@@ -46,19 +50,17 @@ Example:
 If the board does not already have a different house style, use these conventions:
 
 - First line: task title as a checkbox item
-- Nested metadata lines:
-  - `priority: P1`, `P2`, or `P3`
-  - `due: YYYY-MM-DD`
-  - `tags: #tag-one #tag-two`
+- Keep tags inline as hashtags such as `#computer` or `#project`
+- Keep dates inline as `@{YYYY-MM-DD}`
+- Keep times inline as `@@{HH:mm}`
+- Do not put priority in the title
+- If priority must be displayed separately from the title, prefer a linked-note card and linked page metadata instead of ad hoc body lines
 - Nested checkboxes for subtasks
 
 Example lightweight card:
 
 ```markdown
-- [ ] Review onboarding checklist
-  - priority: P2
-  - due: 2026-05-06
-  - tags: #ops #people
+- [ ] Review onboarding checklist @{2026-05-06} @@{14:00} #ops #people #computer
   - [ ] Confirm owners
   - [ ] Update gaps
 ```
@@ -66,13 +68,57 @@ Example lightweight card:
 Example linked-note card:
 
 ```markdown
-- [ ] [[Customer Interview Sprint]]
-  - priority: P1
-  - due: 2026-05-08
-  - tags: #research #project
+- [ ] [[Customer Interview Sprint]] @{2026-05-08} @@{16:00} #research #project #computer
   - [ ] Draft questions
   - [ ] Schedule participants
 ```
+
+## Priority convention
+
+When the user wants four-quadrant priority shown with colored text and not mixed into the task title, use linked-note metadata.
+The board card stays concise:
+
+```markdown
+- [ ] [[Customer Interview Sprint]] @{2026-05-08} @@{16:00} #research #project #computer
+```
+
+The linked note stores the priority:
+
+```yaml
+---
+priority: |
+  <span style="color:#dc2626;"><strong>Q1 重要且紧急</strong></span>
+---
+```
+
+And the board settings expose it:
+
+```json
+{
+  "metadata-keys": [
+    {
+      "metadataKey": "priority",
+      "label": "",
+      "shouldHideLabel": true,
+      "containsMarkdown": true
+    }
+  ]
+}
+```
+
+Use these labels:
+
+- `Q1 重要且紧急`
+- `Q2 重要不紧急`
+- `Q3 紧急不重要`
+- `Q4 不重要不紧急`
+
+Suggested colors:
+
+- `Q1`: `#dc2626`
+- `Q2`: `#ea580c`
+- `Q3`: `#2563eb`
+- `Q4`: `#6b7280`
 
 ## When to upgrade a card into a note
 
@@ -91,8 +137,12 @@ Keep the board card short even after upgrade.
 Many boards end with a settings block like this:
 
 ~~~~markdown
+---
+kanban-plugin: board
+---
+
 %% kanban:settings
-```json
+```
 {
   "kanban-plugin": "board",
   "list-collapse": [false, false, false]
@@ -103,23 +153,41 @@ Many boards end with a settings block like this:
 
 Editing rules:
 
+- Preserve the YAML frontmatter. The board should keep `kanban-plugin: board`.
 - Preserve the block if it already exists
 - Keep it at the end of the file unless the board clearly uses a different placement
 - Do not drop unknown keys
 - If you edit JSON values, keep the JSON valid
 
+## Archive lane
+
+The archive section is special.
+If you want `## Archive` to be treated as the board archive, place a thematic break `***` immediately before it.
+
+Example:
+
+```markdown
+***
+
+## Archive
+
+- [ ] Older completed task
+```
+
 ## Validation checklist
 
 After editing:
 
-1. Confirm every list still has a heading
-2. Confirm every card is indented consistently under the correct list
-3. Confirm nested metadata lines still belong to the intended card
-4. Confirm subtask indentation still forms valid Markdown
-5. Confirm the settings block, if present, still opens with `%% kanban:settings` and closes with `%%`
-6. Confirm JSON inside the settings block is valid
+1. Confirm the file still contains YAML frontmatter with `kanban-plugin: board`
+2. Confirm every list still has a heading
+3. Confirm every card is indented consistently under the correct list
+4. Confirm nested metadata lines still belong to the intended card
+5. Confirm subtask indentation still forms valid Markdown
+6. Confirm the settings block, if present, still opens with `%% kanban:settings` and closes with `%%`
+7. Confirm JSON inside the settings block is valid
+8. If linked priority metadata is used, confirm the linked note frontmatter is valid YAML and the board keeps the `metadata-keys` entry for `priority`
 
 ## Preferred date format
 
-Use `YYYY-MM-DD` by default.
-This keeps the board easy to sort, search, and compare across tools.
+Use `@{YYYY-MM-DD}` for dates and `@@{HH:mm}` for times unless the board is explicitly configured with different triggers.
+These are the plugin defaults and align with `move-dates=true` boards that render date and time in the card footer.

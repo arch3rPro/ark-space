@@ -4,6 +4,7 @@
 
 The Kanban plugin supports both global settings and per-board settings.
 If a board already contains a settings block, treat that board-local configuration as intentional and preserve it unless the user asks for changes.
+Also preserve the board frontmatter key `kanban-plugin: board`; without it, the file may open as a normal Markdown note instead of a Kanban board.
 
 Reference:
 - https://publish.obsidian.md/kanban/Settings/Local%20vs.%20global%20settings
@@ -20,6 +21,24 @@ Good fields to surface:
 - due
 - next-review
 - summary
+- priority
+
+For four-quadrant priority, a verified board-local settings shape is:
+
+```json
+{
+  "metadata-keys": [
+    {
+      "metadataKey": "priority",
+      "label": "",
+      "shouldHideLabel": true,
+      "containsMarkdown": true
+    }
+  ]
+}
+```
+
+This lets the board render `priority` below the card without putting it into the title.
 
 Reference:
 - https://publish.obsidian.md/kanban/Settings/Linked%20page%20metadata
@@ -42,6 +61,15 @@ Reference:
 ## Frontmatter quoting pitfall
 
 If linked-note metadata includes links or image embeds in frontmatter, they may need to be wrapped in quotes to render correctly in cards.
+If the metadata contains HTML for colored priority text, invalid quoting can break the YAML entirely and the board will show nothing.
+For styled priority, prefer a YAML block scalar:
+
+```yaml
+---
+priority: |
+  <span style="color:#dc2626;"><strong>Q1 重要且紧急</strong></span>
+---
+```
 
 Example:
 
