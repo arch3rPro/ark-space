@@ -7,9 +7,18 @@ description: Create and edit Obsidian Flavored Markdown with wikilinks, embeds, 
 
 Create and edit valid Obsidian Flavored Markdown. Obsidian extends CommonMark and GFM with wikilinks, embeds, callouts, properties, comments, and other syntax. This skill covers only Obsidian-specific extensions -- standard Markdown (headings, bold, italic, lists, quotes, code blocks, tables) is assumed knowledge.
 
+## Property Discipline
+
+Prefer Obsidian-native properties and file metadata before adding custom frontmatter.
+
+- Use native properties (`tags`, `aliases`, `cssclasses`) when they fit the request.
+- Use the note file name, folder, links, backlinks, tags, created/modified time, and other Obsidian file metadata instead of duplicating them into custom properties.
+- Do not add custom properties such as `title`, `status`, `date`, `priority`, `due`, `category`, or `type` unless the user asks for those fields, an existing vault convention already uses them, or another requested feature needs structured data that Obsidian cannot infer natively.
+- When editing an existing note, preserve existing properties and only add new ones when needed for the user's requested workflow.
+
 ## Workflow: Creating an Obsidian Note
 
-1. **Add frontmatter** with properties (title, tags, aliases) at the top of the file. See [PROPERTIES.md](references/PROPERTIES.md) for all property types.
+1. **Decide whether frontmatter is needed**. If no structured metadata is required, start directly with Markdown content. If properties are needed, prefer native Obsidian properties first. See [PROPERTIES.md](references/PROPERTIES.md) for all property types.
 2. **Write content** using standard Markdown for structure, plus Obsidian-specific syntax below.
 3. **Link related notes** using wikilinks (`[[Note]]`) for internal vault connections, or standard Markdown links for external URLs.
 4. **Embed content** from other notes, images, or PDFs using the `![[embed]]` syntax. See [EMBEDS.md](references/EMBEDS.md) for all embed types.
@@ -77,8 +86,6 @@ See [CALLOUTS.md](references/CALLOUTS.md) for the full list with aliases, nestin
 
 ```yaml
 ---
-title: My Note
-date: 2024-01-15
 tags:
   - project
   - active
@@ -90,6 +97,8 @@ cssclasses:
 ```
 
 Default properties: `tags` (searchable labels), `aliases` (alternative note names for link suggestions), `cssclasses` (CSS classes for styling).
+
+Add custom properties only when the user's request or the vault's existing schema needs them; otherwise rely on the file name, note path, links, tags, and Obsidian's file metadata.
 
 See [PROPERTIES.md](references/PROPERTIES.md) for all property types, tag syntax rules, and advanced usage.
 
@@ -156,12 +165,9 @@ Inline footnote.^[This is inline.]
 
 ````markdown
 ---
-title: Project Alpha
-date: 2024-01-15
 tags:
   - project
   - active
-status: in-progress
 ---
 
 # Project Alpha

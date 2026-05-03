@@ -1,11 +1,11 @@
 # Properties (Frontmatter) Reference
 
-Properties use YAML frontmatter at the start of a note:
+Properties use YAML frontmatter at the start of a note. Prefer Obsidian-native properties and file metadata before adding custom fields.
+
+Do not add custom properties by default. Use the file name instead of a duplicated `title`, Obsidian file metadata instead of duplicated date/path fields, links/backlinks instead of manual relationship fields, and tags instead of custom category fields when tags satisfy the request. Add custom properties only when the user asks for them, the vault already has a matching schema, or a requested workflow needs structured data that Obsidian cannot infer natively.
 
 ```yaml
 ---
-title: My Note Title
-date: 2024-01-15
 tags:
   - project
   - important
@@ -14,6 +14,7 @@ aliases:
   - Alternative Name
 cssclasses:
   - custom-class
+# Custom fields below are examples only; add them only when needed.
 status: in-progress
 rating: 4.5
 completed: false

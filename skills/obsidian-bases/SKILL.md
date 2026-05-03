@@ -8,11 +8,20 @@ description: Create and edit Obsidian Bases (.base files) with views, filters, f
 ## Workflow
 
 1. **Create the file**: Create a `.base` file in the vault with valid YAML content
-2. **Define scope**: Add `filters` to select which notes appear (by tag, folder, property, or date)
+2. **Define scope**: Add `filters` to select which notes appear (prefer native `file.*` metadata, tags, folders, links, and backlinks before custom note properties)
 3. **Add formulas** (optional): Define computed properties in the `formulas` section
 4. **Configure views**: Add one or more views (`table`, `cards`, `list`, or `map`) with `order` specifying which properties to display
 5. **Validate**: Verify the file is valid YAML with no syntax errors. Check that all referenced properties and formulas exist. Common issues: unquoted strings containing special YAML characters, mismatched quotes in formula expressions, referencing `formula.X` without defining `X` in `formulas`
 6. **Test in Obsidian**: Open the `.base` file in Obsidian to confirm the view renders correctly. If it shows a YAML error, check quoting rules below
+
+## Property Discipline
+
+Prefer Obsidian-native file properties and existing note properties before introducing new frontmatter fields.
+
+- Use `file.name`, `file.basename`, `file.folder`, `file.path`, `file.ext`, `file.ctime`, `file.mtime`, `file.tags`, `file.links`, `file.backlinks`, `file.embeds`, and `file.properties` when they satisfy the request.
+- Prefer `file.hasTag(...)`, `file.inFolder(...)`, and `file.hasLink(...)` for scope filters instead of asking notes to carry duplicate custom metadata.
+- Do not add or require custom properties such as `status`, `priority`, `due`, `category`, `type`, `author`, `pages`, or `cover` unless the user asks for them, the vault already has them, or the requested view cannot be built from native metadata.
+- When custom note properties are needed, keep them minimal and make the Base consume the existing schema rather than inventing extra fields.
 
 ## Schema
 
@@ -122,6 +131,8 @@ filters:
 1. **Note properties** - From frontmatter: `note.author` or just `author`
 2. **File properties** - File metadata: `file.name`, `file.mtime`, etc.
 3. **Formula properties** - Computed values: `formula.my_formula`
+
+Default to file properties for general indexes and navigation views. Use note properties only when they already exist in the vault or the user explicitly requests structured fields.
 
 ### File Properties Reference
 
