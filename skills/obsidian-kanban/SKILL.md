@@ -27,7 +27,7 @@ Use a lightweight card when the task is actionable without extra documentation.
 Prefer this shape:
 
 ```markdown
-- [ ] Prepare quarterly planning draft @{2026-05-02} @@{09:00} #planning #work #computer
+- [ ] Prepare quarterly planning draft @{2026-05-02} @@{09:00} #planning #work
   - [ ] Pull current metrics
   - [ ] Draft agenda
 ```
@@ -49,7 +49,7 @@ Upgrade a task to a linked note when any of these are true:
 Prefer this shape:
 
 ```markdown
-- [ ] [[Quarterly Planning Draft]] @{2026-05-02} @@{09:00} #planning #project #computer
+- [ ] [[Quarterly Planning Draft]] @{2026-05-02} @@{09:00} #planning #project
   - [ ] Pull current metrics
   - [ ] Draft agenda
 ```
@@ -97,9 +97,10 @@ When adding cards:
 2. If the board has no clear style yet, use the task convention from this skill.
 3. Add missing task details only when the user provided them or when they are implied strongly enough to be useful.
 4. Prefer ISO dates (`YYYY-MM-DD`) for due dates to keep them sortable and unambiguous.
-5. For GTD boards, prefer context tags such as `#computer`, `#phone`, `#home`, or `#errands` over inventing numeric priority for every task.
-6. Store tags inline as hashtags and dates inline as Kanban tokens instead of writing label-style metadata lines.
-7. If the user needs four-quadrant priority displayed separately from the title, prefer a linked-note card with frontmatter-backed metadata.
+5. Add context tags only when the user provided them, the task clearly implies them, or the target board already uses a consistent context style.
+6. For GTD boards, context tags such as `#phone`, `#home`, `#office`, `#errands`, or `#computer` are optional execution contexts, not default labels for every card.
+7. Store tags inline as hashtags and dates inline as Kanban tokens instead of writing label-style metadata lines.
+8. If the user needs four-quadrant priority displayed separately from the title, prefer a linked-note card with frontmatter-backed metadata.
 
 ### Maintain task details
 
@@ -118,6 +119,7 @@ On GTD boards, use these defaults:
 
 - Use due dates only when the date is real and meaningful
 - Use tags to encode context, area, or theme
+- Do not infer a context tag just to fill a convention; leaving a card untagged is better than adding a misleading tag
 - Use four-quadrant priority labels sparingly, mainly when the user already works that way
 - When priority must be visible, prefer linked-note metadata instead of card-body text
 - Avoid turning `Calendar` into a catch-all list for work that is merely important

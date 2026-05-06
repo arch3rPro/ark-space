@@ -24,11 +24,11 @@ kanban-plugin: board
 
 ## Inbox
 
-- [ ] Capture conference ideas @{2026-05-10} @@{10:00} #events #computer
+- [ ] Capture conference ideas @{2026-05-10} @@{10:00} #events
 
 ## Next Actions
 
-- [ ] [[Draft keynote outline]] @{2026-05-03} @@{09:30} #writing #computer
+- [ ] [[Draft keynote outline]] @{2026-05-03} @@{09:30} #writing
   - [ ] Confirm audience
   - [ ] Collect references
 
@@ -50,7 +50,8 @@ kanban-plugin: board
 If the board does not already have a different house style, use these conventions:
 
 - First line: task title as a checkbox item
-- Keep tags inline as hashtags such as `#computer` or `#project`
+- Keep tags inline as hashtags such as `#project`, `#phone`, or `#writing`
+- Add tags only when they are provided by the user, clearly implied by the task, or already part of the board's house style
 - Keep dates inline as `@{YYYY-MM-DD}`
 - Keep times inline as `@@{HH:mm}`
 - Do not put priority in the title
@@ -60,7 +61,7 @@ If the board does not already have a different house style, use these convention
 Example lightweight card:
 
 ```markdown
-- [ ] Review onboarding checklist @{2026-05-06} @@{14:00} #ops #people #computer
+- [ ] Review onboarding checklist @{2026-05-06} @@{14:00} #ops #people
   - [ ] Confirm owners
   - [ ] Update gaps
 ```
@@ -68,7 +69,7 @@ Example lightweight card:
 Example linked-note card:
 
 ```markdown
-- [ ] [[Customer Interview Sprint]] @{2026-05-08} @@{16:00} #research #project #computer
+- [ ] [[Customer Interview Sprint]] @{2026-05-08} @@{16:00} #research #project
   - [ ] Draft questions
   - [ ] Schedule participants
 ```
@@ -79,7 +80,7 @@ When the user wants four-quadrant priority shown with colored text and not mixed
 The board card stays concise:
 
 ```markdown
-- [ ] [[Customer Interview Sprint]] @{2026-05-08} @@{16:00} #research #project #computer
+- [ ] [[Customer Interview Sprint]] @{2026-05-08} @@{16:00} #research #project
 ```
 
 The linked note stores the priority:

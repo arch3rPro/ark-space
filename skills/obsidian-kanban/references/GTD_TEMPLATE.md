@@ -30,7 +30,7 @@ kanban-plugin: board
 
 ## Next Actions
 
-- [ ] Example actionable task @{2026-05-02} @@{09:00} #computer #work
+- [ ] Example actionable task @{2026-05-02} @@{09:00} #work
 
 - [ ] Call vendor about contract update #phone #work
 
@@ -94,7 +94,8 @@ Apply these defaults when reorganizing incoming tasks:
 - Each item in `Projects` should have at least one concrete next action in `Next Actions`.
 - `Waiting For` should only hold work blocked by someone else, an approval, or an external event.
 - `Done` is a short-lived review lane, not a permanent trophy wall.
-- Use tags to express context such as `#computer`, `#phone`, `#home`, `#office`, or `#errands`.
+- Use tags to express area, theme, or optional execution context such as `#work`, `#phone`, `#home`, `#office`, `#errands`, or `#computer`.
+- Only add context tags when the user provided them, the task clearly implies them, or the board already uses that tag style consistently.
 - Use inline Kanban date and time tokens like `@{2026-05-05}` and `@@{17:00}` instead of `due:` style list items.
 
 ## Mixed-model guidance
