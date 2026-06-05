@@ -5,16 +5,20 @@ ArkSpace is a creative workspace for orchestrating reusable agent skills, roles,
 ## Project Contract
 
 - Keep canonical skills in `skills/<skill-name>/SKILL.md`.
+- Keep callable agent role sources in `agents/`.
+- Keep orchestration protocols in `workflows/`.
 - Do not create separate Claude-specific or Codex-specific skill bodies.
 - Use `.claude-plugin/` and `.codex-plugin/` only for platform metadata.
-- Use `roles/` for role composition and routing metadata.
+- Use `roles/` as migration metadata, not as callable runtime behavior.
 - Use `registry/` for source governance, role ownership, and skill inventory.
+- Use `integrations/` for generated host-native agent outputs.
 - Keep personal or private configuration out of the public package; use ignored files under `overlays/`.
 
 ## Default Workflow
 
 - Use `orchestrator` for lightweight task routing.
 - Use `skill-manager` for skill creation, adaptation, registry updates, source tracking, and package validation.
+- Update `agents/` when role behavior changes, then regenerate `integrations/`.
 - Prefer the smallest safe change that satisfies the request.
 - Ask one focused question only when a wrong assumption would materially change the result.
 - For cross-domain or structural changes, design first before editing.
@@ -25,6 +29,12 @@ Run this after changes to skills, roles, registries, plugin manifests, README, d
 
 ```bash
 python3 scripts/validate-skills.py
+```
+
+For structural changes, run the broader doctor command:
+
+```bash
+python3 scripts/arkspace.py doctor
 ```
 
 For plugin manifest edits, also validate JSON:
@@ -52,6 +62,8 @@ When adapting external work, preserve license and attribution requirements.
 - Do not delete existing Obsidian skills; they are knowledge-management tooling.
 - Do not commit private overlay files such as `overlays/personal.yaml` or `overlays/private-skills.yaml`.
 - Do not treat `reference/` as runtime package content.
+- Do not edit generated `integrations/` by hand; regenerate them from `agents/`.
+- Do not commit local process specs or plans under `docs/superpowers/`.
 - Leave unrelated untracked or user-created files alone.
 
 ## Documentation Style

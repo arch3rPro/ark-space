@@ -1,4 +1,7 @@
 .worktrees/
+docs/superpowers/
+__pycache__/
+*.py[cod]
 
 # Local private overlays
 overlays/personal.yaml

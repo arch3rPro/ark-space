@@ -2,6 +2,7 @@
 import json
 import re
 import sys
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,6 +61,42 @@ def clean_scalar(value):
     return value
 
 
+def split_csv(value):
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def parse_frontmatter(path):
+    text = read_text(path)
+    if not text.startswith("---\n"):
+        fail(f"{path} is missing YAML frontmatter")
+    try:
+        _, frontmatter, _ = text.split("---", 2)
+    except ValueError:
+        fail(f"{path} has unterminated YAML frontmatter")
+
+    data = {}
+    current_list = None
+    for raw in frontmatter.splitlines():
+        if not raw.strip():
+            continue
+        if raw.startswith("  - ") and current_list:
+            data[current_list].append(raw[4:].strip())
+            continue
+        if ": " in raw:
+            key, value = raw.split(": ", 1)
+            key = key.strip()
+            value = value.strip()
+            if value:
+                data[key] = value
+                current_list = None
+            else:
+                data[key] = []
+                current_list = key
+    return data
+
+
 def validate_skill_frontmatter():
     skill_files = sorted((ROOT / "skills").glob("*/SKILL.md"))
     if not skill_files:
@@ -88,7 +125,7 @@ def validate_json(path):
 
 def validate_registry_files():
     registry_dir = ROOT / "registry"
-    for filename in ["sources.yaml", "skills.yaml", "roles.yaml"]:
+    for filename in ["sources.yaml", "skills.yaml", "roles.yaml", "agents.yaml", "workflows.yaml"]:
         path = registry_dir / filename
         if not path.exists():
             fail(f"missing {path}")
@@ -96,6 +133,8 @@ def validate_registry_files():
     skills = parse_simple_yaml_list(registry_dir / "skills.yaml", "skills")
     roles = parse_simple_yaml_list(registry_dir / "roles.yaml", "roles")
     sources = parse_simple_yaml_list(registry_dir / "sources.yaml", "sources")
+    agents = parse_simple_yaml_list(registry_dir / "agents.yaml", "agents")
+    workflows = parse_simple_yaml_list(registry_dir / "workflows.yaml", "workflows")
     provider_registry_paths = [
         registry_dir / "search-providers.yaml",
         registry_dir / "web-fetch-providers.yaml",
@@ -104,6 +143,7 @@ def validate_registry_files():
     source_ids = {item.get("id") for item in sources if item.get("id")}
     role_ids = {item.get("id") for item in roles if item.get("id")}
     skill_names = {item.get("name") for item in skills if item.get("name")}
+    workflow_ids = {item.get("id") for item in workflows if item.get("id")}
 
     roles_text = read_text(registry_dir / "roles.yaml")
     if not re.search(r"^defaultRole:\s*orchestrator$", roles_text, re.MULTILINE):
@@ -140,6 +180,50 @@ def validate_registry_files():
         if path_value and not (ROOT / path_value).exists():
             fail(f"role {role_id} path does not exist: {path_value}")
 
+    agents_text = read_text(registry_dir / "agents.yaml")
+    if not re.search(r"^defaultAgent:\s*arkspace-orchestrator$", agents_text, re.MULTILINE):
+        fail("registry/agents.yaml must set defaultAgent: arkspace-orchestrator")
+
+    for item in agents:
+        agent_id = item.get("id")
+        path_value = item.get("path")
+        if not agent_id:
+            fail("registry/agents.yaml contains an agent without id")
+        if not path_value:
+            fail(f"agent {agent_id} is missing path")
+        agent_path = ROOT / path_value
+        if not agent_path.exists():
+            fail(f"agent {agent_id} path does not exist: {path_value}")
+        frontmatter = parse_frontmatter(agent_path)
+        if frontmatter.get("name") != agent_id:
+            fail(f"agent {agent_id} id must match frontmatter name in {path_value}")
+        for skill in split_csv(item.get("skills")):
+            if skill not in skill_names:
+                fail(f"agent {agent_id} references unknown skill {skill}")
+        for workflow in split_csv(item.get("workflows")):
+            if workflow not in workflow_ids:
+                fail(f"agent {agent_id} references unknown workflow {workflow}")
+
+    required_workflows = {
+        "lightweight-routing",
+        "handoff-template",
+        "quality-gates",
+        "provider-capabilities",
+    }
+    missing_workflows = required_workflows - workflow_ids
+    if missing_workflows:
+        fail(f"registry/workflows.yaml is missing required workflows: {', '.join(sorted(missing_workflows))}")
+
+    for item in workflows:
+        workflow_id = item.get("id")
+        path_value = item.get("path")
+        if not workflow_id:
+            fail("registry/workflows.yaml contains a workflow without id")
+        if not path_value:
+            fail(f"workflow {workflow_id} is missing path")
+        if not (ROOT / path_value).exists():
+            fail(f"workflow {workflow_id} path does not exist: {path_value}")
+
     for provider_path in provider_registry_paths:
         if not provider_path.exists():
             continue
@@ -167,6 +251,49 @@ def validate_registry_files():
                 fail(f"search provider {provider_id} must set missingConfigBehavior when configRequired is true")
             if item.get("recommendedEnv") and not item.get("checkCommand"):
                 fail(f"search provider {provider_id} with recommendedEnv must set checkCommand")
+
+
+def validate_agent_frontmatter():
+    agent_files = sorted((ROOT / "agents").rglob("*.md"))
+    if not agent_files:
+        fail("no agents/**/*.md files found")
+
+    workflow_registry = parse_simple_yaml_list(ROOT / "registry" / "workflows.yaml", "workflows")
+    workflow_ids = {item.get("id") for item in workflow_registry if item.get("id")}
+
+    for path in agent_files:
+        data = parse_frontmatter(path)
+        for key in ["name", "description", "domain"]:
+            if not data.get(key):
+                fail(f"{path} frontmatter is missing {key}")
+        for skill in data.get("skills", []):
+            if not (ROOT / "skills" / skill / "SKILL.md").exists():
+                fail(f"{path} references missing skill {skill}")
+        for workflow in data.get("workflows", []):
+            if workflow not in workflow_ids:
+                fail(f"{path} references unknown workflow {workflow}")
+
+
+def validate_generated_integrations():
+    codex_dir = ROOT / "integrations" / "codex" / "agents"
+    if codex_dir.exists():
+        if not (codex_dir / "arkspace-orchestrator.toml").exists():
+            fail("integrations/codex/agents must include arkspace-orchestrator.toml")
+        for path in sorted(codex_dir.glob("*.toml")):
+            try:
+                tomllib.loads(read_text(path))
+            except tomllib.TOMLDecodeError as exc:
+                fail(f"{path} is invalid TOML: {exc}")
+
+    claude_dir = ROOT / "integrations" / "claude-code" / "agents"
+    if claude_dir.exists():
+        if not (claude_dir / "arkspace-orchestrator.md").exists():
+            fail("integrations/claude-code/agents must include arkspace-orchestrator.md")
+        for path in sorted(claude_dir.glob("*.md")):
+            data = parse_frontmatter(path)
+            for key in ["name", "description"]:
+                if not data.get(key):
+                    fail(f"{path} frontmatter is missing {key}")
 
 
 def validate_platform_manifests():
@@ -201,7 +328,9 @@ def validate_platform_manifests():
 
 def main():
     validate_skill_frontmatter()
+    validate_agent_frontmatter()
     validate_registry_files()
+    validate_generated_integrations()
     validate_platform_manifests()
     print("skills package validation passed")
 

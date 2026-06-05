@@ -1,36 +1,39 @@
 # ArkSpace
 
-ArkSpace is a creative workspace for orchestrating agent skills, roles, and workflows across Claude Code and Codex, with a standard `skills/` tree that can be reused by compatible hosts.
+ArkSpace is a creative workspace for orchestrating agent skills, callable roles, and workflows across Claude Code and Codex, with a standard `skills/` tree that can be reused by compatible hosts.
 
-This repository packages reusable skills, role definitions, and source-governance metadata for agent work across coding, documentation, product, project, and knowledge-management tasks. The default entry point is a lightweight Orchestrator role that routes work to the smallest useful role and workflow instead of forcing a heavy process on every request.
+This repository packages reusable skills, callable agent roles, workflow protocols, generated host integrations, and source-governance metadata for agent work across coding, documentation, product, project, and knowledge-management tasks. The default entry point is a lightweight Orchestrator that routes work to the smallest useful role and workflow instead of forcing a heavy process on every request.
 
 ## Project Shape
 
 ```text
 .
 +-- skills/              # Canonical Agent Skills: skills/<name>/SKILL.md
-+-- roles/               # Role definitions that compose skills by work type
-+-- registry/            # Skill, role, and upstream source governance
++-- agents/              # Callable role sources shared by host adapters
++-- workflows/           # Routing, handoff, quality, and provider protocols
++-- integrations/        # Generated host-native agent outputs
++-- roles/               # Existing role metadata kept during migration
++-- registry/            # Skill, agent, workflow, provider, and source governance
 +-- .agents/plugins/     # Codex marketplace catalog for GitHub marketplace add
 +-- plugins/ark-space/   # Codex marketplace wrapper; symlinks to canonical plugin files
 +-- .claude-plugin/      # Claude Code plugin metadata
 +-- .codex-plugin/       # Codex plugin metadata
 +-- docs/                # Architecture and maintenance docs
 +-- overlays/            # Public examples for private local customization
-+-- scripts/             # Validation, provider setup, and maintenance scripts
++-- scripts/             # Validate, convert, install, doctor, provider setup
 +-- reference/           # Optional local or tracked upstream references
 ```
 
-The canonical skill source is always `skills/<skill-name>/SKILL.md`. Platform manifests should point to that shared `skills/` tree instead of maintaining Claude-specific or Codex-specific skill copies.
+The canonical skill source is always `skills/<skill-name>/SKILL.md`. Callable role sources live in `agents/`. Platform manifests and generated integrations should point to shared sources instead of maintaining Claude-specific or Codex-specific skill bodies.
 
 ## Core Concepts
 
 ### Orchestrator
 
-`orchestrator` is the default role. It performs lightweight routing:
+`orchestrator` is the default skill and `agents/orchestrator.md` is the default callable role. Together they perform lightweight routing:
 
 - Identify the task domain: code, docs, product, project, skills, or knowledge management.
-- Pick the smallest useful role and skill set.
+- Pick the smallest useful callable agent and skill set.
 - Escalate to design-first work only when the task is cross-domain, structurally risky, or unclear.
 - Hand skill-library maintenance to `skill-manager`.
 
@@ -44,25 +47,38 @@ The canonical skill source is always `skills/<skill-name>/SKILL.md`. Platform ma
 - Keep registries and manifests valid.
 - Guide mirror, adapted, local, and reference-only update decisions.
 
-### Roles
+### Callable Agents
 
-Roles live under `roles/` and describe reusable bundles of skills. They do not duplicate skill content.
+Callable agents live under `agents/` and describe runtime role behavior. They compose skills and workflows without duplicating skill bodies. Existing `roles/` YAML files are retained as migration metadata.
 
-| Role | Purpose |
+| Agent | Purpose |
 |---|---|
-| `orchestrator` | Default lightweight routing entry point |
-| `code/code-engineer` | Implementation, refactoring, testing, debugging |
-| `code/code-reviewer` | Bug, regression, and test-gap review |
-| `code/repo-maintainer` | Repository hygiene and release-adjacent checks |
-| `docs/doc-writer` | New documentation |
-| `docs/doc-editor` | Documentation improvement |
-| `docs/knowledge-manager` | Obsidian, notes, Bases, Canvas, Kanban, web extraction |
-| `product/prd-planner` | Requirements, scope, acceptance criteria |
-| `product/demo-designer` | Product demos and realistic demo flows |
-| `product/competitive-analyst` | Competitor and market comparison |
-| `project/project-manager` | Milestones, tasks, risks, tracking |
-| `project/delivery-coordinator` | Handoffs, status, and delivery coordination |
-| `skills/skill-manager` | Skill lifecycle and registry governance |
+| `agents/orchestrator.md` | Default lightweight routing entry point |
+| `agents/code/code-engineer.md` | Implementation, refactoring, testing, debugging |
+| `agents/code/code-reviewer.md` | Bug, regression, and test-gap review |
+| `agents/docs/doc-writer.md` | Documentation writing and improvement |
+| `agents/docs/knowledge-manager.md` | Obsidian, notes, search, fetch, and knowledge work |
+| `agents/product/prd-planner.md` | Requirements, scope, acceptance criteria |
+| `agents/product/competitive-analyst.md` | Competitor, product, and market evidence |
+| `agents/project/project-manager.md` | Milestones, tasks, risks, tracking |
+| `agents/skills/skill-manager.md` | Skill and agent lifecycle governance |
+
+### Workflows
+
+Workflows live under `workflows/` and define reusable protocols for routing, handoffs, quality gates, and provider capabilities. Agents reference workflows when the task needs structure beyond a single direct response.
+
+### Host Integrations
+
+Host-native agent files are generated under `integrations/`:
+
+```bash
+python3 scripts/arkspace.py convert --host all
+python3 scripts/arkspace.py install --host codex --dry-run
+python3 scripts/arkspace.py install --host claude-code --dry-run
+python3 scripts/arkspace.py doctor
+```
+
+Do not edit generated integration files by hand; update `agents/` and regenerate.
 
 ## Included Skills
 
@@ -89,6 +105,13 @@ Use the plugin metadata under `.claude-plugin/`.
 
 For local development, install this repository as a Claude Code plugin according to Claude Code's local plugin workflow. The plugin uses the shared `skills/` directory.
 
+Generate and dry-run install callable agents:
+
+```bash
+python3 scripts/arkspace.py convert --host claude-code
+python3 scripts/arkspace.py install --host claude-code --dry-run
+```
+
 Personal provider configuration should live outside committed package files. The recommended ArkSpace setup is:
 
 ```bash
@@ -112,6 +135,13 @@ Use `.codex-plugin/plugin.json`. The Codex manifest points to:
 
 ```json
 "skills": "./skills/"
+```
+
+Generate and dry-run install callable agents:
+
+```bash
+python3 scripts/arkspace.py convert --host codex
+python3 scripts/arkspace.py install --host codex --dry-run
 ```
 
 For Codex, use the same ArkSpace setup command, or export provider variables in the shell that launches Codex and make sure `shell_environment_policy` forwards them:
@@ -157,6 +187,8 @@ For any host that supports the standard Agent Skills layout, copy or link the `s
 Registries under `registry/` are the source of truth for package metadata:
 
 - `registry/skills.yaml`: skills, paths, sync modes, categories, and role ownership.
+- `registry/agents.yaml`: callable agent paths, domains, skills, workflows, and host targets.
+- `registry/workflows.yaml`: workflow protocol paths and ownership.
 - `registry/roles.yaml`: role IDs, paths, domains, and default role.
 - `registry/sources.yaml`: upstream repositories and source policies.
 - `registry/search-providers.yaml`: search-provider selection metadata for compatible search skills.
@@ -178,7 +210,7 @@ Supported source policies:
 Run validation after changing skills, roles, registries, manifests, README, or agent guidance:
 
 ```bash
-python3 scripts/validate-skills.py
+python3 scripts/arkspace.py doctor
 ```
 
 ## Project Documents
@@ -204,7 +236,10 @@ Commit only examples and documentation under `overlays/`. See `overlays/README.m
 ## Development Notes
 
 - Keep skill bodies host-neutral when possible.
+- Keep callable role behavior in `agents/`.
 - Do not create separate Claude/Codex skill copies.
+- Do not edit generated `integrations/` by hand; regenerate from `agents/`.
+- Keep process specs and plans under ignored `docs/superpowers/` when needed locally; do not commit them.
 - Do not publish, tag, push releases, or run version workflows unless explicitly requested.
 - Preserve upstream attribution and license requirements when importing or adapting skills.
 - Treat `reference/` as optional design/reference material; do not rely on it for runtime behavior.
