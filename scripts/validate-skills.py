@@ -173,10 +173,30 @@ def validate_platform_manifests():
     validate_json(ROOT / ".claude-plugin" / "plugin.json")
     validate_json(ROOT / ".claude-plugin" / "marketplace.json")
     validate_json(ROOT / ".codex-plugin" / "plugin.json")
+    validate_json(ROOT / ".agents" / "plugins" / "marketplace.json")
 
     codex = json.loads(read_text(ROOT / ".codex-plugin" / "plugin.json"))
     if codex.get("skills") != "./skills/":
         fail(".codex-plugin/plugin.json must set skills to ./skills/")
+
+    marketplace = json.loads(read_text(ROOT / ".agents" / "plugins" / "marketplace.json"))
+    plugins = marketplace.get("plugins")
+    if not isinstance(plugins, list) or not plugins:
+        fail(".agents/plugins/marketplace.json must define plugins[]")
+    ark_space = next((item for item in plugins if item.get("name") == "ark-space"), None)
+    if not ark_space:
+        fail(".agents/plugins/marketplace.json must include ark-space")
+    source = ark_space.get("source")
+    if not isinstance(source, dict) or source.get("path") != "./plugins/ark-space":
+        fail(".agents/plugins/marketplace.json ark-space source.path must be ./plugins/ark-space")
+    policy = ark_space.get("policy")
+    if not isinstance(policy, dict):
+        fail(".agents/plugins/marketplace.json ark-space must define policy")
+    wrapper = ROOT / "plugins" / "ark-space"
+    if not (wrapper / ".codex-plugin" / "plugin.json").exists():
+        fail("plugins/ark-space must expose .codex-plugin/plugin.json")
+    if not (wrapper / "skills" / "orchestrator" / "SKILL.md").exists():
+        fail("plugins/ark-space must expose canonical skills")
 
 
 def main():

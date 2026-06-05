@@ -6,6 +6,7 @@ This project uses human-readable release notes. Dates use `YYYY-MM-DD`.
 
 ## Unreleased
 
+- Codex marketplace catalog added under `.agents/plugins/marketplace.json` for GitHub marketplace installation.
 - SearXNG search skill added with self-hosted instance support and searx.space public fallback discovery.
 - Web provider registries split `web_search` discovery from `web_fetch` URL extraction for future provider expansion.
 - Search providers now declare configuration metadata and runtime check behavior for host-provided settings.

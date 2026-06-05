@@ -11,6 +11,8 @@ This repository packages reusable skills, role definitions, and source-governanc
 +-- skills/              # Canonical Agent Skills: skills/<name>/SKILL.md
 +-- roles/               # Role definitions that compose skills by work type
 +-- registry/            # Skill, role, and upstream source governance
++-- .agents/plugins/     # Codex marketplace catalog for GitHub marketplace add
++-- plugins/ark-space/   # Codex marketplace wrapper; symlinks to canonical plugin files
 +-- .claude-plugin/      # Claude Code plugin metadata
 +-- .codex-plugin/       # Codex plugin metadata
 +-- docs/                # Architecture and maintenance docs
@@ -109,6 +111,24 @@ For Codex, export provider variables in the shell that launches Codex, or make s
 ```bash
 export SEARXNG_URL="https://searx.example.org"
 codex
+```
+
+To add this repository as a Codex plugin marketplace:
+
+```bash
+codex plugin marketplace add arch3rPro/ark-space --ref main
+```
+
+Then restart Codex and install `ark-space` from the `ArkSpace` marketplace source. The Codex marketplace catalog lives at `.agents/plugins/marketplace.json`; `.codex-plugin/plugin.json` is the plugin manifest itself.
+
+The marketplace entry points to `plugins/ark-space`, a thin wrapper that symlinks back to the canonical `.codex-plugin/` and `skills/` directories. Do not duplicate skill bodies there.
+
+If an older broken marketplace snapshot already exists, refresh it:
+
+```bash
+codex plugin marketplace upgrade ark-space
+codex plugin list --marketplace ark-space
+codex plugin add ark-space@ark-space
 ```
 
 ### Manual Skills Install

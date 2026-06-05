@@ -1,0 +1,20 @@
+{
+  "name": "ark-space",
+  "interface": {
+    "displayName": "ArkSpace"
+  },
+  "plugins": [
+    {
+      "name": "ark-space",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ark-space"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -9,6 +9,8 @@ The canonical skill source is `skills/<skill-name>/SKILL.md`. Claude Code, Codex
 - `skills/`: executable skill instructions.
 - `roles/`: role definitions that compose skills for common work types.
 - `registry/`: governance metadata for skills, roles, and upstream sources.
+- `.agents/plugins/marketplace.json`: Codex marketplace catalog that points at this repository as an installable plugin.
+- `plugins/ark-space/`: thin Codex marketplace wrapper that symlinks to canonical plugin metadata and skills.
 - `registry/search-providers.yaml`: provider registry for `web_search` skills so roles can discover sources without hard-coding one provider.
 - `registry/web-fetch-providers.yaml`: provider registry for `web_fetch` skills so roles can read URLs without hard-coding one extractor.
 - `.claude-plugin/`: Claude Code plugin metadata.
