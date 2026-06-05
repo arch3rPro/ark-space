@@ -28,6 +28,8 @@ Web skills are selected as providers after role routing.
 
 When more web skills are added, register each provider with its capability, required environment, privacy posture, priority, roles, and output fields. User-explicit providers win, sensitive queries require a private/self-hosted provider or confirmation, and snippet-only search output should be followed by fetch/extraction before factual claims.
 
+Provider configuration is metadata-driven. Registry entries should declare whether configuration is required, which environment variables are recommended or compatible, how to check availability, and what to do when configuration is missing. Actual URLs, API keys, and private endpoints stay in the host environment or local ignored settings, not in committed skill files.
+
 ## Existing Obsidian Skills
 
 The Obsidian skills remain active. They are now classified as documentation and knowledge-management tooling rather than the identity of the whole repository.

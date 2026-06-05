@@ -9,6 +9,12 @@ providers:
     priority: 200
     privacy: self-host-preferred
     configEnv: SEARXNG_URL,SEARXNG_BASE_URL
+    configRequired: false
+    recommendedEnv: SEARXNG_URL
+    compatibleEnv: SEARXNG_BASE_URL
+    checkCommand: python3 skills/searxng-search/scripts/searxng_search.py --check --no-public-fallback
+    missingConfigBehavior: ask-before-sensitive-search-use-public-fallback-for-public-search
+    setupHint: "Set SEARXNG_URL in the host environment or pass --base-url for one-off use."
     publicFallback: searx.space
     outputFields: title,url,content,engine,parsed_url,img_src,thumbnail,author,publishedDate,score
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator

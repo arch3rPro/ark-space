@@ -27,6 +27,22 @@ Use SearXNG for privacy-oriented metasearch when the user provides a SearXNG ins
 7. When multiple search skills exist, let Orchestrator choose the role first, then select this provider from `registry/search-providers.yaml`.
 8. If the user provides an exact URL to read, route to a `web_fetch` provider instead of this skill.
 
+## Before Use
+
+Check configuration before searching when privacy, reproducibility, or reliability matters:
+
+```bash
+python3 skills/searxng-search/scripts/searxng_search.py --check --no-public-fallback
+```
+
+If the check fails because no instance is configured:
+
+- For sensitive, internal, personal, credential-bearing, or embargoed queries, ask the user to configure `SEARXNG_URL` or provide `--base-url`.
+- For ordinary public web discovery, say that no self-hosted instance is configured and that the skill will try `searx.space` public fallback instances.
+- For strict self-host requirements, do not use public fallback.
+
+Configuration belongs in the host environment, not in the skill file. Use `SEARXNG_URL` first; `SEARXNG_BASE_URL` is accepted for compatibility.
+
 ## API Pattern
 
 SearXNG supports `GET /`, `GET /search`, `POST /`, and `POST /search`. For agent use, prefer:

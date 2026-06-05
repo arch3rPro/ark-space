@@ -52,11 +52,15 @@ Search and fetch are often chained: use `web_search` to discover candidate URLs,
 Selection order:
 
 1. Use the provider or skill the user explicitly names.
-2. For sensitive, internal, personal, credential-bearing, or embargoed queries, use only a self-hosted/private provider or ask before public search.
-3. Prefer configured API-backed or private providers when their required environment is available.
-4. Use the highest-priority active provider that fits the role and query.
-5. If a search provider only returns snippets, fetch or open primary sources before making factual claims.
-6. Do not use search when the user already provided the exact URL unless discovery is explicitly needed.
+2. Read the provider registry entry before first use and check required or recommended configuration metadata.
+3. If `configRequired: true` and configuration is missing, ask the user to configure it instead of falling back silently.
+4. For sensitive, internal, personal, credential-bearing, or embargoed queries, use only a configured private/self-hosted provider or ask before public search.
+5. Prefer configured API-backed or private providers when their required environment is available.
+6. Use the highest-priority active provider that fits the role and query.
+7. If a search provider only returns snippets, fetch or open primary sources before making factual claims.
+8. Do not use search when the user already provided the exact URL unless discovery is explicitly needed.
+
+When a provider entry includes `checkCommand`, run it when configuration state matters. Treat a missing recommended configuration as a routing signal: explain the setup hint for sensitive work, or explicitly state that a public fallback will be used for public queries.
 
 ## Escalation Rules
 

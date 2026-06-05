@@ -8,6 +8,7 @@ This project uses human-readable release notes. Dates use `YYYY-MM-DD`.
 
 - SearXNG search skill added with self-hosted instance support and searx.space public fallback discovery.
 - Web provider registries split `web_search` discovery from `web_fetch` URL extraction for future provider expansion.
+- Search providers now declare configuration metadata and runtime check behavior for host-provided settings.
 - Project name and package identity updated to ArkSpace / `ark-space`.
 - Root agent guidance added for Claude Code and other agents.
 - Project governance files added for contribution, support, security, notices, and conduct.

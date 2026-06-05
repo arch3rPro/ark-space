@@ -86,12 +86,29 @@ Use the plugin metadata under `.claude-plugin/`.
 
 For local development, install this repository as a Claude Code plugin according to Claude Code's local plugin workflow. The plugin uses the shared `skills/` directory.
 
+Personal provider configuration should live outside committed package files. For example, configure a self-hosted SearXNG instance in `.claude/settings.local.json`:
+
+```json
+{
+  "env": {
+    "SEARXNG_URL": "https://searx.example.org"
+  }
+}
+```
+
 ### Codex
 
 Use `.codex-plugin/plugin.json`. The Codex manifest points to:
 
 ```json
 "skills": "./skills/"
+```
+
+For Codex, export provider variables in the shell that launches Codex, or make sure `shell_environment_policy` forwards them:
+
+```bash
+export SEARXNG_URL="https://searx.example.org"
+codex
 ```
 
 ### Manual Skills Install
@@ -107,6 +124,8 @@ Registries under `registry/` are the source of truth for package metadata:
 - `registry/sources.yaml`: upstream repositories and source policies.
 - `registry/search-providers.yaml`: search-provider selection metadata for compatible search skills.
 - `registry/web-fetch-providers.yaml`: URL fetch/extraction provider metadata for compatible fetch skills.
+
+Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, and fallback policy. Skills should check and explain configuration at runtime; host settings or environment variables store the actual values.
 
 Supported source policies:
 

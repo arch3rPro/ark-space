@@ -151,6 +151,8 @@ def validate_registry_files():
             provider_id = item.get("id")
             skill = item.get("skill")
             status = item.get("status")
+            config_required = item.get("configRequired")
+            missing_config_behavior = item.get("missingConfigBehavior")
             if not provider_id:
                 fail(f"{provider_path} contains a provider without id")
             if not skill:
@@ -159,6 +161,12 @@ def validate_registry_files():
                 fail(f"search provider {provider_id} references unknown skill {skill}")
             if status not in VALID_PROVIDER_STATUS:
                 fail(f"search provider {provider_id} has invalid status {status}")
+            if config_required and config_required not in {"true", "false"}:
+                fail(f"search provider {provider_id} has invalid configRequired {config_required}")
+            if config_required == "true" and not missing_config_behavior:
+                fail(f"search provider {provider_id} must set missingConfigBehavior when configRequired is true")
+            if item.get("recommendedEnv") and not item.get("checkCommand"):
+                fail(f"search provider {provider_id} with recommendedEnv must set checkCommand")
 
 
 def validate_platform_manifests():
