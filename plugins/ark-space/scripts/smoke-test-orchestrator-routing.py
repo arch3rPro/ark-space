@@ -139,7 +139,9 @@ def check_live_codex():
         "search_query",
         "使用联网搜索",
         "普通公网搜索",
+        "普通网页搜索",
         "public search",
+        "绕过 ArkSpace provider",
     ]
     if any(item in lowered for item in forbidden):
         return fail("live routing used host-native web search instead of ArkSpace provider routing")

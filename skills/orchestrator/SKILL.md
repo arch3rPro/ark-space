@@ -22,7 +22,7 @@ For any capability represented by a provider registry, use that registry as the 
 5. Run the provider's `checkCommand` when configuration state matters.
 6. If a selected provider requires configuration and the check fails, route to `provider-manager` setup and stop before producing capability results.
 7. Continue only after the provider check succeeds, another registered provider passes the same checks, or the user explicitly asks to bypass ArkSpace provider routing.
-8. When stopped for missing configuration, present only the missing capability, the setup command, and the value needed from the user.
+8. When stopped for missing configuration, present only the missing capability, the setup command, and the value needed from the user. Do not proactively offer host-native fallback paths in that response.
 
 ## Routing Workflow
 
@@ -78,7 +78,7 @@ Selection order:
 10. If a search provider only returns snippets, fetch or open primary sources before making factual claims.
 11. Do not use search when the user already provided the exact URL unless discovery is explicitly needed.
 
-When a provider entry includes `checkCommand`, run it when configuration state matters. Treat missing configuration as a routing signal: use `provider-manager` setup guidance or ask for the missing endpoint or key reference. Another provider is valid only if it is also registered, active, capability-compatible, and passes its own configuration check. Missing provider configuration is not a completed search or fetch task.
+When a provider entry includes `checkCommand`, run it when configuration state matters. Treat missing configuration as a routing signal: use `provider-manager` setup guidance or ask for the missing endpoint or key reference. Another provider is valid only if it is also registered, active, capability-compatible, and passes its own configuration check. Missing provider configuration is not a completed search or fetch task, and it is not a reason to suggest a host-native fallback unless the user already requested one.
 
 ## Search Request Example
 

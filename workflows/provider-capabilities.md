@@ -18,7 +18,7 @@ Web providers are selected after role routing. ArkSpace provider registries are 
 5. If required configuration is missing, route to `provider-manager` for guided setup and stop before producing capability results.
 6. Prefer configured providers that match the task's privacy and evidence requirements.
 7. Use fetch after search when factual claims need source content beyond snippets.
-8. When stopped for missing configuration, the next action is provider setup, not alternate execution outside ArkSpace.
+8. When stopped for missing configuration, the next action is provider setup, not alternate execution outside ArkSpace. Do not proactively offer host-native fallback in the missing-configuration response.
 
 ## Registry Authority
 
