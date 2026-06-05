@@ -162,7 +162,7 @@ Registries under `registry/` are the source of truth for package metadata:
 - `registry/search-providers.yaml`: search-provider selection metadata for compatible search skills.
 - `registry/web-fetch-providers.yaml`: URL fetch/extraction provider metadata for compatible fetch skills.
 
-Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, key rotation support, and fallback policy. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.
+Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, and key rotation support. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.
 
 Use `provider-manager` and `scripts/arkspace_provider.py` for guided setup. For API-backed providers, ArkSpace config stores key references such as `env:BRAVE_API_KEY_1`; actual keys stay in the host environment or secret manager. See `docs/provider-configuration.md`.
 

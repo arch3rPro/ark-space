@@ -7,11 +7,12 @@ description: Use when querying a configured self-hosted SearXNG instance, the Se
 
 Use SearXNG for privacy-oriented metasearch when the user provides a SearXNG instance, asks to use a self-hosted search service, or explicitly wants SearXNG instead of a general web search tool. This is a `web_search` provider: it discovers URLs and snippets from a query, but it does not fetch full page content.
 
+In ArkSpace, SearXNG is exposed through this skill and its bundled helper script.
+
 ## Source References
 
 - Official documentation: `https://docs.searxng.org/`
 - Search API: `https://docs.searxng.org/dev/search_api.html`
-- Public instance directory: `https://searx.space/` (reference only; ArkSpace does not use public instance fallback)
 - Reference skill: `https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/research/searxng-search/SKILL.md`
 - Provider reference: `https://docs.openclaw.ai/tools/searxng-search`
 
@@ -21,7 +22,7 @@ Use SearXNG for privacy-oriented metasearch when the user provides a SearXNG ins
 2. If not provided, use `SEARXNG_URL`.
 3. If not set, use `SEARXNG_BASE_URL`.
 4. If not set, use ArkSpace provider config, defaulting to `~/.config/ark-space/providers.json`.
-5. If none exists, help the user configure SearXNG through `provider-manager`; do not fall back to public instances.
+5. If none exists, help the user configure SearXNG through `provider-manager`.
 6. When multiple search skills exist, let Orchestrator choose the role first, then select this provider from `registry/search-providers.yaml`.
 7. If the user provides an exact URL to read, route to a `web_fetch` provider instead of this skill.
 
@@ -125,8 +126,6 @@ Output modes:
 python3 skills/searxng-search/scripts/searxng_search.py "query text" --output markdown
 python3 skills/searxng-search/scripts/searxng_search.py "query text" --output json
 ```
-
-ArkSpace intentionally does not use public SearXNG instance fallback. Public instances often disable JSON output, rate limit automation, or block requests. If no configured SearXNG endpoint exists, configure one or use a different `web_search` provider.
 
 If a non-`general` category returns zero results, the helper retries once with `categories=general` unless `--no-category-fallback` is set.
 

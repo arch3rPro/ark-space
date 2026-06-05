@@ -73,7 +73,3 @@ Default behavior:
 | Cooldown | `300` seconds |
 
 Provider scripts should call `record_provider_result()` after API-backed requests so later calls can avoid recently failed keys.
-
-## Public Fallback Policy
-
-ArkSpace does not use public SearXNG instance fallback. In practice, public instances often disable JSON output, rate limit automated requests, or block them entirely. Missing SearXNG configuration should trigger guided setup or selection of another configured `web_search` provider.

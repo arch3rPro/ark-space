@@ -18,10 +18,9 @@ sources:
     type: github
     repo: searxng/searxng
     documentation: https://docs.searxng.org/dev/search_api.html
-    instanceDirectory: https://searx.space/
     license: AGPL-3.0
     syncPolicy: reference-only
-    notes: "Official Search API and public instance directory used to design the local SearXNG search skill. Public instance fallback is disabled in ArkSpace runtime."
+    notes: "Official Search API used to design the local SearXNG search skill."
 
   - id: hermes-agent-searxng-search
     type: github

@@ -16,9 +16,8 @@ providers:
     checkCommand: python3 skills/searxng-search/scripts/searxng_search.py --check
     missingConfigBehavior: guide-user-through-provider-manager-configuration
     setupHint: "Run python3 scripts/arkspace_provider.py configure searxng --base-url <url>, set SEARXNG_URL, or pass --base-url for one-off use."
-    publicFallback: none
     authModes: none
     rotationSupported: false
     outputFields: title,url,content,engine,parsed_url,img_src,thumbnail,author,publishedDate,score
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
-    notes: "Use for SearXNG-specific requests or self-hosted/private search. Public SearXNG instance fallback is intentionally disabled because public instances are unreliable for automated JSON search."
+    notes: "Use for SearXNG-specific requests or self-hosted/private search."
