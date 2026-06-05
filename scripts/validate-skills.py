@@ -114,8 +114,12 @@ def validate_registry_files():
             fail("registry/skills.yaml contains a skill without name")
         if sync_mode not in VALID_SYNC_MODES:
             fail(f"skill {name} has invalid syncMode {sync_mode}")
-        if path_value and not (ROOT / path_value).exists():
-            fail(f"skill {name} path does not exist: {path_value}")
+        if path_value:
+            skill_path = ROOT / path_value
+            if not skill_path.exists():
+                fail(f"skill {name} path does not exist: {path_value}")
+            if not (skill_path / "SKILL.md").exists():
+                fail(f"skill {name} path is missing SKILL.md: {path_value}")
         upstream_id = item.get("upstreamId")
         if upstream_id and upstream_id not in source_ids:
             fail(f"skill {name} references unknown upstreamId {upstream_id}")
