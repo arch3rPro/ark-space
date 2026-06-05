@@ -1,0 +1,10 @@
+id: project/project-manager
+name: Project Manager
+domain: project
+description: Plan milestones, tasks, risks, and project tracking structures.
+skills:
+  - orchestrator
+  - obsidian-kanban
+platforms:
+  claude-code: true
+  codex: true

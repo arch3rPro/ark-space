@@ -7,8 +7,12 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_DIR = ROOT / "plugins" / "ark-space"
 PACKAGE_ITEMS = [
     ".codex-plugin",
+    "agents",
+    "registry",
+    "roles",
     "skills",
     "scripts",
+    "workflows",
     "README.md",
     "LICENSE",
     "NOTICE.md",

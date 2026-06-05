@@ -1,0 +1,77 @@
+skills:
+  - name: orchestrator
+    path: skills/orchestrator
+    status: active
+    syncMode: local
+    categories: meta,routing
+    roles: orchestrator
+
+  - name: skill-manager
+    path: skills/skill-manager
+    status: active
+    syncMode: local
+    categories: meta,governance
+    roles: skills/skill-manager
+
+  - name: provider-manager
+    path: skills/provider-manager
+    status: active
+    syncMode: local
+    categories: meta,providers,configuration
+    roles: skills/skill-manager,orchestrator
+
+  - name: defuddle
+    path: skills/defuddle
+    status: active
+    syncMode: adapted
+    upstreamId: defuddle-cli
+    categories: docs,research,web,fetch
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: searxng-search
+    path: skills/searxng-search
+    status: active
+    syncMode: local
+    upstreamId: searxng
+    categories: research,web,search
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+
+  - name: json-canvas
+    path: skills/json-canvas
+    status: active
+    syncMode: adapted
+    upstreamId: obsidian-skills
+    categories: docs,knowledge,canvas
+    roles: docs/knowledge-manager
+
+  - name: obsidian-bases
+    path: skills/obsidian-bases
+    status: active
+    syncMode: adapted
+    upstreamId: obsidian-skills
+    categories: docs,knowledge,obsidian
+    roles: docs/knowledge-manager
+
+  - name: obsidian-cli
+    path: skills/obsidian-cli
+    status: active
+    syncMode: adapted
+    upstreamId: obsidian-skills
+    categories: docs,knowledge,obsidian
+    roles: docs/knowledge-manager
+
+  - name: obsidian-kanban
+    path: skills/obsidian-kanban
+    status: active
+    syncMode: adapted
+    upstreamId: obsidian-skills
+    categories: project,knowledge,obsidian
+    roles: docs/knowledge-manager,project/project-manager
+
+  - name: obsidian-markdown
+    path: skills/obsidian-markdown
+    status: active
+    syncMode: adapted
+    upstreamId: obsidian-skills
+    categories: docs,knowledge,obsidian
+    roles: docs/knowledge-manager,docs/doc-writer,docs/doc-editor

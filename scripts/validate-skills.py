@@ -147,10 +147,15 @@ def validate_codex_package_copy(package_dir):
 
     required_paths = [
         ".codex-plugin/plugin.json",
+        "agents/orchestrator.md",
+        "registry/agents.yaml",
+        "registry/search-providers.yaml",
+        "roles/orchestrator.yaml",
         "skills/orchestrator/SKILL.md",
         "skills/provider-manager/SKILL.md",
         "skills/searxng-search/SKILL.md",
         "scripts/arkspace_provider.py",
+        "workflows/provider-capabilities.md",
         "README.md",
         "LICENSE",
         "NOTICE.md",
@@ -159,7 +164,7 @@ def validate_codex_package_copy(package_dir):
         if not (package_dir / rel_path).exists():
             fail(f"Codex package directory is missing {rel_path}")
 
-    mirrored_roots = [".codex-plugin", "skills", "scripts"]
+    mirrored_roots = [".codex-plugin", "agents", "registry", "roles", "skills", "scripts", "workflows"]
     mirrored_files = ["README.md", "LICENSE", "NOTICE.md"]
     for rel_root in mirrored_roots:
         source_dir = ROOT / rel_root

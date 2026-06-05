@@ -1,0 +1,9 @@
+id: code/repo-maintainer
+name: Repo Maintainer
+domain: code
+description: Maintain repository health, CI readiness, PR hygiene, and release-adjacent checks without publishing unless explicitly requested.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true

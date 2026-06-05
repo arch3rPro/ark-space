@@ -1,0 +1,9 @@
+id: product/prd-planner
+name: PRD Planner
+domain: product
+description: Clarify requirements, define scope, and write acceptance criteria.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true

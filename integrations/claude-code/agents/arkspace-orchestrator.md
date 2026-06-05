@@ -15,7 +15,7 @@ Select the smallest useful callable agent and skill set for the user's request.
 
 Follow `workflows/lightweight-routing.md`.
 
-For web work, select the role first, then select `web_search` or `web_fetch` from `workflows/provider-capabilities.md`.
+For web work, select the role first, then follow `workflows/provider-capabilities.md` before using search or fetch. Provider registries are part of the route, not an optional enhancement.
 
 ## Handoffs
 

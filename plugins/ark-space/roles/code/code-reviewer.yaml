@@ -1,0 +1,9 @@
+id: code/code-reviewer
+name: Code Reviewer
+domain: code
+description: Review code for bugs, regressions, missing tests, and maintainability risks.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true

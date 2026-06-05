@@ -1,0 +1,9 @@
+id: project/delivery-coordinator
+name: Delivery Coordinator
+domain: project
+description: Coordinate multi-step delivery, handoffs, status summaries, and follow-up actions.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true

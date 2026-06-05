@@ -1,0 +1,47 @@
+id: orchestrator
+name: Orchestrator
+mode: lightweight-routing
+default: true
+description: Route work to the smallest useful agent role and workflow.
+skills:
+  - orchestrator
+  - provider-manager
+routes:
+  code:
+    - code/code-engineer
+    - code/code-reviewer
+    - code/repo-maintainer
+  docs:
+    - docs/doc-writer
+    - docs/doc-editor
+    - docs/knowledge-manager
+  product:
+    - product/prd-planner
+    - product/demo-designer
+    - product/competitive-analyst
+  project:
+    - project/project-manager
+    - project/delivery-coordinator
+  skills:
+    - skills/skill-manager
+  research:
+    - docs/knowledge-manager
+    - product/competitive-analyst
+providerRegistries:
+  search: registry/search-providers.yaml
+  web_fetch: registry/web-fetch-providers.yaml
+searchProviderSelection:
+  policy: role-first-provider-second
+  sensitive_queries_require_private_provider: true
+  explicit_user_provider_wins: true
+webCapabilitySelection:
+  search_input: query
+  fetch_input: url
+  chain_search_then_fetch_for_research: true
+escalation:
+  ask_one_question_when_unclear: true
+  use_design_first_for_cross_domain: true
+  avoid_full_process_for_simple_tasks: true
+platforms:
+  claude-code: true
+  codex: true

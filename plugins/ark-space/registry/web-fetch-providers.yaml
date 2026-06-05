@@ -1,0 +1,17 @@
+defaultFetchPolicy: url-first-provider-second
+
+providers:
+  - id: defuddle
+    skill: defuddle
+    status: active
+    providerType: readability-extraction
+    priority: 100
+    privacy: local-cli
+    configRequired: false
+    authModes: none
+    rotationSupported: false
+    input: url
+    outputFormats: markdown,json,html
+    outputFields: markdown,html,title,description,domain
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use after web_search returns a URL, or when the user provides a normal web page URL to read or analyze."

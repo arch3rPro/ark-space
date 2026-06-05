@@ -30,8 +30,10 @@ def main():
     install.add_argument("--dry-run", action="store_true")
 
     smoke = sub.add_parser("smoke-test")
-    smoke.add_argument("--host", choices=["codex", "claude-code"], required=True)
+    smoke.add_argument("--host", choices=["codex", "claude-code"])
     smoke.add_argument("--local", action="store_true")
+    smoke.add_argument("--routing", action="store_true")
+    smoke.add_argument("--live-codex", action="store_true")
 
     sub.add_parser("doctor")
 
@@ -57,6 +59,13 @@ def main():
             cmd.append("--dry-run")
         return run(cmd)
     if args.command == "smoke-test":
+        if args.routing:
+            cmd = [sys.executable, "scripts/smoke-test-orchestrator-routing.py"]
+            if args.live_codex:
+                cmd.append("--live-codex")
+            return run(cmd)
+        if not args.host:
+            parser.error("smoke-test requires --host unless --routing is used")
         cmd = [sys.executable, "scripts/smoke-test-callability.py", "--host", args.host]
         if args.local:
             cmd.append("--local")
@@ -68,6 +77,7 @@ def main():
         status |= run([sys.executable, "scripts/convert-agents.py", "--host", "all", "--check"])
         status |= run([sys.executable, "scripts/smoke-test-callability.py", "--host", "codex", "--local"])
         status |= run([sys.executable, "scripts/smoke-test-callability.py", "--host", "claude-code", "--local"])
+        status |= run([sys.executable, "scripts/smoke-test-orchestrator-routing.py"])
         return status
     return 2
 

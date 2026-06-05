@@ -1,19 +1,34 @@
 ---
 name: orchestrator
-description: Lightweightly route agent work to the smallest useful role, workflow, and skill set. Use when the user asks for general help, a cross-domain task, role selection, skill selection, or when the task scope is unclear.
+description: Use when a user invokes ArkSpace, asks for general help, a cross-domain task, role selection, skill selection, provider routing, web search/fetch through ArkSpace, or when task scope is unclear.
 ---
 
 # Orchestrator
 
-Route work before expanding process.
+Route work before expanding process. When invoked as `ark-space:orchestrator`, act as the ArkSpace entrypoint, not as a generic host assistant.
 
 Use the lightest role and workflow that can safely complete the task. Route first by user intent, then by artifact type, then by risk. Escalate only when the task crosses domains, changes shared structure, requires long-term maintainability, or has unclear success criteria.
+
+## Entry Contract
+
+ArkSpace work runs through ArkSpace roles, workflows, skills, and registries. Host-native capabilities are not ArkSpace providers.
+
+For any capability represented by a provider registry, use that registry as the authority before execution:
+
+1. Choose the role from `roles/` or the default route table.
+2. Choose the capability, such as `web_search` or `web_fetch`.
+3. Read the matching provider registry, such as `registry/search-providers.yaml`.
+4. Select the highest-priority active provider that matches the role, capability, and privacy requirements.
+5. Run the provider's `checkCommand` when configuration state matters.
+6. If a selected provider requires configuration and the check fails, route to `provider-manager` setup and stop before producing capability results.
+7. Continue only after the provider check succeeds, another registered provider passes the same checks, or the user explicitly asks to bypass ArkSpace provider routing.
+8. When stopped for missing configuration, present only the missing capability, the setup command, and the value needed from the user.
 
 ## Routing Workflow
 
 1. Identify the primary task domain: code, docs, product, project, skills, knowledge management, research, or cross-domain.
 2. Select the smallest useful role set from `roles/`.
-3. For web tasks, choose the role first, then choose either a `web_search` or `web_fetch` provider.
+3. For web tasks, choose the role first, then use `workflows/provider-capabilities.md` and the provider registry before execution.
 4. Use one role for simple work.
 5. Use multiple roles only when the task naturally crosses domains.
 6. Ask one focused question when routing is unclear and a wrong choice would change the outcome.
@@ -52,16 +67,26 @@ Search and fetch are often chained: use `web_search` to discover candidate URLs,
 Selection order:
 
 1. Use the provider or skill the user explicitly names.
-2. Read the provider registry entry before first use and check required or recommended configuration metadata.
-3. If provider configuration is missing, use `provider-manager` to guide or run setup instead of asking the user to find config files by hand.
-4. If `configRequired: true` and configuration is missing, ask the user for the missing value instead of falling back silently.
-5. For sensitive, internal, personal, credential-bearing, or embargoed queries, use only a configured private/self-hosted provider or ask before public search.
-6. Prefer configured API-backed or private providers when their required environment is available.
-7. Use the highest-priority active provider that fits the role and query.
-8. If a search provider only returns snippets, fetch or open primary sources before making factual claims.
-9. Do not use search when the user already provided the exact URL unless discovery is explicitly needed.
+2. Read the provider registry entry before first use.
+3. Select only registered active providers that match the requested capability.
+4. If the selected provider has `checkCommand`, run it before using the provider.
+5. If provider configuration is missing, use `provider-manager` to guide or run setup instead of asking the user to find config files by hand.
+6. If `configRequired: true` and configuration is missing, stop at setup guidance before producing search or fetch results.
+7. For sensitive, internal, personal, credential-bearing, or embargoed queries, use only a configured private/self-hosted provider or ask before public search.
+8. Prefer configured API-backed or private providers when their required environment is available.
+9. Use the highest-priority active provider that fits the role and query.
+10. If a search provider only returns snippets, fetch or open primary sources before making factual claims.
+11. Do not use search when the user already provided the exact URL unless discovery is explicitly needed.
 
-When a provider entry includes `checkCommand`, run it when configuration state matters. Treat missing configuration as a routing signal: use `provider-manager` setup guidance, ask for the missing endpoint or key reference, or choose another configured provider.
+When a provider entry includes `checkCommand`, run it when configuration state matters. Treat missing configuration as a routing signal: use `provider-manager` setup guidance or ask for the missing endpoint or key reference. Another provider is valid only if it is also registered, active, capability-compatible, and passes its own configuration check. Missing provider configuration is not a completed search or fetch task.
+
+## Search Request Example
+
+```text
+User: [$ark-space:orchestrator] 帮我查询 claude-code-everything 项目
+Route: docs/knowledge-manager -> web_search -> registry/search-providers.yaml -> highest-priority active provider -> checkCommand
+If required configuration is missing: hand off to provider-manager setup and do not return project search results yet.
+```
 
 ## Escalation Rules
 
