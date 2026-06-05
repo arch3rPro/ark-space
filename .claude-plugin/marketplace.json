@@ -1,15 +1,15 @@
 {
-  "name": "obsidian-skills",
+  "name": "agent-skills",
   "owner": {
-    "name": "Steph Ango",
-    "url": "https://stephango.com/"
+    "name": "arch3rPro",
+    "url": "https://github.com/arch3rPro"
   },
   "plugins": [
     {
-      "name": "obsidian",
+      "name": "agent-skills",
       "source": "./",
-      "description": "Claude Skills for Obsidian",
-      "version": "1.0.1"
+      "description": "General-purpose Agent Skills with lightweight role routing",
+      "version": "0.1.0"
     }
   ]
 }

@@ -1,19 +1,22 @@
 {
-  "name": "obsidian",
-  "version": "1.0.1",
-  "description": "Create and edit Obsidian vault files including Markdown, Bases, and Canvas. Use when working with .md, .base, or .canvas files in an Obsidian vault.",
+  "name": "agent-skills",
+  "version": "0.1.0",
+  "description": "A general-purpose Agent Skills collection with lightweight role routing, skill management, and domain roles for coding, documents, product, and project work.",
   "author": {
-    "name": "Steph Ango",
-    "url": "https://stephango.com/"
+    "name": "arch3rPro",
+    "url": "https://github.com/arch3rPro"
   },
-  "repository": "https://github.com/kepano/obsidian-skills",
+  "repository": "https://github.com/arch3rPro/agent-skills",
   "license": "MIT",
   "keywords": [
-    "obsidian",
-    "markdown",
-    "bases",
-    "canvas",
-    "pkm",
-    "notes"
+    "skills",
+    "agents",
+    "claude-code",
+    "codex",
+    "orchestrator",
+    "coding",
+    "documents",
+    "product",
+    "project-management"
   ]
 }
