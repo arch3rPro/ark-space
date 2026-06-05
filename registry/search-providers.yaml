@@ -7,15 +7,18 @@ providers:
     capability: web_search
     providerType: metasearch
     priority: 200
-    privacy: self-host-preferred
+    privacy: self-host-required
     configEnv: SEARXNG_URL,SEARXNG_BASE_URL
-    configRequired: false
+    configRequired: true
     recommendedEnv: SEARXNG_URL
     compatibleEnv: SEARXNG_BASE_URL
-    checkCommand: python3 skills/searxng-search/scripts/searxng_search.py --check --no-public-fallback
-    missingConfigBehavior: ask-before-sensitive-search-use-public-fallback-for-public-search
-    setupHint: "Set SEARXNG_URL in the host environment or pass --base-url for one-off use."
-    publicFallback: searx.space
+    providerConfigCommand: python3 scripts/arkspace_provider.py configure searxng --base-url <url>
+    checkCommand: python3 skills/searxng-search/scripts/searxng_search.py --check
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 scripts/arkspace_provider.py configure searxng --base-url <url>, set SEARXNG_URL, or pass --base-url for one-off use."
+    publicFallback: none
+    authModes: none
+    rotationSupported: false
     outputFields: title,url,content,engine,parsed_url,img_src,thumbnail,author,publishedDate,score
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
-    notes: "Use for SearXNG-specific requests, self-hosted/private search, or public fallback when the query is not sensitive."
+    notes: "Use for SearXNG-specific requests or self-hosted/private search. Public SearXNG instance fallback is intentionally disabled because public instances are unreliable for automated JSON search."

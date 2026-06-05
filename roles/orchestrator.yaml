@@ -5,6 +5,7 @@ default: true
 description: Route work to the smallest useful agent role and workflow.
 skills:
   - orchestrator
+  - provider-manager
 routes:
   code:
     - code/code-engineer

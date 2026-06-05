@@ -5,6 +5,7 @@ description: Create, adapt, validate, and govern skills in this package.
 skills:
   - orchestrator
   - skill-manager
+  - provider-manager
 platforms:
   claude-code: true
   codex: true

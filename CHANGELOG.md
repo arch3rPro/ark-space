@@ -6,8 +6,12 @@ This project uses human-readable release notes. Dates use `YYYY-MM-DD`.
 
 ## Unreleased
 
+- Provider Manager skill and `scripts/arkspace_provider.py` added for guided provider setup, readiness checks, and future API key rotation.
+- Shared provider runtime added under `scripts/arkspace_runtime/` for user config, endpoint resolution, key references, and cooldown state.
+- SearXNG helper now reads ArkSpace provider config and no longer uses public `searx.space` fallback instances.
+- SearXNG helper can persist a self-hosted URL in ArkSpace provider config via `--save-base-url`.
 - Codex marketplace catalog added under `.agents/plugins/marketplace.json` for GitHub marketplace installation.
-- SearXNG search skill added with self-hosted instance support and searx.space public fallback discovery.
+- SearXNG search skill added with self-hosted instance support.
 - Web provider registries split `web_search` discovery from `web_fetch` URL extraction for future provider expansion.
 - Search providers now declare configuration metadata and runtime check behavior for host-provided settings.
 - Project name and package identity updated to ArkSpace / `ark-space`.

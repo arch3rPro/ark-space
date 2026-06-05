@@ -17,7 +17,7 @@ This repository packages reusable skills, role definitions, and source-governanc
 +-- .codex-plugin/       # Codex plugin metadata
 +-- docs/                # Architecture and maintenance docs
 +-- overlays/            # Public examples for private local customization
-+-- scripts/             # Validation and maintenance scripts
++-- scripts/             # Validation, provider setup, and maintenance scripts
 +-- reference/           # Optional local or tracked upstream references
 ```
 
@@ -70,8 +70,9 @@ Roles live under `roles/` and describe reusable bundles of skills. They do not d
 |---|---|
 | `orchestrator` | Route work to the smallest useful role and workflow |
 | `skill-manager` | Manage skill lifecycle, registries, sources, and role ownership |
+| `provider-manager` | Configure and inspect provider URLs, key references, and readiness |
 | `defuddle` | Extract clean Markdown from web pages |
-| `searxng-search` | Query self-hosted SearXNG or public fallback instances |
+| `searxng-search` | Query a configured self-hosted SearXNG instance |
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases |
 | `obsidian-cli` | Interact with Obsidian through the CLI |
@@ -88,7 +89,14 @@ Use the plugin metadata under `.claude-plugin/`.
 
 For local development, install this repository as a Claude Code plugin according to Claude Code's local plugin workflow. The plugin uses the shared `skills/` directory.
 
-Personal provider configuration should live outside committed package files. For example, configure a self-hosted SearXNG instance in `.claude/settings.local.json`:
+Personal provider configuration should live outside committed package files. The recommended ArkSpace setup is:
+
+```bash
+python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
+python3 skills/searxng-search/scripts/searxng_search.py --check
+```
+
+Claude Code can also pass provider variables from `.claude/settings.local.json`:
 
 ```json
 {
@@ -106,12 +114,21 @@ Use `.codex-plugin/plugin.json`. The Codex manifest points to:
 "skills": "./skills/"
 ```
 
-For Codex, export provider variables in the shell that launches Codex, or make sure `shell_environment_policy` forwards them:
+For Codex, use the same ArkSpace setup command, or export provider variables in the shell that launches Codex and make sure `shell_environment_policy` forwards them:
 
 ```bash
 export SEARXNG_URL="https://searx.example.org"
 codex
 ```
+
+For the SearXNG skill, the persistent setup uses ArkSpace provider config:
+
+```bash
+python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
+python3 scripts/arkspace_provider.py resolve searxng --capability web_search
+```
+
+This writes `~/.config/ark-space/providers.json` by default. Use `ARKSPACE_PROVIDER_CONFIG` or `--config-path` for a custom location. `--base-url` and environment variables still override the saved value.
 
 To add this repository as a Codex plugin marketplace:
 
@@ -145,7 +162,9 @@ Registries under `registry/` are the source of truth for package metadata:
 - `registry/search-providers.yaml`: search-provider selection metadata for compatible search skills.
 - `registry/web-fetch-providers.yaml`: URL fetch/extraction provider metadata for compatible fetch skills.
 
-Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, and fallback policy. Skills should check and explain configuration at runtime; host settings or environment variables store the actual values.
+Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, key rotation support, and fallback policy. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.
+
+Use `provider-manager` and `scripts/arkspace_provider.py` for guided setup. For API-backed providers, ArkSpace config stores key references such as `env:BRAVE_API_KEY_1`; actual keys stay in the host environment or secret manager. See `docs/provider-configuration.md`.
 
 Supported source policies:
 

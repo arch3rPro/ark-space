@@ -7,6 +7,9 @@ providers:
     providerType: readability-extraction
     priority: 100
     privacy: local-cli
+    configRequired: false
+    authModes: none
+    rotationSupported: false
     input: url
     outputFormats: markdown,json,html
     outputFields: markdown,html,title,description,domain

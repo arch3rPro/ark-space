@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Query SearXNG with self-host preference and public-instance fallback."""
+"""Query a configured SearXNG instance."""
 
 from __future__ import annotations
 
@@ -11,13 +11,46 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 from typing import Any
 
-DEFAULT_INSTANCES_URL = "https://searx.space/data/instances.json"
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "skills" / "provider-manager" / "scripts"))
+
+from arkspace_runtime.provider_config import (  # noqa: E402
+    ProviderConfigError,
+    default_config_path,
+    public_view,
+    resolve_provider,
+    set_provider_endpoint,
+)
+
+PROVIDER_ID = "searxng"
+CAPABILITY = "web_search"
 
 
 def env_base_url() -> str | None:
     return os.environ.get("SEARXNG_URL") or os.environ.get("SEARXNG_BASE_URL")
+
+
+def resolve_base_url(args: argparse.Namespace) -> tuple[str | None, str | None]:
+    if args.base_url:
+        return args.base_url, "--base-url"
+    env_value = env_base_url()
+    if env_value:
+        source = "SEARXNG_URL" if os.environ.get("SEARXNG_URL") else "SEARXNG_BASE_URL"
+        return env_value, source
+    resolved = resolve_provider(
+        PROVIDER_ID,
+        capability=CAPABILITY,
+        config_path=args.config_path,
+        require_endpoint=True,
+    )
+    endpoint = resolved.get("endpoint") or {}
+    value = endpoint.get("base_url")
+    if value:
+        return value, str(default_config_path(args.config_path))
+    return None, None
 
 
 def normalize_base_url(url: str) -> str:
@@ -92,35 +125,6 @@ def fetch_search_json(base_url: str, args: argparse.Namespace, params: dict[str,
     return data
 
 
-def candidate_instances(instances_url: str, timeout: float, max_candidates: int) -> list[str]:
-    data = fetch_json(instances_url, timeout)
-    instances = data.get("instances", {}) if isinstance(data, dict) else {}
-    if not isinstance(instances, dict):
-        return []
-
-    candidates: list[tuple[float, float, str]] = []
-    for base_url, detail in instances.items():
-        if not isinstance(detail, dict):
-            continue
-        if detail.get("error"):
-            continue
-        if detail.get("analytics") is True:
-            continue
-        if detail.get("network_type") not in (None, "normal"):
-            continue
-        timing = detail.get("timing") if isinstance(detail.get("timing"), dict) else {}
-        search = timing.get("search") if isinstance(timing.get("search"), dict) else {}
-        success = float(search.get("success_percentage") or 0)
-        all_timing = search.get("all") if isinstance(search.get("all"), dict) else {}
-        median = float(all_timing.get("median") or 999)
-        if success <= 0:
-            continue
-        candidates.append((-success, median, base_url))
-
-    candidates.sort()
-    return [base for _, _, base in candidates[:max_candidates]]
-
-
 def simplify_result(result: dict[str, Any]) -> dict[str, Any]:
     keep = [
         "title",
@@ -183,39 +187,44 @@ def emit_json(data: dict[str, Any], limit: int) -> None:
     print(json.dumps(output, ensure_ascii=False, indent=2))
 
 
-def emit_html_fallback(args: argparse.Namespace, bases: list[str], failures: list[str]) -> None:
-    urls = [search_url(base, args.query) for base in bases[: args.limit]]
-    if args.output == "json":
-        print(
-            json.dumps(
-                {
-                    "query": args.query,
-                    "json_api_available": False,
-                    "fallback": "html_search_urls",
-                    "urls": urls,
-                    "failures": failures,
-                },
-                ensure_ascii=False,
-                indent=2,
+def emit_config(args: argparse.Namespace) -> None:
+    try:
+        base_url, source = resolve_base_url(args)
+    except ProviderConfigError:
+        base_url, source = None, None
+    resolved: dict[str, Any] | None = None
+    try:
+        resolved = public_view(
+            resolve_provider(
+                PROVIDER_ID,
+                capability=CAPABILITY,
+                config_path=args.config_path,
+                require_endpoint=False,
             )
         )
-        return
-
-    print("JSON API search failed on all attempted SearXNG instances.")
-    print("Fallback HTML search URLs:")
-    print()
-    for index, url in enumerate(urls, start=1):
-        print(f"{index}. {url}")
-    print()
-    print("Failures:")
-    for failure in failures:
-        print(f"- {failure}")
+    except ProviderConfigError:
+        resolved = None
+    output = {
+        "config_path": str(default_config_path(args.config_path)),
+        "base_url": normalize_base_url(base_url) if base_url else None,
+        "source": source,
+        "env": {
+            "SEARXNG_URL": bool(os.environ.get("SEARXNG_URL")),
+            "SEARXNG_BASE_URL": bool(os.environ.get("SEARXNG_BASE_URL")),
+            "ARKSPACE_PROVIDER_CONFIG": bool(os.environ.get("ARKSPACE_PROVIDER_CONFIG")),
+        },
+        "provider": resolved,
+    }
+    print(json.dumps(output, ensure_ascii=False, indent=2))
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Search SearXNG with fallback instances.")
+    parser = argparse.ArgumentParser(description="Search a configured SearXNG instance.")
     parser.add_argument("query", nargs="?", help="Search query")
-    parser.add_argument("--base-url", default=env_base_url(), help="Self-hosted SearXNG base URL")
+    parser.add_argument("--base-url", help="Self-hosted SearXNG base URL")
+    parser.add_argument("--save-base-url", help="Persist a self-hosted SearXNG base URL to ArkSpace provider config and exit")
+    parser.add_argument("--config-path", help="Provider config file path; defaults to $ARKSPACE_PROVIDER_CONFIG or ~/.config/ark-space/providers.json")
+    parser.add_argument("--print-config", action="store_true", help="Print resolved SearXNG configuration and exit")
     parser.add_argument("--categories", help="Comma-separated categories")
     parser.add_argument("--engines", help="Comma-separated engines")
     parser.add_argument("--language", help="Language code")
@@ -224,14 +233,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--page", type=int, default=1)
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--timeout", type=float, default=8.0)
-    parser.add_argument("--max-candidates", type=int, default=20)
-    parser.add_argument("--instances-url", default=DEFAULT_INSTANCES_URL)
-    parser.add_argument("--no-public-fallback", action="store_true")
     parser.add_argument("--no-category-fallback", action="store_true")
-    parser.add_argument("--strict-json", action="store_true", help="Fail instead of emitting HTML fallback URLs")
-    parser.add_argument("--check", action="store_true", help="Probe availability using the configured or discovered instance")
+    parser.add_argument("--check", action="store_true", help="Probe availability using the configured instance")
     parser.add_argument("--output", choices=["markdown", "json"], default="markdown")
     args = parser.parse_args()
+    if args.save_base_url or args.print_config:
+        return args
     if args.check and not args.query:
         args.query = "test"
         args.limit = min(args.limit, 1)
@@ -242,17 +249,39 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.save_base_url:
+        path = set_provider_endpoint(
+            PROVIDER_ID,
+            capability=CAPABILITY,
+            base_url=args.save_base_url,
+            config_path=args.config_path,
+        )
+        print(f"saved SearXNG base URL to ArkSpace provider config: {path}")
+        return 0
+    if args.print_config:
+        emit_config(args)
+        return 0
+
     bases: list[str] = []
-    if args.base_url:
-        bases.append(args.base_url)
-    elif not args.no_public_fallback:
-        try:
-            bases.extend(candidate_instances(args.instances_url, args.timeout, args.max_candidates))
-        except Exception as exc:  # noqa: BLE001 - CLI should report all discovery failures.
-            print(f"failed to load public SearXNG instances: {exc}", file=sys.stderr)
+    try:
+        base_url, _source = resolve_base_url(args)
+        if base_url:
+            bases.append(base_url)
+    except ProviderConfigError as exc:
+        print(
+            f"no configured SearXNG provider: {exc}; pass --base-url for a one-off search",
+            file=sys.stderr,
+        )
+        return 2
 
     if not bases:
-        print("no SearXNG instance available; set SEARXNG_URL or allow public fallback", file=sys.stderr)
+        config_path = default_config_path(args.config_path)
+        print(
+            "no SearXNG instance available; set SEARXNG_URL, run "
+            "`python3 scripts/arkspace_provider.py configure searxng --base-url <url>`, "
+            f"or pass --base-url; config path: {config_path}",
+            file=sys.stderr,
+        )
         return 2
 
     failures: list[str] = []
@@ -267,14 +296,10 @@ def main() -> int:
         except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
             failures.append(f"{base}: {exc}")
 
-    if args.strict_json:
-        print("all SearXNG instances failed", file=sys.stderr)
-        for failure in failures:
-            print(f"- {failure}", file=sys.stderr)
-        return 1
-
-    emit_html_fallback(args, bases, failures)
-    return 0
+    print("configured SearXNG instance failed", file=sys.stderr)
+    for failure in failures:
+        print(f"- {failure}", file=sys.stderr)
+    return 1
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 ---
 name: searxng-search
-description: Use when querying SearXNG search, a self-hosted SearXNG instance, the SearXNG Search API, or public SearXNG fallback instances from searx.space.
+description: Use when querying a configured self-hosted SearXNG instance, the SearXNG Search API, or privacy-oriented metasearch through ArkSpace web_search routing.
 ---
 
 # SearXNG Search
@@ -11,8 +11,7 @@ Use SearXNG for privacy-oriented metasearch when the user provides a SearXNG ins
 
 - Official documentation: `https://docs.searxng.org/`
 - Search API: `https://docs.searxng.org/dev/search_api.html`
-- Public instance list: `https://searx.space/`
-- Machine-readable instance list: `https://searx.space/data/instances.json`
+- Public instance directory: `https://searx.space/` (reference only; ArkSpace does not use public instance fallback)
 - Reference skill: `https://github.com/NousResearch/hermes-agent/blob/main/optional-skills/research/searxng-search/SKILL.md`
 - Provider reference: `https://docs.openclaw.ai/tools/searxng-search`
 
@@ -21,27 +20,38 @@ Use SearXNG for privacy-oriented metasearch when the user provides a SearXNG ins
 1. Prefer the user's explicit instance URL.
 2. If not provided, use `SEARXNG_URL`.
 3. If not set, use `SEARXNG_BASE_URL`.
-4. If neither exists and the query is not sensitive, use `searx.space` public instances as fallback.
-5. Do not send private, internal, credential-bearing, personal, or embargoed queries to public instances without explicit user approval.
-6. Treat public instances as best-effort: many disable JSON output, rate limit, block automation, or return weaker results under high traffic.
-7. When multiple search skills exist, let Orchestrator choose the role first, then select this provider from `registry/search-providers.yaml`.
-8. If the user provides an exact URL to read, route to a `web_fetch` provider instead of this skill.
+4. If not set, use ArkSpace provider config, defaulting to `~/.config/ark-space/providers.json`.
+5. If none exists, help the user configure SearXNG through `provider-manager`; do not fall back to public instances.
+6. When multiple search skills exist, let Orchestrator choose the role first, then select this provider from `registry/search-providers.yaml`.
+7. If the user provides an exact URL to read, route to a `web_fetch` provider instead of this skill.
 
 ## Before Use
 
 Check configuration before searching when privacy, reproducibility, or reliability matters:
 
 ```bash
-python3 skills/searxng-search/scripts/searxng_search.py --check --no-public-fallback
+python3 skills/searxng-search/scripts/searxng_search.py --check
+```
+
+Persist a self-hosted URL once:
+
+```bash
+python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
+```
+
+Inspect the resolved configuration:
+
+```bash
+python3 scripts/arkspace_provider.py resolve searxng --capability web_search
 ```
 
 If the check fails because no instance is configured:
 
-- For sensitive, internal, personal, credential-bearing, or embargoed queries, ask the user to configure `SEARXNG_URL` or provide `--base-url`.
-- For ordinary public web discovery, say that no self-hosted instance is configured and that the skill will try `searx.space` public fallback instances.
-- For strict self-host requirements, do not use public fallback.
+- If the user already gave a SearXNG URL, run `python3 scripts/arkspace_provider.py configure searxng --base-url "<url>"` for them.
+- If the user has not provided a URL, ask for the self-hosted SearXNG base URL.
+- For one-off searches, use `--base-url`.
 
-Configuration belongs in the host environment, not in the skill file. Use `SEARXNG_URL` first; `SEARXNG_BASE_URL` is accepted for compatibility.
+Configuration belongs in the host environment or ArkSpace user config, not in committed skill files. Use `--base-url` for one-off overrides, `SEARXNG_URL` / `SEARXNG_BASE_URL` for host-managed config, and `python3 scripts/arkspace_provider.py configure searxng --base-url <url>` for durable user-level config. Set `ARKSPACE_PROVIDER_CONFIG` or pass `--config-path` to use a custom provider config file.
 
 ## API Pattern
 
@@ -70,7 +80,7 @@ If `format=json` returns `403`, `406`, or HTML, the instance probably has JSON d
 
 ## Helper Script
 
-Use the bundled helper for repeatable searches and fallback handling:
+Use the bundled helper for repeatable searches:
 
 ```bash
 python3 skills/searxng-search/scripts/searxng_search.py "query text"
@@ -89,6 +99,13 @@ SEARXNG_URL="https://searx.example.org" \
 python3 skills/searxng-search/scripts/searxng_search.py "query text" --limit 5
 ```
 
+Persisted self-hosted instance:
+
+```bash
+python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
+python3 skills/searxng-search/scripts/searxng_search.py "query text" --limit 5
+```
+
 `SEARXNG_BASE_URL` is also accepted for hosts that use that convention.
 
 Explicit instance and filters:
@@ -102,12 +119,6 @@ python3 skills/searxng-search/scripts/searxng_search.py "query text" \
   --safesearch 1
 ```
 
-Disable public fallback:
-
-```bash
-python3 skills/searxng-search/scripts/searxng_search.py "query text" --no-public-fallback
-```
-
 Output modes:
 
 ```bash
@@ -115,7 +126,7 @@ python3 skills/searxng-search/scripts/searxng_search.py "query text" --output ma
 python3 skills/searxng-search/scripts/searxng_search.py "query text" --output json
 ```
 
-When JSON API access fails on every public instance, the helper emits HTML search URLs for the best candidate instances. Open those URLs only for non-sensitive queries, or ask the user for a self-hosted instance URL.
+ArkSpace intentionally does not use public SearXNG instance fallback. Public instances often disable JSON output, rate limit automation, or block requests. If no configured SearXNG endpoint exists, configure one or use a different `web_search` provider.
 
 If a non-`general` category returns zero results, the helper retries once with `categories=general` unless `--no-category-fallback` is set.
 
@@ -132,8 +143,8 @@ If a non-`general` category returns zero results, the helper retries once with `
 | Symptom | Response |
 |---|---|
 | `403 Forbidden` | JSON format is disabled or request is blocked; try another instance |
-| `429 Too Many Requests` | Public limiter rejected the request; use self-hosted SearXNG or HTML fallback links |
+| `429 Too Many Requests` | Instance rate limited the request; use a better self-hosted endpoint or another configured `web_search` provider |
 | Empty results | Retry with broader terms, different engines, or another instance |
 | Timeout | Use self-hosted instance or reduce candidate count |
-| Captcha/block page | Do not bypass; switch instance or ask for self-hosted URL |
-| Sensitive query without self-host | Ask before using public fallback |
+| Captcha/block page | Do not bypass; switch to a configured endpoint |
+| Missing self-hosted URL | Use `provider-manager` to configure SearXNG before searching |

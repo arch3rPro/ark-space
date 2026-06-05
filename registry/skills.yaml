@@ -13,6 +13,13 @@ skills:
     categories: meta,governance
     roles: skills/skill-manager
 
+  - name: provider-manager
+    path: skills/provider-manager
+    status: active
+    syncMode: local
+    categories: meta,providers,configuration
+    roles: skills/skill-manager,orchestrator
+
   - name: defuddle
     path: skills/defuddle
     status: active

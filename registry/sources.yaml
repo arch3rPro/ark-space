@@ -21,7 +21,7 @@ sources:
     instanceDirectory: https://searx.space/
     license: AGPL-3.0
     syncPolicy: reference-only
-    notes: "Official Search API and public instance directory used to design the local SearXNG search skill."
+    notes: "Official Search API and public instance directory used to design the local SearXNG search skill. Public instance fallback is disabled in ArkSpace runtime."
 
   - id: hermes-agent-searxng-search
     type: github
@@ -36,7 +36,7 @@ sources:
     url: https://docs.openclaw.ai/tools/searxng-search
     license: unknown
     syncPolicy: reference-only
-    notes: "Referenced for provider auto-detection, SEARXNG_BASE_URL, JSON format requirements, network guard, and category fallback behavior."
+    notes: "Referenced for provider configuration, SEARXNG_BASE_URL, JSON format requirements, network guard, and category fallback behavior."
 
   - id: openclaw-web-fetch
     type: documentation
