@@ -314,16 +314,15 @@ def validate_platform_manifests():
     if not ark_space:
         fail(".agents/plugins/marketplace.json must include ark-space")
     source = ark_space.get("source")
-    if not isinstance(source, dict) or source.get("path") != "./plugins/ark-space":
-        fail(".agents/plugins/marketplace.json ark-space source.path must be ./plugins/ark-space")
+    if not isinstance(source, dict) or source.get("path") != ".":
+        fail(".agents/plugins/marketplace.json ark-space source.path must be .")
     policy = ark_space.get("policy")
     if not isinstance(policy, dict):
         fail(".agents/plugins/marketplace.json ark-space must define policy")
-    wrapper = ROOT / "plugins" / "ark-space"
-    if not (wrapper / ".codex-plugin" / "plugin.json").exists():
-        fail("plugins/ark-space must expose .codex-plugin/plugin.json")
-    if not (wrapper / "skills" / "orchestrator" / "SKILL.md").exists():
-        fail("plugins/ark-space must expose canonical skills")
+    if not (ROOT / ".codex-plugin" / "plugin.json").exists():
+        fail("repository root must expose .codex-plugin/plugin.json")
+    if not (ROOT / "skills" / "orchestrator" / "SKILL.md").exists():
+        fail("repository root must expose canonical skills")
 
 
 def main():

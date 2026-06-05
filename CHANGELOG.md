@@ -6,6 +6,9 @@ This project uses human-readable release notes. Dates use `YYYY-MM-DD`.
 
 ## Unreleased
 
+- Codex marketplace packaging now points at the repository root instead of a symlink wrapper, so plugin cache installation includes real `.codex-plugin/` and `skills/` files.
+- Callable ArkSpace agent runtime files, generated host integrations, and callability checks added.
+- Local `reference/` checkouts and local process planning files are ignored.
 - Provider Manager skill and `scripts/arkspace_provider.py` added for guided provider setup, readiness checks, and future API key rotation.
 - Shared provider runtime added under `scripts/arkspace_runtime/` for user config, endpoint resolution, key references, and cooldown state.
 - SearXNG helper now reads ArkSpace provider config and requires a configured endpoint.

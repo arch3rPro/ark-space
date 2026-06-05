@@ -9,7 +9,7 @@
       "name": "ark-space",
       "source": "./",
       "description": "Creative workspace for orchestrating agent skills, roles, and workflows",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }

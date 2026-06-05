@@ -15,7 +15,6 @@ This repository packages reusable skills, callable agent roles, workflow protoco
 +-- roles/               # Existing role metadata kept during migration
 +-- registry/            # Skill, agent, workflow, provider, and source governance
 +-- .agents/plugins/     # Codex marketplace catalog for GitHub marketplace add
-+-- plugins/ark-space/   # Codex marketplace wrapper; symlinks to canonical plugin files
 +-- .claude-plugin/      # Claude Code plugin metadata
 +-- .codex-plugin/       # Codex plugin metadata
 +-- docs/                # Architecture and maintenance docs
@@ -166,9 +165,7 @@ To add this repository as a Codex plugin marketplace:
 codex plugin marketplace add arch3rPro/ark-space --ref main
 ```
 
-Then restart Codex and install `ark-space` from the `ArkSpace` marketplace source. The Codex marketplace catalog lives at `.agents/plugins/marketplace.json`; `.codex-plugin/plugin.json` is the plugin manifest itself.
-
-The marketplace entry points to `plugins/ark-space`, a thin wrapper that symlinks back to the canonical `.codex-plugin/` and `skills/` directories. Do not duplicate skill bodies there.
+Then restart Codex and install `ark-space` from the `ArkSpace` marketplace source. The Codex marketplace catalog lives at `.agents/plugins/marketplace.json`; `.codex-plugin/plugin.json` is the plugin manifest itself. The marketplace entry points at the repository root so Codex caches real plugin files rather than symlink wrappers.
 
 If an older broken marketplace snapshot already exists, refresh it:
 
