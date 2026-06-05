@@ -26,4 +26,4 @@ Skill instructions should stay host-neutral when possible. Prefer wording such a
 
 ## Planned Later
 
-OpenCode, Gemini, Cursor, and other hosts can be added later by adding platform manifests and documentation without changing the canonical skill bodies.
+Future hosts may be evaluated later. Each host may need its own manifest, compatibility notes, and validation.

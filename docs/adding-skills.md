@@ -24,4 +24,4 @@ Review upstream updates selectively instead of applying them automatically.
 
 ## Reference-Only Source
 
-Use `reference-only` for projects that guide the design but are not published as local skills.
+Record reference-only projects in `registry/sources.yaml` with `syncPolicy: reference-only`. Do not add them to `registry/skills.yaml` unless they are explicitly promoted into a local skill.

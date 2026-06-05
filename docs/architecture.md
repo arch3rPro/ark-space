@@ -12,7 +12,7 @@ The canonical skill source is `skills/<skill-name>/SKILL.md`. Claude Code, Codex
 - `.claude-plugin/`: Claude Code plugin metadata.
 - `.codex-plugin/`: Codex plugin metadata.
 - `overlays/`: examples and documentation for private local customization.
-- `reference/`: upstream projects used for design reference.
+- `reference/`: optional local or tracked area for upstream projects used as design reference.
 
 ## Default Entry
 
