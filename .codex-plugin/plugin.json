@@ -1,16 +1,16 @@
 {
-  "name": "agent-skills",
+  "name": "ark-space",
   "version": "0.1.0",
-  "description": "A general-purpose Agent Skills collection with lightweight role routing, skill management, and roles for coding, documents, product, and project work.",
+  "description": "ArkSpace is a creative workspace for orchestrating reusable agent skills, roles, and workflows.",
   "author": {
     "name": "arch3rPro",
     "url": "https://github.com/arch3rPro"
   },
-  "homepage": "https://github.com/arch3rPro/agent-skills",
-  "repository": "https://github.com/arch3rPro/agent-skills",
+  "homepage": "https://github.com/arch3rPro/ark-space",
+  "repository": "https://github.com/arch3rPro/ark-space",
   "license": "MIT",
   "keywords": [
-    "agent-skills",
+    "ark-space",
     "orchestrator",
     "skill-manager",
     "coding",
@@ -20,9 +20,9 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Agent Skills",
+    "displayName": "ArkSpace",
     "shortDescription": "Lightweight role routing and reusable skills for general agents",
-    "longDescription": "Use Agent Skills to route work through an Orchestrator role, manage reusable skills, and apply focused roles for coding, documents, product, project, and knowledge-management workflows.",
+    "longDescription": "Use ArkSpace to orchestrate reusable agent skills, roles, and workflows through a lightweight Orchestrator and source-governed skill registry.",
     "developerName": "arch3rPro",
     "category": "Productivity",
     "capabilities": [
@@ -34,7 +34,7 @@
       "Help me route this task to the right agent role.",
       "Help me create or improve a skill."
     ],
-    "websiteURL": "https://github.com/arch3rPro/agent-skills",
+    "websiteURL": "https://github.com/arch3rPro/ark-space",
     "brandColor": "#2563EB",
     "screenshots": []
   }

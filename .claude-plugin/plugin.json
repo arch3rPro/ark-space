@@ -1,12 +1,12 @@
 {
-  "name": "agent-skills",
+  "name": "ark-space",
   "version": "0.1.0",
-  "description": "A general-purpose Agent Skills collection with lightweight role routing, skill management, and domain roles for coding, documents, product, and project work.",
+  "description": "ArkSpace is a creative workspace for orchestrating reusable agent skills, roles, and workflows.",
   "author": {
     "name": "arch3rPro",
     "url": "https://github.com/arch3rPro"
   },
-  "repository": "https://github.com/arch3rPro/agent-skills",
+  "repository": "https://github.com/arch3rPro/ark-space",
   "license": "MIT",
   "keywords": [
     "skills",

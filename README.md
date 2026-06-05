@@ -1,42 +1,50 @@
-# Agent Skills
+# ArkSpace
 
-A general-purpose Agent Skills collection for lightweight role routing, skill management, and reusable workflows across coding, documentation, product, project, and knowledge-management work.
+ArkSpace is a creative workspace for orchestrating agent skills, roles, and workflows across Claude Code and Codex, with a standard `skills/` tree that can be reused by compatible hosts.
 
-The repository follows the Agent Skills package shape with skills under `skills/<skill-name>/SKILL.md`. Claude Code and Codex use the same canonical `skills/` directory.
+This repository packages reusable skills, role definitions, and source-governance metadata for agent work across coding, documentation, product, project, and knowledge-management tasks. The default entry point is a lightweight Orchestrator role that routes work to the smallest useful role and workflow instead of forcing a heavy process on every request.
 
-## What Is Included
+## Project Shape
 
-- `orchestrator`: routes work to the smallest useful role and workflow.
-- `skill-manager`: manages skill creation, source governance, role assignment, and validation.
-- Code roles: engineering, review, and repository maintenance.
-- Documentation roles: writing, editing, and knowledge management.
-- Product roles: PRD planning, demo design, and competitive analysis.
-- Project roles: planning and delivery coordination.
-- Existing Obsidian skills retained as knowledge-management tools.
-
-## Installation
-
-### Claude Code
-
-Use the Claude plugin files in `.claude-plugin/`.
-
-For local development, install this repository as a Claude Code plugin according to Claude Code's local plugin workflow.
-
-### Codex
-
-Use the Codex plugin manifest in `.codex-plugin/plugin.json`.
-
-The Codex manifest points to:
-
-```json
-"skills": "./skills/"
+```text
+.
++-- skills/              # Canonical Agent Skills: skills/<name>/SKILL.md
++-- roles/               # Role definitions that compose skills by work type
++-- registry/            # Skill, role, and upstream source governance
++-- .claude-plugin/      # Claude Code plugin metadata
++-- .codex-plugin/       # Codex plugin metadata
++-- docs/                # Architecture and maintenance docs
++-- overlays/            # Public examples for private local customization
++-- scripts/             # Validation and maintenance scripts
++-- reference/           # Optional local or tracked upstream references
 ```
 
-### Manual Skills Install
+The canonical skill source is always `skills/<skill-name>/SKILL.md`. Platform manifests should point to that shared `skills/` tree instead of maintaining Claude-specific or Codex-specific skill copies.
 
-Copy or link the `skills/` directory into any Agent Skills-compatible host that supports the standard `skills/<skill-name>/SKILL.md` layout.
+## Core Concepts
 
-## Roles
+### Orchestrator
+
+`orchestrator` is the default role. It performs lightweight routing:
+
+- Identify the task domain: code, docs, product, project, skills, or knowledge management.
+- Pick the smallest useful role and skill set.
+- Escalate to design-first work only when the task is cross-domain, structurally risky, or unclear.
+- Hand skill-library maintenance to `skill-manager`.
+
+### Skill Manager
+
+`skill-manager` governs the package:
+
+- Create skills under `skills/<skill-name>/SKILL.md`.
+- Record upstream provenance in `registry/sources.yaml`.
+- Assign skills to roles.
+- Keep registries and manifests valid.
+- Guide mirror, adapted, local, and reference-only update decisions.
+
+### Roles
+
+Roles live under `roles/` and describe reusable bundles of skills. They do not duplicate skill content.
 
 | Role | Purpose |
 |---|---|
@@ -54,12 +62,12 @@ Copy or link the `skills/` directory into any Agent Skills-compatible host that 
 | `project/delivery-coordinator` | Handoffs, status, and delivery coordination |
 | `skills/skill-manager` | Skill lifecycle and registry governance |
 
-## Skills
+## Included Skills
 
 | Skill | Purpose |
 |---|---|
-| `orchestrator` | Lightweight role and workflow routing |
-| `skill-manager` | Skill creation, registry, source, and role governance |
+| `orchestrator` | Route work to the smallest useful role and workflow |
+| `skill-manager` | Manage skill lifecycle, registries, sources, and role ownership |
 | `defuddle` | Extract clean Markdown from web pages |
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases |
@@ -67,25 +75,75 @@ Copy or link the `skills/` directory into any Agent Skills-compatible host that 
 | `obsidian-kanban` | Create and maintain Obsidian Kanban boards |
 | `obsidian-markdown` | Create and edit Obsidian-flavored Markdown |
 
+The Obsidian-related skills are retained as documentation and knowledge-management tools. They no longer define the identity of the whole package.
+
+## Installation
+
+### Claude Code
+
+Use the plugin metadata under `.claude-plugin/`.
+
+For local development, install this repository as a Claude Code plugin according to Claude Code's local plugin workflow. The plugin uses the shared `skills/` directory.
+
+### Codex
+
+Use `.codex-plugin/plugin.json`. The Codex manifest points to:
+
+```json
+"skills": "./skills/"
+```
+
+### Manual Skills Install
+
+For any host that supports the standard Agent Skills layout, copy or link the `skills/` directory into the host's skills directory.
+
 ## Governance
 
-Skill source and role ownership are tracked in `registry/`.
+Registries under `registry/` are the source of truth for package metadata:
 
-Supported sync modes:
+- `registry/skills.yaml`: skills, paths, sync modes, categories, and role ownership.
+- `registry/roles.yaml`: role IDs, paths, domains, and default role.
+- `registry/sources.yaml`: upstream repositories and source policies.
 
-- `mirror`: keep close to upstream.
-- `adapted`: selectively merge upstream changes.
-- `local`: maintain directly in this repository.
-- `reference-only`: use as design reference, not as a published local skill.
+Supported source policies:
 
-Run validation after changing skills, roles, registries, or plugin manifests:
+| Mode | Meaning |
+|---|---|
+| `mirror` | Keep close to upstream |
+| `adapted` | Selectively merge upstream changes after local adaptation |
+| `local` | Maintain directly in this repository |
+| `reference-only` | Use as design reference, not as a published local skill |
+
+Run validation after changing skills, roles, registries, manifests, README, or agent guidance:
 
 ```bash
 python3 scripts/validate-skills.py
 ```
 
+## Project Documents
+
+- `CHANGELOG.md`: notable project changes.
+- `CONTRIBUTING.md`: contribution workflow and validation requirements.
+- `CODE_OF_CONDUCT.md`: participation standards.
+- `SECURITY.md`: vulnerability reporting and security scope.
+- `SUPPORT.md`: support request guidance.
+- `NOTICE.md`: upstream attribution and source notices.
+
 ## Personal Overlays
 
-The public package stays reusable. Personal and private configuration belongs in ignored overlay files under `overlays/`.
+The public package should stay reusable. Personal workflows, private repositories, internal tools, and company-specific preferences belong in ignored overlay files:
 
-See `overlays/README.md` for details.
+```text
+overlays/personal.yaml
+overlays/private-skills.yaml
+```
+
+Commit only examples and documentation under `overlays/`. See `overlays/README.md`.
+
+## Development Notes
+
+- Keep skill bodies host-neutral when possible.
+- Do not create separate Claude/Codex skill copies.
+- Do not publish, tag, push releases, or run version workflows unless explicitly requested.
+- Preserve upstream attribution and license requirements when importing or adapting skills.
+- Treat `reference/` as optional design/reference material; do not rely on it for runtime behavior.

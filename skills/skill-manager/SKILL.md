@@ -1,6 +1,6 @@
 ---
 name: skill-manager
-description: Manage this Agent Skills package by creating skills, recording upstream sources, assigning roles, validating registries, and guiding mirror, adapted, local, and reference-only skill updates.
+description: Manage ArkSpace by creating skills, recording upstream sources, assigning roles, validating registries, and guiding mirror, adapted, local, and reference-only skill updates.
 ---
 
 # Skill Manager

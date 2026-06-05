@@ -1,6 +1,6 @@
 # Architecture
 
-This repository is a general Agent Skills package.
+ArkSpace is a creative workspace for orchestrating reusable agent skills, roles, and workflows.
 
 The canonical skill source is `skills/<skill-name>/SKILL.md`. Claude Code, Codex, and future hosts should consume the same skill files instead of maintaining platform-specific copies.
 

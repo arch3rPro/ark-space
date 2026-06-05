@@ -1,14 +1,14 @@
 {
-  "name": "agent-skills",
+  "name": "ark-space",
   "owner": {
     "name": "arch3rPro",
     "url": "https://github.com/arch3rPro"
   },
   "plugins": [
     {
-      "name": "agent-skills",
+      "name": "ark-space",
       "source": "./",
-      "description": "General-purpose Agent Skills with lightweight role routing",
+      "description": "Creative workspace for orchestrating agent skills, roles, and workflows",
       "version": "0.1.0"
     }
   ]
