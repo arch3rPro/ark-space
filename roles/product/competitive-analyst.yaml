@@ -4,6 +4,7 @@ domain: product
 description: Compare products, competitors, claims, positioning, and market evidence.
 skills:
   - orchestrator
+  - searxng-search
   - defuddle
 platforms:
   claude-code: true

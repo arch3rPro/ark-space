@@ -11,12 +11,13 @@ Use the lightest role and workflow that can safely complete the task. Route firs
 
 ## Routing Workflow
 
-1. Identify the primary task domain: code, docs, product, project, skills, knowledge management, or cross-domain.
+1. Identify the primary task domain: code, docs, product, project, skills, knowledge management, research, or cross-domain.
 2. Select the smallest useful role set from `roles/`.
-3. Use one role for simple work.
-4. Use multiple roles only when the task naturally crosses domains.
-5. Ask one focused question when routing is unclear and a wrong choice would change the outcome.
-6. Hand off skill-library maintenance to `skill-manager`.
+3. For web tasks, choose the role first, then choose either a `web_search` or `web_fetch` provider.
+4. Use one role for simple work.
+5. Use multiple roles only when the task naturally crosses domains.
+6. Ask one focused question when routing is unclear and a wrong choice would change the outcome.
+7. Hand off skill-library maintenance to `skill-manager`.
 
 ## Default Routes
 
@@ -28,12 +29,34 @@ Use the lightest role and workflow that can safely complete the task. Route firs
 | Write new documentation | `docs/doc-writer` |
 | Improve existing documentation | `docs/doc-editor` |
 | Work with Obsidian, notes, Bases, Canvas, or knowledge files | `docs/knowledge-manager` |
+| Web search, source discovery, general research, SearXNG | `docs/knowledge-manager` |
+| Read, fetch, summarize, or extract a provided URL | `docs/knowledge-manager` |
 | Shape requirements or PRDs | `product/prd-planner` |
 | Build or evaluate a product demo | `product/demo-designer` |
-| Compare products, competitors, or market claims | `product/competitive-analyst` |
+| Compare products, competitors, market claims, or public evidence | `product/competitive-analyst` |
 | Plan milestones, tasks, ownership, or delivery | `project/project-manager` |
 | Coordinate handoffs, status, or multi-step delivery | `project/delivery-coordinator` |
 | Create, adapt, validate, or sync skills | `skills/skill-manager` |
+
+## Web Capability Selection
+
+Web work splits into two provider capabilities:
+
+| Capability | Input | Output | Registry |
+|---|---|---|---|
+| `web_search` | Query | Candidate URLs, snippets, source metadata | `registry/search-providers.yaml` |
+| `web_fetch` | URL | Readable page content, Markdown/text, metadata | `registry/web-fetch-providers.yaml` |
+
+Search and fetch are often chained: use `web_search` to discover candidate URLs, then `web_fetch` to read the selected primary sources.
+
+Selection order:
+
+1. Use the provider or skill the user explicitly names.
+2. For sensitive, internal, personal, credential-bearing, or embargoed queries, use only a self-hosted/private provider or ask before public search.
+3. Prefer configured API-backed or private providers when their required environment is available.
+4. Use the highest-priority active provider that fits the role and query.
+5. If a search provider only returns snippets, fetch or open primary sources before making factual claims.
+6. Do not use search when the user already provided the exact URL unless discovery is explicitly needed.
 
 ## Escalation Rules
 

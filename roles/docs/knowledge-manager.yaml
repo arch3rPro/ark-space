@@ -1,9 +1,10 @@
 id: docs/knowledge-manager
 name: Knowledge Manager
 domain: docs
-description: Work with Obsidian, Markdown notes, Bases, Canvas, Kanban boards, and clean web extraction.
+description: Work with notes, Obsidian, Markdown, Bases, Canvas, Kanban boards, web search, source discovery, and URL content extraction.
 skills:
   - orchestrator
+  - searxng-search
   - obsidian-markdown
   - obsidian-bases
   - obsidian-cli

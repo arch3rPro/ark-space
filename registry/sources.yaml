@@ -14,6 +14,37 @@ sources:
     syncPolicy: adapted
     notes: "Referenced by the defuddle skill for clean web content extraction."
 
+  - id: searxng
+    type: github
+    repo: searxng/searxng
+    documentation: https://docs.searxng.org/dev/search_api.html
+    instanceDirectory: https://searx.space/
+    license: AGPL-3.0
+    syncPolicy: reference-only
+    notes: "Official Search API and public instance directory used to design the local SearXNG search skill."
+
+  - id: hermes-agent-searxng-search
+    type: github
+    repo: NousResearch/hermes-agent
+    path: optional-skills/research/searxng-search/SKILL.md
+    license: MIT
+    syncPolicy: reference-only
+    notes: "Referenced for availability probing, timeout discipline, result fields, and search-then-extract workflow."
+
+  - id: openclaw-searxng-search
+    type: documentation
+    url: https://docs.openclaw.ai/tools/searxng-search
+    license: unknown
+    syncPolicy: reference-only
+    notes: "Referenced for provider auto-detection, SEARXNG_BASE_URL, JSON format requirements, network guard, and category fallback behavior."
+
+  - id: openclaw-web-fetch
+    type: documentation
+    url: https://docs.openclaw.ai/zh-CN/tools/web-fetch
+    license: unknown
+    syncPolicy: reference-only
+    notes: "Referenced for the web_search versus web_fetch capability split, URL-first fetch semantics, extraction modes, timeout, fallback, caching, and network-guard concerns."
+
   - id: superpowers
     type: github
     repo: obra/superpowers

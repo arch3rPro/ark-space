@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VALID_SYNC_MODES = {"mirror", "adapted", "local", "reference-only"}
+VALID_PROVIDER_STATUS = {"active", "experimental", "disabled"}
 
 
 def fail(message):
@@ -95,9 +96,14 @@ def validate_registry_files():
     skills = parse_simple_yaml_list(registry_dir / "skills.yaml", "skills")
     roles = parse_simple_yaml_list(registry_dir / "roles.yaml", "roles")
     sources = parse_simple_yaml_list(registry_dir / "sources.yaml", "sources")
+    provider_registry_paths = [
+        registry_dir / "search-providers.yaml",
+        registry_dir / "web-fetch-providers.yaml",
+    ]
 
     source_ids = {item.get("id") for item in sources if item.get("id")}
     role_ids = {item.get("id") for item in roles if item.get("id")}
+    skill_names = {item.get("name") for item in skills if item.get("name")}
 
     roles_text = read_text(registry_dir / "roles.yaml")
     if not re.search(r"^defaultRole:\s*orchestrator$", roles_text, re.MULTILINE):
@@ -133,6 +139,26 @@ def validate_registry_files():
             fail("registry/roles.yaml contains a role without id")
         if path_value and not (ROOT / path_value).exists():
             fail(f"role {role_id} path does not exist: {path_value}")
+
+    for provider_path in provider_registry_paths:
+        if not provider_path.exists():
+            continue
+        provider_text = read_text(provider_path)
+        if not re.search(r"^default(Search|Fetch)Policy:\s*.+$", provider_text, re.MULTILINE):
+            fail(f"{provider_path} must set defaultSearchPolicy or defaultFetchPolicy")
+        providers = parse_simple_yaml_list(provider_path, "providers")
+        for item in providers:
+            provider_id = item.get("id")
+            skill = item.get("skill")
+            status = item.get("status")
+            if not provider_id:
+                fail(f"{provider_path} contains a provider without id")
+            if not skill:
+                fail(f"search provider {provider_id} is missing skill")
+            if skill not in skill_names:
+                fail(f"search provider {provider_id} references unknown skill {skill}")
+            if status not in VALID_PROVIDER_STATUS:
+                fail(f"search provider {provider_id} has invalid status {status}")
 
 
 def validate_platform_manifests():

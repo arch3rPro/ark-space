@@ -9,6 +9,8 @@ Use Defuddle CLI to extract clean readable content from web pages. Prefer over W
 
 If not installed: `npm install -g defuddle`
 
+This is a `web_fetch` provider: use it when the input is a known URL. Do not use it for query discovery; use a `web_search` provider such as `searxng-search` first, then fetch the selected result URL.
+
 ## Usage
 
 Always use `--md` for markdown output:

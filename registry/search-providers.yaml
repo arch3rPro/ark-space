@@ -1,0 +1,15 @@
+defaultSearchPolicy: role-first-provider-second
+
+providers:
+  - id: searxng
+    skill: searxng-search
+    status: active
+    capability: web_search
+    providerType: metasearch
+    priority: 200
+    privacy: self-host-preferred
+    configEnv: SEARXNG_URL,SEARXNG_BASE_URL
+    publicFallback: searx.space
+    outputFields: title,url,content,engine,parsed_url,img_src,thumbnail,author,publishedDate,score
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use for SearXNG-specific requests, self-hosted/private search, or public fallback when the query is not sensitive."

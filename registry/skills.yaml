@@ -18,8 +18,16 @@ skills:
     status: active
     syncMode: adapted
     upstreamId: defuddle-cli
-    categories: docs,research,web
+    categories: docs,research,web,fetch
     roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: searxng-search
+    path: skills/searxng-search
+    status: active
+    syncMode: local
+    upstreamId: searxng
+    categories: research,web,search
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
 
   - name: json-canvas
     path: skills/json-canvas

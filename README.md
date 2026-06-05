@@ -69,6 +69,7 @@ Roles live under `roles/` and describe reusable bundles of skills. They do not d
 | `orchestrator` | Route work to the smallest useful role and workflow |
 | `skill-manager` | Manage skill lifecycle, registries, sources, and role ownership |
 | `defuddle` | Extract clean Markdown from web pages |
+| `searxng-search` | Query self-hosted SearXNG or public fallback instances |
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases |
 | `obsidian-cli` | Interact with Obsidian through the CLI |
@@ -104,6 +105,8 @@ Registries under `registry/` are the source of truth for package metadata:
 - `registry/skills.yaml`: skills, paths, sync modes, categories, and role ownership.
 - `registry/roles.yaml`: role IDs, paths, domains, and default role.
 - `registry/sources.yaml`: upstream repositories and source policies.
+- `registry/search-providers.yaml`: search-provider selection metadata for compatible search skills.
+- `registry/web-fetch-providers.yaml`: URL fetch/extraction provider metadata for compatible fetch skills.
 
 Supported source policies:
 
