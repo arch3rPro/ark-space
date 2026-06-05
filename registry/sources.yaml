@@ -1,0 +1,23 @@
+sources:
+  - id: obsidian-skills
+    type: github
+    repo: arch3rPro/obsidian-skills
+    upstreamRepo: kepano/obsidian-skills
+    license: MIT
+    syncPolicy: adapted
+    notes: "Existing Obsidian skills retained as knowledge-management tools."
+
+  - id: defuddle-cli
+    type: github
+    repo: kepano/defuddle-cli
+    license: MIT
+    syncPolicy: adapted
+    notes: "Referenced by the defuddle skill for clean web content extraction."
+
+  - id: superpowers
+    type: github
+    repo: obra/superpowers
+    license: MIT
+    syncPolicy: reference-only
+    localPath: reference/superpowers
+    notes: "Reference for multi-platform plugin structure and agent workflow skills."

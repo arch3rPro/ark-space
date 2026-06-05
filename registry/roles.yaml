@@ -1,0 +1,55 @@
+defaultRole: orchestrator
+
+roles:
+  - id: orchestrator
+    path: roles/orchestrator.yaml
+    domain: meta
+    default: true
+
+  - id: code/code-engineer
+    path: roles/code/code-engineer.yaml
+    domain: code
+
+  - id: code/code-reviewer
+    path: roles/code/code-reviewer.yaml
+    domain: code
+
+  - id: code/repo-maintainer
+    path: roles/code/repo-maintainer.yaml
+    domain: code
+
+  - id: docs/doc-writer
+    path: roles/docs/doc-writer.yaml
+    domain: docs
+
+  - id: docs/doc-editor
+    path: roles/docs/doc-editor.yaml
+    domain: docs
+
+  - id: docs/knowledge-manager
+    path: roles/docs/knowledge-manager.yaml
+    domain: docs
+
+  - id: product/prd-planner
+    path: roles/product/prd-planner.yaml
+    domain: product
+
+  - id: product/demo-designer
+    path: roles/product/demo-designer.yaml
+    domain: product
+
+  - id: product/competitive-analyst
+    path: roles/product/competitive-analyst.yaml
+    domain: product
+
+  - id: project/project-manager
+    path: roles/project/project-manager.yaml
+    domain: project
+
+  - id: project/delivery-coordinator
+    path: roles/project/delivery-coordinator.yaml
+    domain: project
+
+  - id: skills/skill-manager
+    path: roles/skills/skill-manager.yaml
+    domain: skills
