@@ -1,1 +1,5 @@
 .worktrees/
+
+# Local private overlays
+overlays/personal.yaml
+overlays/private-skills.yaml

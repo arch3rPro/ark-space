@@ -1,0 +1,12 @@
+enabledRoles:
+  - orchestrator
+  - code/code-engineer
+  - docs/knowledge-manager
+
+disabledRoles: []
+
+privateSkillPaths: []
+
+preferences:
+  orchestratorMode: lightweight-routing
+  askBeforeCrossDomainImplementation: true
