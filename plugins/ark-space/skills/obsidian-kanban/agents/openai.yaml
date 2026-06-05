@@ -1,0 +1,4 @@
+interface:
+  display_name: "Obsidian Kanban"
+  short_description: "Create and maintain Obsidian Kanban boards"
+  default_prompt: "Use $obsidian-kanban to create or update an Obsidian Kanban board with GTD-friendly tasks."

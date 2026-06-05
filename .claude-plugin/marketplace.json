@@ -4,12 +4,14 @@
     "name": "arch3rPro",
     "url": "https://github.com/arch3rPro"
   },
+  "description": "Reusable agent skills, roles, and workflows for ArkSpace orchestration.",
   "plugins": [
     {
       "name": "ark-space",
       "source": "./",
       "description": "Creative workspace for orchestrating agent skills, roles, and workflows",
-      "version": "0.1.1"
+      "version": "0.1.2",
+      "strict": true
     }
   ]
 }

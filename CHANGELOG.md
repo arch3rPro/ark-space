@@ -6,7 +6,10 @@ This project uses human-readable release notes. Dates use `YYYY-MM-DD`.
 
 ## Unreleased
 
-- Codex marketplace packaging now points at the repository root instead of a symlink wrapper, so plugin cache installation includes real `.codex-plugin/` and `skills/` files.
+- Codex marketplace packaging now uses a real `plugins/ark-space/` package directory instead of an invalid repository-root source or symlink wrapper.
+- Validation now checks the Codex package directory for required files, symlinks, and stale copies against canonical root sources.
+- `python3 scripts/arkspace.py package-codex` now rebuilds the Codex marketplace package from canonical root files.
+- Claude marketplace metadata now includes a marketplace description and explicit strict-mode intent.
 - Callable ArkSpace agent runtime files, generated host integrations, and callability checks added.
 - Local `reference/` checkouts and local process planning files are ignored.
 - Provider Manager skill and `scripts/arkspace_provider.py` added for guided provider setup, readiness checks, and future API key rotation.
