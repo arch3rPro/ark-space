@@ -1,0 +1,9 @@
+id: docs/doc-editor
+name: Doc Editor
+domain: docs
+description: Improve structure, clarity, consistency, and usefulness of existing documentation.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true

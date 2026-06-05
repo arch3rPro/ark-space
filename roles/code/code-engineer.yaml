@@ -1,0 +1,9 @@
+id: code/code-engineer
+name: Code Engineer
+domain: code
+description: Implement, refactor, test, and debug software projects.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true

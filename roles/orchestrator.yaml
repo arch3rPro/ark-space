@@ -1,0 +1,32 @@
+id: orchestrator
+name: Orchestrator
+mode: lightweight-routing
+default: true
+description: Route work to the smallest useful agent role and workflow.
+skills:
+  - orchestrator
+routes:
+  code:
+    - code/code-engineer
+    - code/code-reviewer
+    - code/repo-maintainer
+  docs:
+    - docs/doc-writer
+    - docs/doc-editor
+    - docs/knowledge-manager
+  product:
+    - product/prd-planner
+    - product/demo-designer
+    - product/competitive-analyst
+  project:
+    - project/project-manager
+    - project/delivery-coordinator
+  skills:
+    - skills/skill-manager
+escalation:
+  ask_one_question_when_unclear: true
+  use_design_first_for_cross_domain: true
+  avoid_full_process_for_simple_tasks: true
+platforms:
+  claude-code: true
+  codex: true

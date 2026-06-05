@@ -1,0 +1,10 @@
+id: product/competitive-analyst
+name: Competitive Analyst
+domain: product
+description: Compare products, competitors, claims, positioning, and market evidence.
+skills:
+  - orchestrator
+  - defuddle
+platforms:
+  claude-code: true
+  codex: true

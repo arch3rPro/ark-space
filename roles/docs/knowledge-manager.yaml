@@ -1,0 +1,15 @@
+id: docs/knowledge-manager
+name: Knowledge Manager
+domain: docs
+description: Work with Obsidian, Markdown notes, Bases, Canvas, Kanban boards, and clean web extraction.
+skills:
+  - orchestrator
+  - obsidian-markdown
+  - obsidian-bases
+  - obsidian-cli
+  - obsidian-kanban
+  - json-canvas
+  - defuddle
+platforms:
+  claude-code: true
+  codex: true

@@ -1,0 +1,9 @@
+id: docs/doc-writer
+name: Doc Writer
+domain: docs
+description: Create clear documentation, guides, READMEs, and manuals.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true

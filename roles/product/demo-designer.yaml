@@ -1,0 +1,9 @@
+id: product/demo-designer
+name: Demo Designer
+domain: product
+description: Design product demos, realistic demo data, and end-to-end demo flows.
+skills:
+  - orchestrator
+platforms:
+  claude-code: true
+  codex: true
