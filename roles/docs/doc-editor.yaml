@@ -4,6 +4,7 @@ domain: docs
 description: Improve structure, clarity, consistency, and usefulness of existing documentation.
 skills:
   - orchestrator
+  - obsidian-markdown
 platforms:
   claude-code: true
   codex: true
