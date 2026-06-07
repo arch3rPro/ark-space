@@ -98,11 +98,11 @@ When a provider is missing:
 
 1. Explain the exact capability that is missing, such as `web_search`.
 2. Ask whether to start setup now and present exactly two choices:
-   - "Start setup wizard" - run the setup command.
+   - "Start setup wizard" - start interactive setup with the setup command.
    - "Not now" - leave the provider unconfigured; if the user still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
 3. Give the one setup command that fixes it. For Tavily API keys, prefer `provider setup tavily --wizard`.
-4. If the current host can execute shell commands and the user chooses setup, run the setup command for them.
-5. If the host cannot run an interactive setup command, show the command and ask the user to run it.
+4. If the current host can execute shell commands and can provide interactive secret input, run the setup command for them.
+5. If the host shell is non-interactive, do not run `--wizard` through that tool. Offer either interactive terminal setup or saving a pasted key through `provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin`.
 6. Re-run the provider check after setup.
 7. If setup succeeds, rerun or tell the user to rerun the original skill invocation.
 

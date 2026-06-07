@@ -37,10 +37,12 @@ If the provider check reports a missing Tavily API key:
 
 1. Ask the user whether to start setup now: "Tavily is not configured. Should I start the ArkSpace setup wizard now?"
 2. Present exactly two choices:
-   - "Start setup wizard" - run `python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard`.
+   - "Start setup wizard" - start interactive setup with `python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard`.
    - "Not now" - leave Tavily unconfigured; if the user still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
-3. In Claude Code, show the setup action as `! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard`. In other hosts, run the same command through the host's shell execution mechanism.
-4. When the host supports shell execution and the user chooses setup, run the setup command for them instead of asking them to edit config files.
+3. Run the setup command for the user only when the host shell can provide interactive secret input. If the shell is non-interactive, do not run `--wizard` through that tool.
+4. In Claude Code non-interactive tool sessions, tell the user the wizard needs interactive secret input and offer:
+   - run `! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard` in the Claude prompt or terminal, or
+   - paste the API key in chat and let the agent save it with `python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin`.
 5. Re-run the provider check after setup.
 6. If setup succeeds, rerun or tell the user to rerun the original invocation, such as `/ark-space:tavily-extract <url>`.
 7. Do not return Tavily extraction results until the provider check succeeds.

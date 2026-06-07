@@ -6,7 +6,9 @@ from __future__ import annotations
 import argparse
 import getpass
 import json
+import os
 import sys
+import termios
 
 from arkspace_runtime.provider_config import (
     ProviderConfigError,
@@ -135,8 +137,33 @@ def collect_secret_values(names: list[str], args: argparse.Namespace) -> dict[st
             raise ProviderConfigError(f"expected {len(names)} secret values on stdin, got {len(lines)}")
         return {name: lines[index] for index, name in enumerate(names)}
     if getattr(args, "prompt", False):
-        return {name: getpass.getpass(f"{name}: ") for name in names}
+        if not can_collect_interactive_secret():
+            raise ProviderConfigError(
+                "interactive secret input requires a TTY; run the wizard in an interactive terminal "
+                "or use --secret-stdin"
+            )
+        try:
+            return {name: getpass.getpass(f"{name}: ") for name in names}
+        except EOFError as exc:
+            raise ProviderConfigError(
+                "interactive secret input ended before a key was entered; run the wizard in an interactive terminal "
+                "or use --secret-stdin"
+            ) from exc
     raise ProviderConfigError("use --prompt or --secret-stdin with --save-secret")
+
+
+def can_collect_interactive_secret() -> bool:
+    try:
+        fd = sys.stdin.fileno()
+    except (AttributeError, OSError):
+        return False
+    if not os.isatty(fd):
+        return False
+    try:
+        termios.tcgetattr(fd)
+    except termios.error:
+        return False
+    return True
 
 
 def wizard_secret_names(provider: str, key_count: int) -> list[str]:
@@ -154,6 +181,18 @@ def command_setup(args: argparse.Namespace) -> int:
     if not defaults:
         raise ProviderConfigError(f"provider {args.provider} does not have setup defaults")
 
+    save_secret_values = getattr(args, "save_secret", []) or []
+    if getattr(args, "wizard", False):
+        if args.env or save_secret_values:
+            raise ProviderConfigError("do not combine --wizard with --env or --save-secret")
+        save_secret_values = wizard_secret_names(args.provider, args.key_count)
+        if not args.secret_stdin:
+            args.prompt = True
+
+    secret_names = normalize_env_names(save_secret_values)
+    env_names = normalize_env_names((args.env or []) + secret_names)
+    secret_values = collect_secret_values(secret_names, args)
+
     capabilities = list(defaults["capabilities"])
     base_url = args.base_url or defaults["base_url"]
     path = set_provider_endpoint(
@@ -166,16 +205,6 @@ def command_setup(args: argparse.Namespace) -> int:
     )
     print(f"configured provider {args.provider} endpoint default in {path}")
 
-    save_secret_values = getattr(args, "save_secret", []) or []
-    if getattr(args, "wizard", False):
-        if args.env or save_secret_values:
-            raise ProviderConfigError("do not combine --wizard with --env or --save-secret")
-        save_secret_values = wizard_secret_names(args.provider, args.key_count)
-        if not args.secret_stdin:
-            args.prompt = True
-
-    secret_names = normalize_env_names(save_secret_values)
-    env_names = normalize_env_names((args.env or []) + secret_names)
     for env_name in env_names:
         path = add_key_ref(
             args.provider,
@@ -186,7 +215,7 @@ def command_setup(args: argparse.Namespace) -> int:
         )
         print(f"added key reference env:{env_name} for provider {args.provider} in {path}")
 
-    for env_name, value in collect_secret_values(secret_names, args).items():
+    for env_name, value in secret_values.items():
         path = set_secret_value(env_name, value)
         print(f"saved secret env:{env_name} for provider {args.provider} in {path}")
 

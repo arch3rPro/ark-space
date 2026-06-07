@@ -399,6 +399,35 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_1"], "first-secret")
         self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_2"], "second-secret")
 
+    def test_tavily_setup_wizard_requires_tty_before_writing_config(self):
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "tavily",
+                "base_url": None,
+                "env": [],
+                "save_secret": [],
+                "wizard": True,
+                "key_count": 1,
+                "prompt": False,
+                "secret_stdin": False,
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with patch.object(module, "can_collect_interactive_secret", return_value=False):
+            with self.assertRaisesRegex(provider_config.ProviderConfigError, "interactive secret input requires a TTY"):
+                module.command_setup(args)
+
+        data = provider_config.load_config(self.config_path)
+        self.assertNotIn("tavily", data.get("providers", {}))
+        secrets = provider_config.load_secrets(self.secrets_path)
+        self.assertEqual(secrets["secrets"], {})
+
     def test_tavily_setup_command_allows_endpoint_only_setup(self):
         module = load_provider_manager_module()
         args = type(

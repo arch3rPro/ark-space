@@ -79,9 +79,10 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertIn("Present exactly two choices", text)
                 self.assertIn("Start setup wizard", text)
                 self.assertIn("Not now", text)
-                self.assertIn("! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard", text)
                 self.assertIn("provider setup tavily --wizard", text)
-                self.assertIn("user chooses setup", text)
+                self.assertIn("host shell can provide interactive secret input", text)
+                self.assertIn("do not run `--wizard` through that tool", text)
+                self.assertIn("provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin", text)
                 self.assertIn(invocation, text)
                 self.assertIn("Do not return Tavily", text)
                 self.assertIn("declines, defers, or cannot complete setup", text)
@@ -95,7 +96,9 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("Start setup wizard", text)
         self.assertIn("Not now", text)
         self.assertIn("provider setup tavily --wizard", text)
-        self.assertIn("user chooses setup", text)
+        self.assertIn("can provide interactive secret input", text)
+        self.assertIn("do not run `--wizard` through that tool", text)
+        self.assertIn("provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin", text)
         self.assertIn("rerun the original skill invocation", text)
 
     def test_provider_workflow_allows_fallback_only_after_setup_path(self):
