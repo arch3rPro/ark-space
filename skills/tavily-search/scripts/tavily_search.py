@@ -25,6 +25,14 @@ class ProviderRequestError(provider_config.ProviderConfigError):
         self.status = status
 
 
+def failure_rotation_targets(endpoint_id: str | None, key_ref: str | None, status: int | None) -> tuple[str | None, str | None]:
+    if status in {401, 403, 429}:
+        return None, key_ref
+    if status is None or status >= 500:
+        return endpoint_id, None
+    return endpoint_id, key_ref
+
+
 def endpoint_url(base_url: str, path: str) -> str:
     return base_url.rstrip("/") + path
 
@@ -149,10 +157,15 @@ def run_search(
             state_path=state_path,
         )
     except provider_config.ProviderConfigError as exc:
+        endpoint_id, key_ref = failure_rotation_targets(
+            endpoint.get("id"),
+            (resolved.get("auth") or {}).get("key_ref"),
+            getattr(exc, "status", None),
+        )
         provider_config.record_provider_result(
             "tavily",
-            endpoint_id=endpoint.get("id"),
-            key_ref=(resolved.get("auth") or {}).get("key_ref"),
+            endpoint_id=endpoint_id,
+            key_ref=key_ref,
             ok=False,
             status=getattr(exc, "status", None),
             config_path=config_path,

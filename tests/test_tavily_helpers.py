@@ -100,6 +100,40 @@ class TavilyHelperTests(unittest.TestCase):
         self.assertEqual(key_state["last_status"], 429)
         self.assertGreater(key_state["cooldown_until"], 0)
 
+    def test_search_429_cools_key_without_blocking_endpoint_rotation(self):
+        self.configure_tavily()
+        os.environ["TAVILY_API_KEY_SECOND"] = "tvly-second-key"
+        self.addCleanup(os.environ.pop, "TAVILY_API_KEY_SECOND", None)
+        self.search.provider_config.add_key_ref(
+            "tavily",
+            key_ref="env:TAVILY_API_KEY_SECOND",
+            auth_header="Authorization",
+            auth_prefix="Bearer ",
+            config_path=self.config_path,
+        )
+
+        def fake_post(url, headers, payload, timeout):
+            raise self.search.ProviderRequestError("rate limited", status=429)
+
+        with self.assertRaises(self.search.ProviderRequestError):
+            self.search.run_search(
+                "agent skills",
+                config_path=self.config_path,
+                state_path=self.state_path,
+                post_json=fake_post,
+            )
+
+        state = self.search.provider_config.load_state(self.state_path)
+        self.assertNotIn("endpoints", state["tavily"])
+        resolved = self.search.provider_config.resolve_provider(
+            "tavily",
+            capability="web_search",
+            config_path=self.config_path,
+            state_path=self.state_path,
+            require_secret=True,
+        )
+        self.assertEqual(resolved["auth"]["key_ref"], "env:TAVILY_API_KEY_SECOND")
+
     def test_search_records_malformed_json_failure_for_rotation(self):
         self.configure_tavily()
 
@@ -115,9 +149,10 @@ class TavilyHelperTests(unittest.TestCase):
             )
 
         state = self.search.provider_config.load_state(self.state_path)
-        key_state = state["tavily"]["keys"]["env:TAVILY_API_KEY_TEST"]
-        self.assertIsNone(key_state["last_status"])
-        self.assertGreater(key_state["cooldown_until"], 0)
+        endpoint_state = state["tavily"]["endpoints"]["default"]
+        self.assertNotIn("keys", state["tavily"])
+        self.assertIsNone(endpoint_state["last_status"])
+        self.assertGreater(endpoint_state["cooldown_until"], 0)
 
     def test_extract_builds_tavily_payload(self):
         self.configure_tavily()
@@ -159,9 +194,10 @@ class TavilyHelperTests(unittest.TestCase):
             )
 
         state = self.extract.provider_config.load_state(self.state_path)
-        key_state = state["tavily"]["keys"]["env:TAVILY_API_KEY_TEST"]
-        self.assertIsNone(key_state["last_status"])
-        self.assertGreater(key_state["cooldown_until"], 0)
+        endpoint_state = state["tavily"]["endpoints"]["default"]
+        self.assertNotIn("keys", state["tavily"])
+        self.assertIsNone(endpoint_state["last_status"])
+        self.assertGreater(endpoint_state["cooldown_until"], 0)
 
     def test_check_reports_missing_key_without_network(self):
         output = self.search.check_config(config_path=self.config_path, state_path=self.state_path)
