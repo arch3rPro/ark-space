@@ -278,7 +278,7 @@ def main() -> int:
         config_path = default_config_path(args.config_path)
         print(
             "no SearXNG instance available; set SEARXNG_URL, run "
-            "`python3 scripts/arkspace_provider.py configure searxng --base-url <url>`, "
+            "`python3 scripts/arkspace.py provider configure searxng --base-url <url>`, "
             f"or pass --base-url; config path: {config_path}",
             file=sys.stderr,
         )

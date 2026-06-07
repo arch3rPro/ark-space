@@ -28,15 +28,15 @@ export ARKSPACE_PROVIDER_STATE="/path/to/provider-state.json"
 Run:
 
 ```bash
-python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
-python3 scripts/arkspace_provider.py resolve searxng --capability web_search
-python3 skills/searxng-search/scripts/searxng_search.py --check
+python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
+python3 scripts/arkspace.py provider resolve searxng --capability web_search
+python3 scripts/arkspace.py provider check searxng
 ```
 
 The SearXNG helper also accepts one-off overrides:
 
 ```bash
-python3 skills/searxng-search/scripts/searxng_search.py "query" --base-url "https://searx.example.org"
+python3 scripts/arkspace.py web search --provider searxng "query" --base-url "https://searx.example.org"
 ```
 
 Host-managed environment variables still work:
@@ -53,8 +53,8 @@ For API-backed providers, store only key references in ArkSpace config. Store ac
 export BRAVE_API_KEY_1="..."
 export BRAVE_API_KEY_2="..."
 
-python3 scripts/arkspace_provider.py add-key brave-search --env BRAVE_API_KEY_1 --header X-Subscription-Token
-python3 scripts/arkspace_provider.py add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
+python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_1 --header X-Subscription-Token
+python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
 ```
 
 The config stores `env:BRAVE_API_KEY_1`, not the secret value.

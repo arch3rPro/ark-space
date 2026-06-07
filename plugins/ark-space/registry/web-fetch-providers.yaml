@@ -15,3 +15,25 @@ providers:
     outputFields: markdown,html,title,description,domain
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use after web_search returns a URL, or when the user provides a normal web page URL to read or analyze."
+
+  - id: tavily
+    skill: tavily-extract
+    status: active
+    capability: web_fetch
+    providerType: extraction-api
+    priority: 80
+    privacy: api-backed
+    configEnv: TAVILY_API_KEY
+    configRequired: true
+    recommendedEnv: TAVILY_API_KEY_1
+    providerConfigCommand: python3 scripts/arkspace.py provider configure tavily --base-url https://api.tavily.com
+    keyConfigCommand: python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
+    checkCommand: python3 scripts/arkspace.py provider check tavily --capability web_fetch
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    authModes: api_key
+    rotationSupported: true
+    input: url
+    outputFormats: markdown,text,json
+    outputFields: url,raw_content,images,failed_results,request_id
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use when local extraction is insufficient, pages need JavaScript rendering, multiple URLs must be processed, or query-focused chunks are needed."

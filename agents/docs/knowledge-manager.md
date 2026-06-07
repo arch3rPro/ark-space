@@ -5,6 +5,8 @@ domain: docs
 skills:
   - orchestrator
   - searxng-search
+  - tavily-search
+  - tavily-extract
   - defuddle
   - obsidian-markdown
   - obsidian-bases

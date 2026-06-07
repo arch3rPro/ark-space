@@ -21,6 +21,7 @@ from arkspace_runtime.provider_config import (
 
 DEFAULT_CAPABILITIES = {
     "searxng": "web_search",
+    "tavily": ["web_search", "web_fetch"],
 }
 
 
@@ -40,6 +41,7 @@ def parse_args() -> argparse.Namespace:
     add_key.add_argument("provider")
     add_key.add_argument("--env", required=True, help="Environment variable name that contains the key")
     add_key.add_argument("--header", help="HTTP header used by this provider")
+    add_key.add_argument("--prefix", help="Prefix prepended to the secret value in the auth header")
 
     resolve = subparsers.add_parser("resolve", help="Resolve a configured provider")
     resolve.add_argument("provider")
@@ -52,10 +54,13 @@ def parse_args() -> argparse.Namespace:
 
 
 def command_configure(args: argparse.Namespace) -> int:
-    capability = args.capability or DEFAULT_CAPABILITIES.get(args.provider) or "web_search"
+    default_capability = DEFAULT_CAPABILITIES.get(args.provider) or "web_search"
+    capabilities = default_capability if isinstance(default_capability, list) and not args.capability else None
+    capability = args.capability or (default_capability[0] if isinstance(default_capability, list) else default_capability)
     path = set_provider_endpoint(
         args.provider,
         capability=capability,
+        capabilities=capabilities,
         base_url=args.base_url,
         endpoint_id=args.endpoint_id,
         config_path=args.config_path,
@@ -69,6 +74,7 @@ def command_add_key(args: argparse.Namespace) -> int:
         args.provider,
         key_ref=f"env:{args.env}",
         auth_header=args.header,
+        auth_prefix=args.prefix,
         config_path=args.config_path,
     )
     print(f"added key reference env:{args.env} for provider {args.provider} in {path}")

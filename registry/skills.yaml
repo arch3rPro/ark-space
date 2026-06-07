@@ -36,6 +36,22 @@ skills:
     categories: research,web,search
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
 
+  - name: tavily-search
+    path: skills/tavily-search
+    status: active
+    syncMode: adapted
+    upstreamId: tavily-agent-skills
+    categories: research,web,search,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: tavily-extract
+    path: skills/tavily-extract
+    status: active
+    syncMode: adapted
+    upstreamId: tavily-agent-skills
+    categories: research,web,fetch,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
   - name: json-canvas
     path: skills/json-canvas
     status: active

@@ -5,6 +5,8 @@ domain: product
 skills:
   - orchestrator
   - searxng-search
+  - tavily-search
+  - tavily-extract
   - defuddle
 workflows:
   - provider-capabilities

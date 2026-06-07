@@ -111,6 +111,7 @@ def set_provider_endpoint(
     provider_id: str,
     *,
     capability: str,
+    capabilities: list[str] | None = None,
     base_url: str,
     endpoint_id: str = "default",
     config_path: str | None = None,
@@ -118,7 +119,14 @@ def set_provider_endpoint(
     config = load_config(config_path)
     providers = config.setdefault("providers", {})
     entry = providers.setdefault(provider_id, {})
-    entry["capability"] = capability
+    if capabilities:
+        if not all(isinstance(item, str) and item for item in capabilities):
+            raise ProviderConfigError("capabilities must be non-empty strings")
+        entry["capabilities"] = capabilities
+        entry.pop("capability", None)
+    else:
+        entry["capability"] = capability
+        entry.pop("capabilities", None)
     entry["enabled"] = True
     entry.setdefault("auth", {"type": "none"})
     entry.setdefault("rotation", default_rotation())
@@ -144,6 +152,7 @@ def add_key_ref(
     *,
     key_ref: str,
     auth_header: str | None = None,
+    auth_prefix: str | None = None,
     config_path: str | None = None,
 ) -> Path:
     if not key_ref.startswith("env:"):
@@ -155,6 +164,8 @@ def add_key_ref(
     auth["type"] = "api_key"
     if auth_header:
         auth["header"] = auth_header
+    if auth_prefix is not None:
+        auth["prefix"] = auth_prefix
     key_refs = auth.setdefault("key_refs", [])
     if not isinstance(key_refs, list):
         raise ProviderConfigError(f"provider {provider_id} auth.key_refs must be a list")
@@ -188,24 +199,35 @@ def resolve_provider(
     if entry is None or entry.get("enabled") is False:
         raise ProviderConfigError(
             f"provider {provider_id} is not configured; run "
-            f"`python3 scripts/arkspace_provider.py configure {provider_id} --base-url <url>`"
+            f"`python3 scripts/arkspace.py provider configure {provider_id} --base-url <url>`"
         )
-    if capability and entry.get("capability") and entry.get("capability") != capability:
-        raise ProviderConfigError(
-            f"provider {provider_id} is configured for {entry.get('capability')}, not {capability}"
-        )
+    resolved_capability = resolve_capability(provider_id, entry, capability)
 
     endpoint = select_endpoint(provider_id, entry, load_state(state_path), require_endpoint)
     credential = select_credential(provider_id, entry, load_state(state_path), require_secret)
     return {
         "provider": provider_id,
-        "capability": entry.get("capability") or capability,
+        "capability": resolved_capability,
         "config_path": str(default_config_path(config_path)),
         "state_path": str(default_state_path(state_path)),
         "endpoint": endpoint,
         "auth": credential,
         "rotation": entry.get("rotation") or default_rotation(),
     }
+
+
+def resolve_capability(provider_id: str, entry: dict[str, Any], requested: str | None) -> str | None:
+    configured = entry.get("capability")
+    capabilities = entry.get("capabilities")
+    if capabilities is not None:
+        if not isinstance(capabilities, list) or not all(isinstance(item, str) for item in capabilities):
+            raise ProviderConfigError(f"provider {provider_id} capabilities must be a list of strings")
+        if requested and requested not in capabilities:
+            raise ProviderConfigError(f"provider {provider_id} does not support capability {requested}")
+        return requested or (capabilities[0] if capabilities else configured)
+    if configured and requested and configured != requested:
+        raise ProviderConfigError(f"provider {provider_id} is configured for {configured}, not {requested}")
+    return configured or requested
 
 
 def select_endpoint(
@@ -222,7 +244,7 @@ def select_endpoint(
         if require_endpoint:
             raise ProviderConfigError(
                 f"provider {provider_id} has no endpoint; run "
-                f"`python3 scripts/arkspace_provider.py configure {provider_id} --base-url <url>`"
+                f"`python3 scripts/arkspace.py provider configure {provider_id} --base-url <url>`"
             )
         return None
     selected = select_round_robin(provider_id, "endpoints", usable, state, lambda item: item.get("id"))
@@ -254,7 +276,7 @@ def select_credential(
     if not key_refs:
         raise ProviderConfigError(
             f"provider {provider_id} has no key refs; run "
-            f"`python3 scripts/arkspace_provider.py add-key {provider_id} --env <ENV_NAME>`"
+            f"`python3 scripts/arkspace.py provider add-key {provider_id} --env <ENV_NAME>`"
         )
     selected = select_round_robin(provider_id, "keys", key_refs, state, lambda item: str(item))
     secret = read_key_ref(str(selected))
@@ -263,6 +285,7 @@ def select_credential(
     return {
         "type": "api_key",
         "header": auth.get("header", "Authorization"),
+        "prefix": auth.get("prefix", ""),
         "key_ref": selected,
         "available": bool(secret),
         "value": secret,
@@ -286,7 +309,19 @@ def select_round_robin(
         cooldown_until = float(item_state.get("cooldown_until") or 0)
         if cooldown_until <= now:
             active.append(item)
-    candidates = active or items
+    if not active:
+        next_ready = min(
+            float(
+                (bucket_state.get(identity(item), {}) if isinstance(bucket_state.get(identity(item), {}), dict) else {}).get(
+                    "cooldown_until", 0
+                )
+                or 0
+            )
+            for item in items
+        )
+        wait_seconds = max(0, int(next_ready - now))
+        raise ProviderConfigError(f"all {provider_id} {bucket} are cooling down; retry after {wait_seconds}s")
+    candidates = active
     return min(
         candidates,
         key=lambda item: float(

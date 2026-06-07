@@ -114,8 +114,8 @@ python3 scripts/arkspace.py install --host claude-code --dry-run
 Personal provider configuration should live outside committed package files. The recommended ArkSpace setup is:
 
 ```bash
-python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
-python3 skills/searxng-search/scripts/searxng_search.py --check
+python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
+python3 scripts/arkspace.py provider check searxng
 ```
 
 Claude Code can also pass provider variables from `.claude/settings.local.json`:
@@ -153,8 +153,8 @@ codex
 For the SearXNG skill, the persistent setup uses ArkSpace provider config:
 
 ```bash
-python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
-python3 scripts/arkspace_provider.py resolve searxng --capability web_search
+python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
+python3 scripts/arkspace.py provider resolve searxng --capability web_search
 ```
 
 This writes `~/.config/ark-space/providers.json` by default. Use `ARKSPACE_PROVIDER_CONFIG` or `--config-path` for a custom location. `--base-url` and environment variables still override the saved value.
@@ -200,7 +200,7 @@ Registries under `registry/` are the source of truth for package metadata:
 
 Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, and key rotation support. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.
 
-Use `provider-manager` and `scripts/arkspace_provider.py` for guided setup. For API-backed providers, ArkSpace config stores key references such as `env:BRAVE_API_KEY_1`; actual keys stay in the host environment or secret manager. See `docs/provider-configuration.md`.
+Use `provider-manager` and `python3 scripts/arkspace.py provider ...` for guided setup. For API-backed providers, ArkSpace config stores key references such as `env:BRAVE_API_KEY_1`; actual keys stay in the host environment or secret manager. See `docs/provider-configuration.md`.
 
 Supported source policies:
 

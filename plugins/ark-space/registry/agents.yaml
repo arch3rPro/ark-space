@@ -33,7 +33,7 @@ agents:
   - id: arkspace-knowledge-manager
     path: agents/docs/knowledge-manager.md
     domain: docs
-    skills: orchestrator,searxng-search,defuddle,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
+    skills: orchestrator,searxng-search,tavily-search,tavily-extract,defuddle,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -47,7 +47,7 @@ agents:
   - id: arkspace-competitive-analyst
     path: agents/product/competitive-analyst.md
     domain: product
-    skills: orchestrator,searxng-search,defuddle
+    skills: orchestrator,searxng-search,tavily-search,tavily-extract,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 

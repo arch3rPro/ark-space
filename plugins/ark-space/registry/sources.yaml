@@ -44,6 +44,23 @@ sources:
     syncPolicy: reference-only
     notes: "Referenced for the web_search versus web_fetch capability split, URL-first fetch semantics, extraction modes, timeout, fallback, caching, and network-guard concerns."
 
+  - id: tavily-agent-skills
+    type: github
+    repo: tavily-ai/skills
+    documentation: https://docs.tavily.com/documentation/agent-skills
+    license: MIT
+    syncPolicy: adapted
+    notes: "Official Tavily Agent Skills used as upstream structure for search and extract skills while keeping ArkSpace provider-manager as the runtime configuration layer."
+
+  - id: openclaw-tavily
+    type: github
+    repo: openclaw/openclaw
+    path: extensions/tavily
+    documentation: https://docs.openclaw.ai/tools/tavily
+    license: unknown
+    syncPolicy: reference-only
+    notes: "Referenced for Tavily as a generic web_search provider plus explicit search/extract tools, API-key configuration, base URL, and tool capability boundaries."
+
   - id: superpowers
     type: github
     repo: obra/superpowers

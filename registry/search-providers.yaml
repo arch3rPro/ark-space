@@ -12,12 +12,33 @@ providers:
     configRequired: true
     recommendedEnv: SEARXNG_URL
     compatibleEnv: SEARXNG_BASE_URL
-    providerConfigCommand: python3 scripts/arkspace_provider.py configure searxng --base-url <url>
-    checkCommand: python3 skills/searxng-search/scripts/searxng_search.py --check
+    providerConfigCommand: python3 scripts/arkspace.py provider configure searxng --base-url <url>
+    checkCommand: python3 scripts/arkspace.py provider check searxng
     missingConfigBehavior: guide-user-through-provider-manager-configuration
-    setupHint: "Run python3 scripts/arkspace_provider.py configure searxng --base-url <url>, set SEARXNG_URL, or pass --base-url for one-off use."
+    setupHint: "Run python3 scripts/arkspace.py provider configure searxng --base-url <url>, set SEARXNG_URL, or pass --base-url for one-off use."
     authModes: none
     rotationSupported: false
     outputFields: title,url,content,engine,parsed_url,img_src,thumbnail,author,publishedDate,score
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use for SearXNG-specific requests or self-hosted/private search."
+
+  - id: tavily
+    skill: tavily-search
+    status: active
+    capability: web_search
+    providerType: search-api
+    priority: 150
+    privacy: api-backed
+    configEnv: TAVILY_API_KEY
+    configRequired: true
+    recommendedEnv: TAVILY_API_KEY_1
+    providerConfigCommand: python3 scripts/arkspace.py provider configure tavily --base-url https://api.tavily.com
+    keyConfigCommand: python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
+    checkCommand: python3 scripts/arkspace.py provider check tavily --capability web_search
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run provider configure for tavily, then add one or more env-backed API key refs such as TAVILY_API_KEY_1."
+    authModes: api_key
+    rotationSupported: true
+    outputFields: title,url,snippet,score,published,answer,usage,request_id
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use for API-backed public web search, Tavily-specific depth/topic/domain controls, current news, finance, and LLM-optimized snippets."

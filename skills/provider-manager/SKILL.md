@@ -32,35 +32,43 @@ Override paths with `ARKSPACE_PROVIDER_CONFIG`, `ARKSPACE_PROVIDER_STATE`, `--co
 Show paths:
 
 ```bash
-python3 scripts/arkspace_provider.py paths
+python3 scripts/arkspace.py provider paths
 ```
 
 Configure a self-hosted SearXNG endpoint:
 
 ```bash
-python3 scripts/arkspace_provider.py configure searxng --base-url "https://searx.example.org"
+python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
+```
+
+Configure Tavily API search and extraction:
+
+```bash
+python3 scripts/arkspace.py provider configure tavily --base-url "https://api.tavily.com"
+python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
+python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_2 --header Authorization --prefix "Bearer "
 ```
 
 Inspect provider config without secret values:
 
 ```bash
-python3 scripts/arkspace_provider.py show
+python3 scripts/arkspace.py provider show
 ```
 
 Resolve a provider before use:
 
 ```bash
-python3 scripts/arkspace_provider.py resolve searxng --capability web_search
+python3 scripts/arkspace.py provider resolve searxng --capability web_search
 ```
 
 Add API key references for future API-backed providers:
 
 ```bash
-python3 scripts/arkspace_provider.py add-key brave-search --env BRAVE_API_KEY_1 --header X-Subscription-Token
-python3 scripts/arkspace_provider.py add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
+python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_1 --header X-Subscription-Token
+python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
 ```
 
-The config stores `env:BRAVE_API_KEY_1` references, not the actual key values.
+The config stores `env:BRAVE_API_KEY_1` or `env:TAVILY_API_KEY_1` references, not the actual key values.
 
 ## Key Rotation
 
