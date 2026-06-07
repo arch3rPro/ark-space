@@ -75,10 +75,13 @@ class ValidateSkillsContractTests(unittest.TestCase):
             with self.subTest(skill=skill_path):
                 text = (ROOT / skill_path).read_text(encoding="utf-8")
                 self.assertIn("Missing Configuration Recovery", text)
-                self.assertIn("I can start the ArkSpace setup wizard now", text)
+                self.assertIn("Should I start the ArkSpace setup wizard now?", text)
+                self.assertIn("Present exactly two choices", text)
+                self.assertIn("Start setup wizard", text)
+                self.assertIn("Not now", text)
                 self.assertIn("! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard", text)
                 self.assertIn("provider setup tavily --wizard", text)
-                self.assertIn("run the setup command for them", text)
+                self.assertIn("user chooses setup", text)
                 self.assertIn(invocation, text)
                 self.assertIn("Do not return Tavily", text)
                 self.assertIn("declines, defers, or cannot complete setup", text)
@@ -87,9 +90,12 @@ class ValidateSkillsContractTests(unittest.TestCase):
     def test_provider_manager_guides_interactive_setup_before_manual_commands(self):
         text = (ROOT / "skills" / "provider-manager" / "SKILL.md").read_text(encoding="utf-8")
 
-        self.assertIn("you can start the ArkSpace setup wizard now", text)
+        self.assertIn("Ask whether to start setup now", text)
+        self.assertIn("present exactly two choices", text)
+        self.assertIn("Start setup wizard", text)
+        self.assertIn("Not now", text)
         self.assertIn("provider setup tavily --wizard", text)
-        self.assertIn("run the setup command for them", text)
+        self.assertIn("user chooses setup", text)
         self.assertIn("rerun the original skill invocation", text)
 
     def test_provider_workflow_allows_fallback_only_after_setup_path(self):

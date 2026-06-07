@@ -43,13 +43,16 @@ The provider config stores `env:<NAME>` references. Raw keys saved through setup
 
 If the provider check reports a missing Tavily API key:
 
-1. Tell the user: "Tavily is not configured. I can start the ArkSpace setup wizard now."
-2. Present one clear setup action. In Claude Code, use `! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard`. In other hosts, run the same command through the host's shell execution mechanism.
-3. When the host supports shell execution and the user approves setup, run the setup command for them instead of asking them to edit config files.
-4. Re-run the provider check after setup.
-5. If setup succeeds, rerun or tell the user to rerun the original invocation, such as `/ark-space:tavily-search <query>`.
-6. Do not return Tavily search results until the provider check succeeds.
-7. If the user declines, defers, or cannot complete setup and still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
+1. Ask the user whether to start setup now: "Tavily is not configured. Should I start the ArkSpace setup wizard now?"
+2. Present exactly two choices:
+   - "Start setup wizard" - run `python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard`.
+   - "Not now" - leave Tavily unconfigured; if the user still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
+3. In Claude Code, show the setup action as `! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard`. In other hosts, run the same command through the host's shell execution mechanism.
+4. When the host supports shell execution and the user chooses setup, run the setup command for them instead of asking them to edit config files.
+5. Re-run the provider check after setup.
+6. If setup succeeds, rerun or tell the user to rerun the original invocation, such as `/ark-space:tavily-search <query>`.
+7. Do not return Tavily search results until the provider check succeeds.
+8. If the user declines, defers, or cannot complete setup and still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
 
 ## Helper Script
 
