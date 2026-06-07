@@ -66,6 +66,40 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertNotIn("provider configure tavily", joined)
                 self.assertNotIn("provider add-key tavily", joined)
 
+    def test_tavily_direct_skills_handle_missing_config_before_fallback(self):
+        expectations = {
+            "skills/tavily-search/SKILL.md": "/ark-space:tavily-search <query>",
+            "skills/tavily-extract/SKILL.md": "/ark-space:tavily-extract <url>",
+        }
+        for skill_path, invocation in expectations.items():
+            with self.subTest(skill=skill_path):
+                text = (ROOT / skill_path).read_text(encoding="utf-8")
+                self.assertIn("Missing Configuration Recovery", text)
+                self.assertIn("I can start the ArkSpace setup wizard now", text)
+                self.assertIn("! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard", text)
+                self.assertIn("provider setup tavily --wizard", text)
+                self.assertIn("run the setup command for them", text)
+                self.assertIn(invocation, text)
+                self.assertIn("Do not return Tavily", text)
+                self.assertIn("declines, defers, or cannot complete setup", text)
+                self.assertIn("clearly labeled non-ArkSpace fallback", text)
+
+    def test_provider_manager_guides_interactive_setup_before_manual_commands(self):
+        text = (ROOT / "skills" / "provider-manager" / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("you can start the ArkSpace setup wizard now", text)
+        self.assertIn("provider setup tavily --wizard", text)
+        self.assertIn("run the setup command for them", text)
+        self.assertIn("rerun the original skill invocation", text)
+
+    def test_provider_workflow_allows_fallback_only_after_setup_path(self):
+        text = (ROOT / "workflows" / "provider-capabilities.md").read_text(encoding="utf-8")
+
+        self.assertIn("the next action is provider setup", text)
+        self.assertIn("declines, defers, or cannot complete setup", text)
+        self.assertIn("clearly labeled non-ArkSpace fallback", text)
+        self.assertIn("outside ArkSpace provider execution", text)
+
 
 if __name__ == "__main__":
     unittest.main()

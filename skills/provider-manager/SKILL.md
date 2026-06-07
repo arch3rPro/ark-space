@@ -97,8 +97,11 @@ Provider scripts should record request results through `arkspace_runtime.provide
 When a provider is missing:
 
 1. Explain the exact capability that is missing, such as `web_search`.
-2. Give the one setup command that fixes it. For Tavily API keys, prefer `provider setup tavily --wizard`.
-3. If the user provided the needed URL or env var name, run the setup command for them.
-4. Re-run the provider check.
+2. Say that you can start the ArkSpace setup wizard now.
+3. Give the one setup command that fixes it. For Tavily API keys, prefer `provider setup tavily --wizard`.
+4. If the current host can execute shell commands and the user approves setup, run the setup command for them.
+5. If the host cannot run an interactive setup command, show the command and ask the user to run it.
+6. Re-run the provider check after setup.
+7. If setup succeeds, rerun or tell the user to rerun the original skill invocation.
 
 For secrets, never ask the user to paste a raw API key into committed files. Use the private ArkSpace secrets file through `--save-secret` or environment variables.

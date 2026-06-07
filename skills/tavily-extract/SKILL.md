@@ -31,6 +31,18 @@ python3 scripts/arkspace.py provider setup tavily --wizard
 python3 scripts/arkspace.py provider check tavily --capability web_fetch
 ```
 
+## Missing Configuration Recovery
+
+If the provider check reports a missing Tavily API key:
+
+1. Tell the user: "Tavily is not configured. I can start the ArkSpace setup wizard now."
+2. Present one clear setup action. In Claude Code, use `! python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard`. In other hosts, run the same command through the host's shell execution mechanism.
+3. When the host supports shell execution and the user approves setup, run the setup command for them instead of asking them to edit config files.
+4. Re-run the provider check after setup.
+5. If setup succeeds, rerun or tell the user to rerun the original invocation, such as `/ark-space:tavily-extract <url>`.
+6. Do not return Tavily extraction results until the provider check succeeds.
+7. If the user declines, defers, or cannot complete setup and still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
+
 ## Helper Script
 
 Single URL:

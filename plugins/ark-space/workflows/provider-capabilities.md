@@ -18,7 +18,7 @@ Web providers are selected after role routing. ArkSpace provider registries are 
 5. If required configuration is missing, route to `provider-manager` for guided setup and stop before producing capability results.
 6. Prefer configured providers that match the task's privacy and evidence requirements.
 7. Use fetch after search when factual claims need source content beyond snippets.
-8. When stopped for missing configuration, the next action is provider setup, not alternate execution outside ArkSpace. Do not proactively offer host-native fallback in the missing-configuration response.
+8. When stopped for missing configuration, the next action is provider setup. If the user declines, defers, or cannot complete setup and still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
 
 ## Registry Authority
 
@@ -29,6 +29,6 @@ Use these registries before executing web capabilities:
 | `web_search` | `registry/search-providers.yaml` |
 | `web_fetch` | `registry/web-fetch-providers.yaml` |
 
-Another provider is a valid fallback only when it is registered, active, capability-compatible, and passes its own configuration check.
+Another ArkSpace provider is a valid fallback only when it is registered, active, capability-compatible, and passes its own configuration check.
 
-Host-native search or fetch is outside ArkSpace provider routing. Use it only when the user explicitly asks to bypass ArkSpace provider routing for that request.
+Host-native search or fetch is outside ArkSpace provider routing. Use it only after the provider setup path is declined, blocked, or explicitly bypassed by the user, and label the result as outside ArkSpace provider execution.

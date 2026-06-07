@@ -179,6 +179,8 @@ def check_static():
             "registry/search-providers.yaml",
             "route to `provider-manager` for guided setup and stop before producing capability results",
             "Host-native search or fetch is outside ArkSpace provider routing",
+            "declines, defers, or cannot complete setup",
+            "clearly labeled non-ArkSpace fallback",
         ],
     )
 
