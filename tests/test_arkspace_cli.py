@@ -1,6 +1,8 @@
 import importlib.util
+import io
 import sys
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -230,6 +232,41 @@ class ArkspaceCliTests(unittest.TestCase):
                 "json",
             ],
         )
+
+    def test_doctor_runs_gates_in_order_with_labels(self):
+        expected_calls = [
+            [sys.executable, "-m", "unittest", "discover", "-s", "tests"],
+            [sys.executable, "scripts/package-codex-plugin.py", "--check"],
+            [sys.executable, "scripts/validate-skills.py"],
+            [sys.executable, "scripts/convert-agents.py", "--host", "all", "--check"],
+            [sys.executable, "scripts/smoke-test-callability.py", "--host", "codex", "--local"],
+            [sys.executable, "scripts/smoke-test-callability.py", "--host", "claude-code", "--local"],
+            [sys.executable, "scripts/smoke-test-orchestrator-routing.py"],
+        ]
+        expected_labels = [
+            "[arkspace doctor] structure: unit tests",
+            "[arkspace doctor] package: codex mirror",
+            "[arkspace doctor] registry/docs: skill contract",
+            "[arkspace doctor] integrations: generated agents",
+            "[arkspace doctor] direct-invocation-contract: codex",
+            "[arkspace doctor] direct-invocation-contract: claude-code",
+            "[arkspace doctor] orchestrator-routing-contract: static",
+            "[arkspace doctor] installed-host: unverified",
+        ]
+        output = io.StringIO()
+        calls = []
+
+        def fake_run(args):
+            calls.append(args)
+            return 0
+
+        with patch.object(sys, "argv", ["arkspace", "doctor"]), patch.object(self.arkspace, "run", fake_run):
+            with redirect_stdout(output):
+                status = self.arkspace.main()
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls, expected_calls)
+        self.assertEqual(output.getvalue().splitlines(), expected_labels)
 
 
 if __name__ == "__main__":

@@ -88,6 +88,8 @@ Do not edit generated integration files by hand; update `agents/` and regenerate
 | `provider-manager` | Configure and inspect provider URLs, key references, and readiness |
 | `defuddle` | Extract clean Markdown from web pages |
 | `searxng-search` | Query a configured self-hosted SearXNG instance |
+| `tavily-search` | Query Tavily through ArkSpace web search routing |
+| `tavily-extract` | Extract readable content from URLs through Tavily |
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases |
 | `obsidian-cli` | Interact with Obsidian through the CLI |
@@ -95,6 +97,28 @@ Do not edit generated integration files by hand; update `agents/` and regenerate
 | `obsidian-markdown` | Create and edit Obsidian-flavored Markdown |
 
 The Obsidian-related skills are retained as documentation and knowledge-management tools. They no longer define the identity of the whole package.
+
+## Invocation
+
+ArkSpace exposes public skills through two paths.
+
+Use direct skill invocation when the caller already knows the provider or skill:
+
+```text
+$ark-space:tavily-search 搜索 claude-code-everything
+$ark-space:searxng-search 搜索 claude-code-everything
+$ark-space:tavily-extract 提取 https://example.com
+```
+
+Use the Orchestrator when the caller wants ArkSpace to choose the route:
+
+```text
+$ark-space:orchestrator 使用 tavily 搜索 claude-code-everything
+$ark-space:orchestrator 搜索 claude-code-everything 项目
+$ark-space:orchestrator 抓取并总结 https://example.com
+```
+
+`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. Search and fetch can be chained, but they are separate provider capabilities with separate registries.
 
 ## Installation
 

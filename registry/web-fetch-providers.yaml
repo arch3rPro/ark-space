@@ -4,6 +4,7 @@ providers:
   - id: defuddle
     skill: defuddle
     status: active
+    capability: web_fetch
     providerType: readability-extraction
     priority: 100
     privacy: local-cli

@@ -8,6 +8,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 LIVE_PROMPT = "[$ark-space:orchestrator] 帮我查询 claude-code-everything 项目"
+REGISTRY_ROUTED_CAPABILITIES = {
+    "web_search",
+    "web_fetch",
+    "knowledge_management",
+    "provider_configuration",
+    "skill_governance",
+}
 
 
 def read_text(path):
@@ -36,6 +43,111 @@ def require_regex(path, patterns):
         if not re.search(pattern, text, re.MULTILINE | re.DOTALL):
             print(f"ERROR: {path.relative_to(ROOT)} does not match required routing pattern: {pattern}", file=sys.stderr)
             status = 1
+    return status
+
+
+def parse_simple_yaml_value(value):
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+        return value[1:-1]
+    return value
+
+
+def parse_simple_yaml_key_value(text, path, lineno):
+    if ":" not in text:
+        raise ValueError(f"{path.relative_to(ROOT)}:{lineno}: expected key: value")
+    key, value = text.split(":", 1)
+    key = key.strip()
+    if not key:
+        raise ValueError(f"{path.relative_to(ROOT)}:{lineno}: expected non-empty key")
+    return key, parse_simple_yaml_value(value)
+
+
+def parse_registry_skills(path):
+    entries = []
+    current = None
+    in_skills = False
+    saw_skills = False
+
+    for lineno, line in enumerate(read_text(path).splitlines(), start=1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+
+        indent = len(line) - len(line.lstrip(" "))
+        stripped = line.strip()
+
+        if indent == 0:
+            in_skills = stripped == "skills:"
+            saw_skills = saw_skills or in_skills
+            continue
+
+        if not in_skills:
+            continue
+
+        if indent == 2 and stripped.startswith("- "):
+            current = {}
+            entries.append(current)
+            remainder = stripped[2:].strip()
+            if remainder:
+                key, value = parse_simple_yaml_key_value(remainder, path, lineno)
+                current[key] = value
+            continue
+
+        if indent != 4:
+            raise ValueError(f"{path.relative_to(ROOT)}:{lineno}: expected two-space skill item or four-space property")
+
+        if current is None:
+            raise ValueError(f"{path.relative_to(ROOT)}:{lineno}: expected skill list item")
+
+        key, value = parse_simple_yaml_key_value(stripped, path, lineno)
+        if key in current:
+            raise ValueError(f"{path.relative_to(ROOT)}:{lineno}: duplicate key {key}")
+        current[key] = value
+
+    if not saw_skills:
+        raise ValueError(f"{path.relative_to(ROOT)} is missing required top-level skills:")
+    if not entries:
+        raise ValueError(f"{path.relative_to(ROOT)} must contain at least one skill entry")
+
+    return entries
+
+
+def parse_capabilities(value):
+    return {capability.strip() for capability in value.split(",") if capability.strip()}
+
+
+def is_active_public_skill(entry):
+    return entry.get("status", "").strip() == "active" and entry.get("public", "").strip().lower() == "true"
+
+
+def check_registry_route_examples():
+    path = ROOT / "registry" / "skills.yaml"
+    try:
+        entries = parse_registry_skills(path)
+    except ValueError as exc:
+        return fail(str(exc))
+
+    status = 0
+    for entry in entries:
+        if not is_active_public_skill(entry):
+            continue
+
+        capabilities = parse_capabilities(entry.get("capabilities", ""))
+        routed_capabilities = sorted(capabilities & REGISTRY_ROUTED_CAPABILITIES)
+        if not routed_capabilities:
+            continue
+
+        invocation = entry.get("orchestratorInvocation", "")
+        if "$ark-space:orchestrator" not in invocation:
+            name = entry.get("name", "<unnamed>")
+            print(
+                "ERROR: registry/skills.yaml active public skill "
+                f"{name} has routed capabilities {','.join(routed_capabilities)} "
+                'but orchestratorInvocation does not contain "$ark-space:orchestrator"',
+                file=sys.stderr,
+            )
+            status = 1
+
     return status
 
 
@@ -97,6 +209,8 @@ def check_static():
         status |= require_text(generated_codex, ["Provider registries are part of the route"])
     if generated_claude.exists():
         status |= require_text(generated_claude, ["Provider registries are part of the route"])
+
+    status |= check_registry_route_examples()
 
     package_root = ROOT / "plugins" / "ark-space"
     for rel_path in [

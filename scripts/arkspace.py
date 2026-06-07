@@ -30,6 +30,11 @@ def run(args):
     return subprocess.call(args, cwd=ROOT)
 
 
+def run_gate(label, args):
+    print(f"[arkspace doctor] {label}")
+    return run(args)
+
+
 def main():
     parser = argparse.ArgumentParser(prog="arkspace")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -163,13 +168,20 @@ def main():
         return run(cmd)
     if args.command == "doctor":
         status = 0
-        status |= run([sys.executable, "-m", "unittest", "discover", "-s", "tests"])
-        status |= run([sys.executable, "scripts/package-codex-plugin.py", "--check"])
-        status |= run([sys.executable, "scripts/validate-skills.py"])
-        status |= run([sys.executable, "scripts/convert-agents.py", "--host", "all", "--check"])
-        status |= run([sys.executable, "scripts/smoke-test-callability.py", "--host", "codex", "--local"])
-        status |= run([sys.executable, "scripts/smoke-test-callability.py", "--host", "claude-code", "--local"])
-        status |= run([sys.executable, "scripts/smoke-test-orchestrator-routing.py"])
+        status |= run_gate("structure: unit tests", [sys.executable, "-m", "unittest", "discover", "-s", "tests"])
+        status |= run_gate("package: codex mirror", [sys.executable, "scripts/package-codex-plugin.py", "--check"])
+        status |= run_gate("registry/docs: skill contract", [sys.executable, "scripts/validate-skills.py"])
+        status |= run_gate("integrations: generated agents", [sys.executable, "scripts/convert-agents.py", "--host", "all", "--check"])
+        status |= run_gate(
+            "direct-invocation-contract: codex",
+            [sys.executable, "scripts/smoke-test-callability.py", "--host", "codex", "--local"],
+        )
+        status |= run_gate(
+            "direct-invocation-contract: claude-code",
+            [sys.executable, "scripts/smoke-test-callability.py", "--host", "claude-code", "--local"],
+        )
+        status |= run_gate("orchestrator-routing-contract: static", [sys.executable, "scripts/smoke-test-orchestrator-routing.py"])
+        print("[arkspace doctor] installed-host: unverified")
         return status
     return 2
 

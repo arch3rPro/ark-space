@@ -8,6 +8,7 @@ PACKAGE_DIR = ROOT / "plugins" / "ark-space"
 PACKAGE_ITEMS = [
     ".codex-plugin",
     "agents",
+    "docs",
     "registry",
     "roles",
     "skills",
@@ -17,7 +18,7 @@ PACKAGE_ITEMS = [
     "LICENSE",
     "NOTICE.md",
 ]
-IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo")
+IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo", "superpowers")
 
 
 def copy_item(name):

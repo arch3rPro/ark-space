@@ -17,3 +17,15 @@ When validation fails, fix the specific failure and rerun the same check. After 
 ## Evidence
 
 Prefer direct evidence: command output, tests, screenshots, generated files, source citations, or exact file references. Do not mark work complete from intent alone.
+
+## Invocation Evidence
+
+| Layer | Evidence |
+|---|---|
+| Structure | Canonical skill exists at `skills/<skill-name>/SKILL.md`, with registry metadata in `registry/skills.yaml` |
+| Direct invocation contract | `directInvocation` includes `$ark-space:<skill-name>` and the README Included Skills table lists the public skill |
+| Orchestrator routing contract | Routable skills define `orchestratorInvocation`, capability metadata, and any provider registry entry needed by Orchestrator |
+| Package | Packaged plugin content mirrors source files after `python3 scripts/arkspace.py package-codex` and `python3 scripts/arkspace.py doctor` |
+| Installed host | A restarted host session discovers the installed plugin and accepts the documented `$ark-space:...` invocation |
+
+Installed-host success must be validated in the host. It must not be inferred from local script success, provider checks, or packaged file comparison alone.

@@ -2,6 +2,10 @@ skills:
   - name: orchestrator
     path: skills/orchestrator
     status: active
+    public: true
+    capabilities: routing
+    directInvocation: "$ark-space:orchestrator 帮我规划这个任务"
+    orchestratorInvocation: "$ark-space:orchestrator 帮我规划这个任务"
     syncMode: local
     categories: meta,routing
     roles: orchestrator
@@ -9,6 +13,10 @@ skills:
   - name: skill-manager
     path: skills/skill-manager
     status: active
+    public: true
+    capabilities: skill_governance
+    directInvocation: "$ark-space:skill-manager 创建一个新的搜索 skill"
+    orchestratorInvocation: "$ark-space:orchestrator 创建一个新的搜索 skill"
     syncMode: local
     categories: meta,governance
     roles: skills/skill-manager
@@ -16,6 +24,10 @@ skills:
   - name: provider-manager
     path: skills/provider-manager
     status: active
+    public: true
+    capabilities: provider_configuration
+    directInvocation: "$ark-space:provider-manager 配置 tavily API key"
+    orchestratorInvocation: "$ark-space:orchestrator 配置 tavily API key"
     syncMode: local
     categories: meta,providers,configuration
     roles: skills/skill-manager,orchestrator
@@ -23,6 +35,11 @@ skills:
   - name: defuddle
     path: skills/defuddle
     status: active
+    public: true
+    capabilities: web_fetch
+    providers: defuddle
+    directInvocation: "$ark-space:defuddle 提取 https://example.com"
+    orchestratorInvocation: "$ark-space:orchestrator 抓取并总结 https://example.com"
     syncMode: adapted
     upstreamId: defuddle-cli
     categories: docs,research,web,fetch
@@ -31,6 +48,11 @@ skills:
   - name: searxng-search
     path: skills/searxng-search
     status: active
+    public: true
+    capabilities: web_search
+    providers: searxng
+    directInvocation: "$ark-space:searxng-search 搜索 claude-code-everything"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 searxng 搜索 claude-code-everything"
     syncMode: local
     upstreamId: searxng
     categories: research,web,search
@@ -39,6 +61,11 @@ skills:
   - name: tavily-search
     path: skills/tavily-search
     status: active
+    public: true
+    capabilities: web_search
+    providers: tavily
+    directInvocation: "$ark-space:tavily-search 搜索 claude-code-everything"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 搜索 claude-code-everything"
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,search,api-provider
@@ -47,6 +74,11 @@ skills:
   - name: tavily-extract
     path: skills/tavily-extract
     status: active
+    public: true
+    capabilities: web_fetch
+    providers: tavily
+    directInvocation: "$ark-space:tavily-extract 提取 https://example.com"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 提取 https://example.com"
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,fetch,api-provider
@@ -55,6 +87,10 @@ skills:
   - name: json-canvas
     path: skills/json-canvas
     status: active
+    public: true
+    capabilities: knowledge_management
+    directInvocation: "$ark-space:json-canvas 创建 canvas"
+    orchestratorInvocation: "$ark-space:orchestrator 创建 Obsidian canvas"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,canvas
@@ -63,6 +99,10 @@ skills:
   - name: obsidian-bases
     path: skills/obsidian-bases
     status: active
+    public: true
+    capabilities: knowledge_management
+    directInvocation: "$ark-space:obsidian-bases 创建 base"
+    orchestratorInvocation: "$ark-space:orchestrator 创建 Obsidian base"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian
@@ -71,6 +111,10 @@ skills:
   - name: obsidian-cli
     path: skills/obsidian-cli
     status: active
+    public: true
+    capabilities: knowledge_management
+    directInvocation: "$ark-space:obsidian-cli 管理笔记"
+    orchestratorInvocation: "$ark-space:orchestrator 管理 Obsidian 笔记"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian
@@ -79,6 +123,10 @@ skills:
   - name: obsidian-kanban
     path: skills/obsidian-kanban
     status: active
+    public: true
+    capabilities: knowledge_management
+    directInvocation: "$ark-space:obsidian-kanban 创建看板"
+    orchestratorInvocation: "$ark-space:orchestrator 创建 Obsidian 看板"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: project,knowledge,obsidian
@@ -87,6 +135,10 @@ skills:
   - name: obsidian-markdown
     path: skills/obsidian-markdown
     status: active
+    public: true
+    capabilities: knowledge_management
+    directInvocation: "$ark-space:obsidian-markdown 编辑 Markdown"
+    orchestratorInvocation: "$ark-space:orchestrator 编辑 Obsidian Markdown"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian

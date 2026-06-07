@@ -9,6 +9,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VALID_SYNC_MODES = {"mirror", "adapted", "local", "reference-only"}
 VALID_PROVIDER_STATUS = {"active", "experimental", "disabled"}
+VALID_CAPABILITIES = {
+    "routing",
+    "skill_governance",
+    "provider_configuration",
+    "web_search",
+    "web_fetch",
+    "knowledge_management",
+}
 
 
 def fail(message):
@@ -66,6 +74,65 @@ def split_csv(value):
     if not value:
         return []
     return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def find_readme_included_skill_names():
+    names = set()
+    in_table = False
+    for line in read_text(ROOT / "README.md").splitlines():
+        stripped = line.strip()
+        if not in_table:
+            if stripped.startswith("| Skill |"):
+                in_table = True
+            continue
+
+        if not stripped.startswith("|"):
+            break
+
+        columns = [column.strip() for column in stripped.strip("|").split("|")]
+        if not columns or set(columns[0]) <= {"-", ":"}:
+            continue
+
+        names.add(columns[0].strip("`"))
+    return names
+
+
+def validate_public_skill_contract(skills):
+    readme_skill_names = find_readme_included_skill_names()
+    routable_capabilities = {
+        "web_search",
+        "web_fetch",
+        "knowledge_management",
+        "skill_governance",
+        "provider_configuration",
+    }
+
+    for item in skills:
+        if item.get("status") != "active":
+            continue
+
+        name = item.get("name")
+        if item.get("public") != "true":
+            fail(f"active skill {name} must set public: true")
+
+        direct_invocation = item.get("directInvocation")
+        if not direct_invocation:
+            fail(f"public skill {name} is missing directInvocation")
+        if f"$ark-space:{name}" not in direct_invocation:
+            fail(f"public skill {name} directInvocation must include $ark-space:{name}")
+
+        capabilities = split_csv(item.get("capabilities"))
+        for capability in capabilities:
+            if capability not in VALID_CAPABILITIES:
+                fail(f"public skill {name} has invalid capability {capability}")
+
+        if routable_capabilities.intersection(capabilities):
+            orchestrator_invocation = item.get("orchestratorInvocation", "")
+            if "$ark-space:orchestrator" not in orchestrator_invocation:
+                fail(f"public skill {name} orchestratorInvocation must include $ark-space:orchestrator")
+
+        if name not in readme_skill_names:
+            fail(f"README Included Skills table is missing public skill {name}")
 
 
 def parse_frontmatter(path):
@@ -130,6 +197,7 @@ def iter_package_files(path):
         for item in path.rglob("*")
         if item.is_file()
         and "__pycache__" not in item.parts
+        and "superpowers" not in item.relative_to(path).parts
         and item.suffix not in {".pyc", ".pyo"}
     )
 
@@ -156,6 +224,7 @@ def validate_codex_package_copy(package_dir):
         "skills/searxng-search/SKILL.md",
         "scripts/arkspace_provider.py",
         "workflows/provider-capabilities.md",
+        "docs/invocation.md",
         "README.md",
         "LICENSE",
         "NOTICE.md",
@@ -164,7 +233,7 @@ def validate_codex_package_copy(package_dir):
         if not (package_dir / rel_path).exists():
             fail(f"Codex package directory is missing {rel_path}")
 
-    mirrored_roots = [".codex-plugin", "agents", "registry", "roles", "skills", "scripts", "workflows"]
+    mirrored_roots = [".codex-plugin", "agents", "docs", "registry", "roles", "skills", "scripts", "workflows"]
     mirrored_files = ["README.md", "LICENSE", "NOTICE.md"]
     for rel_root in mirrored_roots:
         source_dir = ROOT / rel_root
@@ -202,7 +271,10 @@ def validate_registry_files():
     source_ids = {item.get("id") for item in sources if item.get("id")}
     role_ids = {item.get("id") for item in roles if item.get("id")}
     skill_names = {item.get("name") for item in skills if item.get("name")}
+    skills_by_name = {item.get("name"): item for item in skills if item.get("name")}
     workflow_ids = {item.get("id") for item in workflows if item.get("id")}
+
+    validate_public_skill_contract(skills)
 
     roles_text = read_text(registry_dir / "roles.yaml")
     if not re.search(r"^defaultRole:\s*orchestrator$", roles_text, re.MULTILINE):
@@ -286,6 +358,8 @@ def validate_registry_files():
     for provider_path in provider_registry_paths:
         if not provider_path.exists():
             continue
+        expected_capability = "web_search" if provider_path.name == "search-providers.yaml" else "web_fetch"
+        provider_kind = "search provider" if expected_capability == "web_search" else "fetch provider"
         provider_text = read_text(provider_path)
         if not re.search(r"^default(Search|Fetch)Policy:\s*.+$", provider_text, re.MULTILINE):
             fail(f"{provider_path} must set defaultSearchPolicy or defaultFetchPolicy")
@@ -293,23 +367,33 @@ def validate_registry_files():
         for item in providers:
             provider_id = item.get("id")
             skill = item.get("skill")
+            capability = item.get("capability")
             status = item.get("status")
             config_required = item.get("configRequired")
             missing_config_behavior = item.get("missingConfigBehavior")
             if not provider_id:
                 fail(f"{provider_path} contains a provider without id")
+            if not capability:
+                fail(f"{provider_kind} {provider_id} is missing capability {expected_capability}")
+            if capability != expected_capability:
+                fail(f"{provider_kind} {provider_id} has invalid capability {capability}; expected {expected_capability}")
             if not skill:
-                fail(f"search provider {provider_id} is missing skill")
+                fail(f"{provider_kind} {provider_id} is missing skill")
             if skill not in skill_names:
-                fail(f"search provider {provider_id} references unknown skill {skill}")
+                fail(f"{provider_kind} {provider_id} references unknown skill {skill}")
+            skill_metadata = skills_by_name[skill]
+            if expected_capability not in split_csv(skill_metadata.get("capabilities")):
+                fail(f"{provider_kind} {provider_id} references skill {skill} without capability {expected_capability}")
+            if provider_id not in split_csv(skill_metadata.get("providers")):
+                fail(f"{provider_kind} {provider_id} references skill {skill} without provider id {provider_id}")
             if status not in VALID_PROVIDER_STATUS:
-                fail(f"search provider {provider_id} has invalid status {status}")
+                fail(f"{provider_kind} {provider_id} has invalid status {status}")
             if config_required and config_required not in {"true", "false"}:
-                fail(f"search provider {provider_id} has invalid configRequired {config_required}")
+                fail(f"{provider_kind} {provider_id} has invalid configRequired {config_required}")
             if config_required == "true" and not missing_config_behavior:
-                fail(f"search provider {provider_id} must set missingConfigBehavior when configRequired is true")
+                fail(f"{provider_kind} {provider_id} must set missingConfigBehavior when configRequired is true")
             if item.get("recommendedEnv") and not item.get("checkCommand"):
-                fail(f"search provider {provider_id} with recommendedEnv must set checkCommand")
+                fail(f"{provider_kind} {provider_id} with recommendedEnv must set checkCommand")
 
 
 def validate_agent_frontmatter():
