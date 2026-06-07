@@ -169,6 +169,54 @@ class ArkspaceCliTests(unittest.TestCase):
             ],
         )
 
+    def test_provider_setup_tavily_forwards_private_secret_options(self):
+        status, calls = self.run_cli(
+            [
+                "provider",
+                "setup",
+                "tavily",
+                "--save-secret",
+                "TAVILY_API_KEY_1",
+                "--save-secret",
+                "TAVILY_API_KEY_2",
+                "--secret-stdin",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "scripts/arkspace_provider.py",
+                "setup",
+                "tavily",
+                "--save-secret",
+                "TAVILY_API_KEY_1",
+                "--save-secret",
+                "TAVILY_API_KEY_2",
+                "--secret-stdin",
+            ],
+        )
+
+    def test_provider_setup_tavily_forwards_wizard_options(self):
+        status, calls = self.run_cli(["provider", "setup", "tavily", "--wizard", "--key-count", "2", "--secret-stdin"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "scripts/arkspace_provider.py",
+                "setup",
+                "tavily",
+                "--wizard",
+                "--key-count",
+                "2",
+                "--secret-stdin",
+            ],
+        )
+
     def test_web_search_tavily_delegates_to_tavily_search_helper(self):
         status, calls = self.run_cli(
             ["web", "search", "--provider", "tavily", "--max-results", "3", "--output", "json", "agent skills"]
@@ -289,7 +337,7 @@ class ArkspaceCliTests(unittest.TestCase):
             "[arkspace doctor] direct-invocation-contract: codex",
             "[arkspace doctor] direct-invocation-contract: claude-code",
             "[arkspace doctor] orchestrator-routing-contract: static",
-            "[arkspace doctor] installed-host: unverified",
+            "[arkspace doctor] installed-host: unverified (run smoke-test --installed-host codex|claude-code)",
         ]
         output = io.StringIO()
         calls = []
@@ -305,6 +353,15 @@ class ArkspaceCliTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(calls, expected_calls)
         self.assertEqual(output.getvalue().splitlines(), expected_labels)
+
+    def test_smoke_test_installed_host_delegates_to_installed_cache_check(self):
+        status, calls = self.run_cli(["smoke-test", "--installed-host", "codex"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [sys.executable, "scripts/smoke-test-installed-host.py", "--host", "codex"],
+        )
 
 
 if __name__ == "__main__":

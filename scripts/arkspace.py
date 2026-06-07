@@ -64,6 +64,11 @@ def main():
     provider_setup.add_argument("provider")
     provider_setup.add_argument("--base-url")
     provider_setup.add_argument("--env", action="append", default=[])
+    provider_setup.add_argument("--save-secret", action="append", default=[])
+    provider_setup.add_argument("--wizard", action="store_true")
+    provider_setup.add_argument("--key-count")
+    provider_setup.add_argument("--prompt", action="store_true")
+    provider_setup.add_argument("--secret-stdin", action="store_true")
     provider_setup.add_argument("--check", action="store_true")
     provider_setup.add_argument("--config-path")
     provider_setup.add_argument("--state-path")
@@ -131,6 +136,7 @@ def main():
 
     smoke = sub.add_parser("smoke-test")
     smoke.add_argument("--host", choices=["codex", "claude-code"])
+    smoke.add_argument("--installed-host", choices=["codex", "claude-code"])
     smoke.add_argument("--local", action="store_true")
     smoke.add_argument("--routing", action="store_true")
     smoke.add_argument("--live-codex", action="store_true")
@@ -168,8 +174,10 @@ def main():
             if args.live_codex:
                 cmd.append("--live-codex")
             return run(cmd)
+        if args.installed_host:
+            return run([sys.executable, "scripts/smoke-test-installed-host.py", "--host", args.installed_host])
         if not args.host:
-            parser.error("smoke-test requires --host unless --routing is used")
+            parser.error("smoke-test requires --host, --installed-host, or --routing")
         cmd = [sys.executable, "scripts/smoke-test-callability.py", "--host", args.host]
         if args.local:
             cmd.append("--local")
@@ -189,7 +197,7 @@ def main():
             [sys.executable, "scripts/smoke-test-callability.py", "--host", "claude-code", "--local"],
         )
         status |= run_gate("orchestrator-routing-contract: static", [sys.executable, "scripts/smoke-test-orchestrator-routing.py"])
-        print("[arkspace doctor] installed-host: unverified")
+        print("[arkspace doctor] installed-host: unverified (run smoke-test --installed-host codex|claude-code)")
         return status
     return 2
 
@@ -224,6 +232,16 @@ def provider_command(args):
             cmd.extend(["--base-url", args.base_url])
         for env_name in args.env:
             cmd.extend(["--env", env_name])
+        for env_name in args.save_secret:
+            cmd.extend(["--save-secret", env_name])
+        if args.wizard:
+            cmd.append("--wizard")
+        if args.key_count:
+            cmd.extend(["--key-count", args.key_count])
+        if args.prompt:
+            cmd.append("--prompt")
+        if args.secret_stdin:
+            cmd.append("--secret-stdin")
         if args.check:
             cmd.append("--check")
     if args.provider_command == "resolve":

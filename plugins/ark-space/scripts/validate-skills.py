@@ -397,8 +397,8 @@ def validate_registry_files():
             if provider_id == "tavily":
                 provider_config_command = item.get("providerConfigCommand", "")
                 values = " ".join(str(value) for value in item.values())
-                if "provider setup tavily --env" not in provider_config_command:
-                    fail(f"{provider_kind} tavily must use provider setup tavily in providerConfigCommand")
+                if "provider setup tavily --wizard" not in provider_config_command:
+                    fail(f"{provider_kind} tavily must use provider setup tavily --wizard in providerConfigCommand")
                 if "provider configure tavily" in values or "provider add-key tavily" in values:
                     fail(f"{provider_kind} tavily registry metadata must not use old configure/add-key setup")
 

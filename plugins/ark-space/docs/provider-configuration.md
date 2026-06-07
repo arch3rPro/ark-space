@@ -16,11 +16,18 @@ Provider runtime state defaults to:
 ~/.local/state/ark-space/provider-state.json
 ```
 
+Provider secrets default to:
+
+```bash
+~/.config/ark-space/secrets.json
+```
+
 Override them with:
 
 ```bash
 export ARKSPACE_PROVIDER_CONFIG="/path/to/providers.json"
 export ARKSPACE_PROVIDER_STATE="/path/to/provider-state.json"
+export ARKSPACE_PROVIDER_SECRETS="/path/to/secrets.json"
 ```
 
 ## Configure SearXNG
@@ -47,19 +54,32 @@ export SEARXNG_URL="https://searx.example.org"
 
 ## API Key References
 
-For API-backed providers, store only key references in ArkSpace config. Store actual keys in the host environment or secret manager.
+For API-backed providers, ArkSpace provider config stores key references. Raw key values can stay in the host environment or be stored in ArkSpace's local private secrets file.
 
-For Tavily, use the setup command:
+For Tavily, use the setup command. It writes provider config and prompts for the key values:
 
 ```bash
-export TAVILY_API_KEY_1="..."
-export TAVILY_API_KEY_2="..."
-
-python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
 python3 scripts/arkspace.py provider check tavily
 ```
 
-The setup command writes the Tavily endpoint, `web_search`/`web_fetch` capabilities, and key references in one step.
+If you want to choose the stored key reference names explicitly:
+
+```bash
+python3 scripts/arkspace.py provider setup tavily --save-secret TAVILY_API_KEY_1 --save-secret TAVILY_API_KEY_2 --prompt
+python3 scripts/arkspace.py provider check tavily
+```
+
+The setup command writes the Tavily endpoint, `web_search`/`web_fetch` capabilities, key references, and private secret values in one flow. Provider config stores references such as `env:TAVILY_API_KEY_1`; raw keys are stored in `~/.config/ark-space/secrets.json` with `0600` permissions.
+
+For non-interactive setup, provide one secret value per `--save-secret` through stdin:
+
+```bash
+python3 scripts/arkspace.py provider setup tavily \
+  --save-secret TAVILY_API_KEY_1 \
+  --save-secret TAVILY_API_KEY_2 \
+  --secret-stdin
+```
 
 For providers without setup defaults, use the lower-level key reference command:
 

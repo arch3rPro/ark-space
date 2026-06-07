@@ -28,16 +28,16 @@ python3 scripts/arkspace.py provider check tavily --capability web_search
 Set up Tavily once:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY
+python3 scripts/arkspace.py provider setup tavily --wizard
 ```
 
-For multiple API keys, repeat `--env`:
+For multiple API keys:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
 ```
 
-The config stores `env:<NAME>` references, not raw keys. The agent should help run these commands when the user provides env var names or a base URL.
+The provider config stores `env:<NAME>` references. Raw keys saved through setup live in ArkSpace's local private secrets file, not in committed package files. The agent should help run these commands when the user asks to configure Tavily.
 
 ## Helper Script
 

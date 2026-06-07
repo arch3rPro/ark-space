@@ -71,6 +71,15 @@ python3 scripts/arkspace.py doctor
 
 The doctor command validates skills, agents, workflows, generated integrations, and local callability smoke checks.
 
+After installing or refreshing a local host plugin, verify the installed cache:
+
+```bash
+python3 scripts/arkspace.py smoke-test --installed-host codex
+python3 scripts/arkspace.py smoke-test --installed-host claude-code
+```
+
+Installed-host smoke tests compare critical cached skill, registry, and script files with the current package source. A stale cache must be refreshed before reporting host-level pass.
+
 ## Future Hosts
 
 Future hosts should add generated output under `integrations/<host>/` and adapter documentation here. They should not require rewriting canonical skills or agents.

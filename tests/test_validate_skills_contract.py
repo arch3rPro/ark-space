@@ -62,7 +62,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
                 tavily = next(item for item in providers if item.get("id") == "tavily")
                 joined = " ".join(str(value) for value in tavily.values())
-                self.assertIn("provider setup tavily --env", tavily.get("providerConfigCommand", ""))
+                self.assertIn("provider setup tavily --wizard", tavily.get("providerConfigCommand", ""))
                 self.assertNotIn("provider configure tavily", joined)
                 self.assertNotIn("provider add-key tavily", joined)
 

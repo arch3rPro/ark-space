@@ -75,6 +75,8 @@ python3 scripts/arkspace.py convert --host all
 python3 scripts/arkspace.py install --host codex --dry-run
 python3 scripts/arkspace.py install --host claude-code --dry-run
 python3 scripts/arkspace.py doctor
+python3 scripts/arkspace.py smoke-test --installed-host codex
+python3 scripts/arkspace.py smoke-test --installed-host claude-code
 ```
 
 Do not edit generated integration files by hand; update `agents/` and regenerate.
@@ -140,7 +142,7 @@ Personal provider configuration should live outside committed package files. The
 ```bash
 python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
 python3 scripts/arkspace.py provider check searxng
-python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY
+python3 scripts/arkspace.py provider setup tavily --wizard
 python3 scripts/arkspace.py provider check tavily
 ```
 
@@ -186,10 +188,10 @@ python3 scripts/arkspace.py provider resolve searxng --capability web_search
 
 This writes `~/.config/ark-space/providers.json` by default. Use `ARKSPACE_PROVIDER_CONFIG` or `--config-path` for a custom location. `--base-url` and environment variables still override the saved value.
 
-For Tavily, use setup-first configuration. This stores only `env:<NAME>` references and supports multiple keys:
+For Tavily, use setup-first configuration. This stores `env:<NAME>` references in provider config, saves raw keys in ArkSpace's local private secrets file, and supports multiple keys:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
 python3 scripts/arkspace.py provider check tavily
 ```
 
@@ -234,7 +236,7 @@ Registries under `registry/` are the source of truth for package metadata:
 
 Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, and key rotation support. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.
 
-Use `provider-manager` and `python3 scripts/arkspace.py provider ...` for guided setup. For API-backed providers, ArkSpace config stores key references such as `env:BRAVE_API_KEY_1`; actual keys stay in the host environment or secret manager. See `docs/provider-configuration.md`.
+Use `provider-manager` and `python3 scripts/arkspace.py provider ...` for guided setup. For API-backed providers, ArkSpace config stores key references such as `env:BRAVE_API_KEY_1`; actual keys stay in the host environment or ArkSpace's local private secrets file. See `docs/provider-configuration.md`.
 
 Supported source policies:
 
@@ -249,7 +251,11 @@ Run validation after changing skills, roles, registries, manifests, README, or a
 
 ```bash
 python3 scripts/arkspace.py doctor
+python3 scripts/arkspace.py smoke-test --installed-host codex
+python3 scripts/arkspace.py smoke-test --installed-host claude-code
 ```
+
+`doctor` validates the repository, package mirror, generated agents, and local invocation contracts. Installed-host smoke tests validate the local Claude Code or Codex plugin cache after installation or refresh.
 
 ## Project Documents
 

@@ -11,6 +11,7 @@ from typing import Any
 
 CONFIG_ENV = "ARKSPACE_PROVIDER_CONFIG"
 STATE_ENV = "ARKSPACE_PROVIDER_STATE"
+SECRETS_ENV = "ARKSPACE_PROVIDER_SECRETS"
 
 
 class ProviderConfigError(ValueError):
@@ -33,6 +34,15 @@ def default_state_path(state_path: str | None = None) -> Path:
         return Path(os.environ[STATE_ENV]).expanduser()
     state_home = Path(os.environ.get("XDG_STATE_HOME", "~/.local/state")).expanduser()
     return state_home / "ark-space" / "provider-state.json"
+
+
+def default_secrets_path(secrets_path: str | None = None) -> Path:
+    if secrets_path:
+        return Path(secrets_path).expanduser()
+    if os.environ.get(SECRETS_ENV):
+        return Path(os.environ[SECRETS_ENV]).expanduser()
+    config_home = Path(os.environ.get("XDG_CONFIG_HOME", "~/.config")).expanduser()
+    return config_home / "ark-space" / "secrets.json"
 
 
 def normalize_base_url(url: str) -> str:
@@ -95,15 +105,43 @@ def save_state(data: dict[str, Any], state_path: str | None = None) -> Path:
     return path
 
 
+def load_secrets(secrets_path: str | None = None) -> dict[str, Any]:
+    data = load_json_object(default_secrets_path(secrets_path))
+    if not data:
+        return {"version": 1, "secrets": {}}
+    if data.get("version") != 1:
+        raise ProviderConfigError("provider secrets version must be 1")
+    secrets = data.setdefault("secrets", {})
+    if not isinstance(secrets, dict):
+        raise ProviderConfigError("provider secrets must contain a secrets object")
+    return data
+
+
+def save_secrets(data: dict[str, Any], secrets_path: str | None = None) -> Path:
+    path = default_secrets_path(secrets_path)
+    save_json_object(path, data, private=True)
+    return path
+
+
+def set_secret_value(name: str, value: str, secrets_path: str | None = None) -> Path:
+    if not name or any(char.isspace() for char in name):
+        raise ProviderConfigError("secret environment variable names must be non-empty and contain no whitespace")
+    if not value:
+        raise ProviderConfigError(f"secret value for {name} is empty")
+    data = load_secrets(secrets_path)
+    data.setdefault("secrets", {})[name] = value
+    return save_secrets(data, secrets_path)
+
+
 def configure_hint(provider_id: str) -> str:
     if provider_id == "tavily":
-        return "`python3 scripts/arkspace.py provider setup tavily --env <ENV_NAME>`"
+        return "`python3 scripts/arkspace.py provider setup tavily --wizard`"
     return f"`python3 scripts/arkspace.py provider configure {provider_id} --base-url <url>`"
 
 
 def add_key_hint(provider_id: str) -> str:
     if provider_id == "tavily":
-        return "`python3 scripts/arkspace.py provider setup tavily --env <ENV_NAME>`"
+        return "`python3 scripts/arkspace.py provider setup tavily --wizard`"
     return f"`python3 scripts/arkspace.py provider add-key {provider_id} --env <ENV_NAME>`"
 
 
@@ -350,7 +388,9 @@ def select_round_robin(
 def read_key_ref(key_ref: str) -> str | None:
     if key_ref.startswith("env:"):
         name = key_ref.split(":", 1)[1]
-        return os.environ.get(name)
+        if os.environ.get(name):
+            return os.environ[name]
+        return load_secrets().get("secrets", {}).get(name)
     raise ProviderConfigError(f"unsupported key reference {key_ref}")
 
 

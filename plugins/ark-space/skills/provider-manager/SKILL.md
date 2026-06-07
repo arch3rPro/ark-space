@@ -25,7 +25,13 @@ Provider state defaults to:
 ~/.local/state/ark-space/provider-state.json
 ```
 
-Override paths with `ARKSPACE_PROVIDER_CONFIG`, `ARKSPACE_PROVIDER_STATE`, `--config-path`, or `--state-path`.
+Provider secrets default to:
+
+```bash
+~/.config/ark-space/secrets.json
+```
+
+Override paths with `ARKSPACE_PROVIDER_CONFIG`, `ARKSPACE_PROVIDER_STATE`, `ARKSPACE_PROVIDER_SECRETS`, `--config-path`, or `--state-path`.
 
 ## Common Commands
 
@@ -44,7 +50,7 @@ python3 scripts/arkspace.py provider configure searxng --base-url "https://searx
 Configure Tavily API search and extraction:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
 python3 scripts/arkspace.py provider check tavily --capability web_search
 ```
 
@@ -67,13 +73,13 @@ python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_1 
 python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
 ```
 
-The config stores `env:BRAVE_API_KEY_1` or `env:TAVILY_API_KEY_1` references, not the actual key values.
+The provider config stores `env:BRAVE_API_KEY_1` or `env:TAVILY_API_KEY_1` references. When `--save-secret` is used, the actual key values are stored in the local private secrets file with `0600` permissions.
 
 Use `provider setup` when a provider has ArkSpace defaults, such as Tavily. Use `provider configure` and `provider add-key` as advanced commands for self-hosted endpoints or new providers that do not have setup defaults yet.
 
 ## Key Rotation
 
-ArkSpace provider runtime supports multiple API key references per provider. It resolves available `env:<NAME>` values, selects the least recently used key, and stores cooldown state locally after failures.
+ArkSpace provider runtime supports multiple API key references per provider. It resolves available `env:<NAME>` values from the process environment first, then ArkSpace's private secrets file, selects the least recently used key, and stores cooldown state locally after failures.
 
 Default rotation behavior:
 
@@ -91,8 +97,8 @@ Provider scripts should record request results through `arkspace_runtime.provide
 When a provider is missing:
 
 1. Explain the exact capability that is missing, such as `web_search`.
-2. Give the one setup command that fixes it.
-3. If the user provided the needed URL or env var name, run the command for them.
+2. Give the one setup command that fixes it. For Tavily API keys, prefer `provider setup tavily --wizard`.
+3. If the user provided the needed URL or env var name, run the setup command for them.
 4. Re-run the provider check.
 
-For secrets, never ask the user to paste a raw API key into committed files. Prefer environment variables or host-managed secret storage.
+For secrets, never ask the user to paste a raw API key into committed files. Use the private ArkSpace secrets file through `--save-secret` or environment variables.

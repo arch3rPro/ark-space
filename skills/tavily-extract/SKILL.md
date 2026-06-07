@@ -27,7 +27,7 @@ python3 scripts/arkspace.py provider check tavily --capability web_fetch
 Configure Tavily once:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY
+python3 scripts/arkspace.py provider setup tavily --wizard
 python3 scripts/arkspace.py provider check tavily --capability web_fetch
 ```
 

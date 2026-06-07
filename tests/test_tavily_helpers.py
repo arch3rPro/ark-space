@@ -23,6 +23,9 @@ class TavilyHelperTests(unittest.TestCase):
         self.addCleanup(self.tmpdir.cleanup)
         self.config_path = str(Path(self.tmpdir.name) / "providers.json")
         self.state_path = str(Path(self.tmpdir.name) / "state.json")
+        self.secrets_path = str(Path(self.tmpdir.name) / "secrets.json")
+        os.environ["ARKSPACE_PROVIDER_SECRETS"] = self.secrets_path
+        self.addCleanup(os.environ.pop, "ARKSPACE_PROVIDER_SECRETS", None)
         self.search = load_module(
             ROOT / "skills" / "tavily-search" / "scripts" / "tavily_search.py",
             "tavily_search_test_module",
@@ -203,7 +206,7 @@ class TavilyHelperTests(unittest.TestCase):
         output = self.search.check_config(config_path=self.config_path, state_path=self.state_path)
         self.assertFalse(output["ok"])
         self.assertIn("provider tavily is not configured", output["error"])
-        self.assertIn("provider setup tavily --env <ENV_NAME>", output["error"])
+        self.assertIn("provider setup tavily --wizard", output["error"])
 
     def test_check_reports_endpoint_only_setup_needs_key_ref(self):
         self.search.provider_config.set_provider_endpoint(
@@ -218,7 +221,7 @@ class TavilyHelperTests(unittest.TestCase):
 
         self.assertFalse(output["ok"])
         self.assertIn("provider tavily has no key refs", output["error"])
-        self.assertIn("provider setup tavily --env <ENV_NAME>", output["error"])
+        self.assertIn("provider setup tavily --wizard", output["error"])
 
     def test_search_check_markdown_prints_success_message(self):
         result = {"ok": True, "provider": "tavily", "capability": "web_search"}

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import sys
 
@@ -11,10 +12,12 @@ from arkspace_runtime.provider_config import (
     ProviderConfigError,
     add_key_ref,
     default_config_path,
+    default_secrets_path,
     default_state_path,
     load_config,
     public_view,
     resolve_provider,
+    set_secret_value,
     set_provider_endpoint,
 )
 
@@ -61,6 +64,16 @@ def parse_args() -> argparse.Namespace:
         default=[],
         help="Environment variable name containing an API key; repeat or comma-separate for rotation",
     )
+    setup.add_argument(
+        "--save-secret",
+        action="append",
+        default=[],
+        help="Environment variable name to reference and save in ArkSpace's private secret store",
+    )
+    setup.add_argument("--wizard", action="store_true", help="Prompt for a default provider setup without manual env names")
+    setup.add_argument("--key-count", type=int, default=1, help="Number of API keys to collect in --wizard mode")
+    setup.add_argument("--prompt", action="store_true", help="Prompt securely for each --save-secret value")
+    setup.add_argument("--secret-stdin", action="store_true", help="Read one secret value per --save-secret from stdin")
     setup.add_argument("--check", action="store_true", help="Run provider resolution after writing setup")
 
     resolve = subparsers.add_parser("resolve", help="Resolve a configured provider")
@@ -111,6 +124,31 @@ def normalize_env_names(values: list[str]) -> list[str]:
     return names
 
 
+def collect_secret_values(names: list[str], args: argparse.Namespace) -> dict[str, str]:
+    if not names:
+        return {}
+    if getattr(args, "prompt", False) and getattr(args, "secret_stdin", False):
+        raise ProviderConfigError("use either --prompt or --secret-stdin, not both")
+    if getattr(args, "secret_stdin", False):
+        lines = [line.rstrip("\n") for line in sys.stdin.readlines()]
+        if len(lines) < len(names):
+            raise ProviderConfigError(f"expected {len(names)} secret values on stdin, got {len(lines)}")
+        return {name: lines[index] for index, name in enumerate(names)}
+    if getattr(args, "prompt", False):
+        return {name: getpass.getpass(f"{name}: ") for name in names}
+    raise ProviderConfigError("use --prompt or --secret-stdin with --save-secret")
+
+
+def wizard_secret_names(provider: str, key_count: int) -> list[str]:
+    if provider != "tavily":
+        raise ProviderConfigError(f"provider {provider} does not have a setup wizard")
+    if key_count < 1:
+        raise ProviderConfigError("--key-count must be at least 1")
+    if key_count == 1:
+        return ["TAVILY_API_KEY"]
+    return [f"TAVILY_API_KEY_{index}" for index in range(1, key_count + 1)]
+
+
 def command_setup(args: argparse.Namespace) -> int:
     defaults = SETUP_DEFAULTS.get(args.provider)
     if not defaults:
@@ -128,7 +166,16 @@ def command_setup(args: argparse.Namespace) -> int:
     )
     print(f"configured provider {args.provider} endpoint default in {path}")
 
-    env_names = normalize_env_names(args.env or [])
+    save_secret_values = getattr(args, "save_secret", []) or []
+    if getattr(args, "wizard", False):
+        if args.env or save_secret_values:
+            raise ProviderConfigError("do not combine --wizard with --env or --save-secret")
+        save_secret_values = wizard_secret_names(args.provider, args.key_count)
+        if not args.secret_stdin:
+            args.prompt = True
+
+    secret_names = normalize_env_names(save_secret_values)
+    env_names = normalize_env_names((args.env or []) + secret_names)
     for env_name in env_names:
         path = add_key_ref(
             args.provider,
@@ -139,10 +186,14 @@ def command_setup(args: argparse.Namespace) -> int:
         )
         print(f"added key reference env:{env_name} for provider {args.provider} in {path}")
 
+    for env_name, value in collect_secret_values(secret_names, args).items():
+        path = set_secret_value(env_name, value)
+        print(f"saved secret env:{env_name} for provider {args.provider} in {path}")
+
     if not env_names:
         print(
-            "Next: add an API key reference with "
-            f"`python3 scripts/arkspace.py provider setup {args.provider} --env TAVILY_API_KEY`"
+            "Next: add and save an API key with "
+            f"`python3 scripts/arkspace.py provider setup {args.provider} --save-secret TAVILY_API_KEY --prompt`"
         )
 
     if args.check:
@@ -181,6 +232,7 @@ def command_paths(args: argparse.Namespace) -> int:
             {
                 "config_path": str(default_config_path(args.config_path)),
                 "state_path": str(default_state_path(args.state_path)),
+                "secrets_path": str(default_secrets_path()),
             },
             ensure_ascii=False,
             indent=2,

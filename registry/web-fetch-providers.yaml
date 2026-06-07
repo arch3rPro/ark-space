@@ -27,11 +27,11 @@ providers:
     configEnv: TAVILY_API_KEY
     configRequired: true
     recommendedEnv: TAVILY_API_KEY_1
-    providerConfigCommand: python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1
-    keyConfigCommand: python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+    providerConfigCommand: python3 scripts/arkspace.py provider setup tavily --wizard
+    keyConfigCommand: python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
     checkCommand: python3 scripts/arkspace.py provider check tavily --capability web_fetch
     missingConfigBehavior: guide-user-through-provider-manager-configuration
-    setupHint: "Run python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1. Repeat --env for multiple API keys."
+    setupHint: "Run python3 scripts/arkspace.py provider setup tavily --wizard. Use --key-count for multiple API keys."
     authModes: api_key
     rotationSupported: true
     input: url

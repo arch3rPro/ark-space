@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "skills" / "provider-manager" / "scripts"))
@@ -29,6 +30,9 @@ class ProviderConfigTests(unittest.TestCase):
         self.addCleanup(self.tmpdir.cleanup)
         self.config_path = str(Path(self.tmpdir.name) / "providers.json")
         self.state_path = str(Path(self.tmpdir.name) / "state.json")
+        self.secrets_path = str(Path(self.tmpdir.name) / "secrets.json")
+        os.environ["ARKSPACE_PROVIDER_SECRETS"] = self.secrets_path
+        self.addCleanup(os.environ.pop, "ARKSPACE_PROVIDER_SECRETS", None)
 
     def test_resolve_provider_accepts_capabilities_list(self):
         provider_config.set_provider_endpoint(
@@ -303,6 +307,98 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(len(data["providers"]["tavily"]["endpoints"]), 1)
         self.assertEqual(data["providers"]["tavily"]["endpoints"][0]["base_url"], "https://api.tavily.com")
 
+    def test_tavily_setup_command_saves_multiple_private_secret_values(self):
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "tavily",
+                "base_url": None,
+                "env": [],
+                "save_secret": ["TAVILY_API_KEY_1", "TAVILY_API_KEY_2"],
+                "prompt": False,
+                "secret_stdin": True,
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with patch.object(sys, "stdin", io.StringIO("first-secret\nsecond-secret\n")), redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(module.command_setup(args), 0)
+
+        data = provider_config.load_config(self.config_path)
+        entry = data["providers"]["tavily"]
+        self.assertEqual(entry["auth"]["key_refs"], ["env:TAVILY_API_KEY_1", "env:TAVILY_API_KEY_2"])
+        self.assertNotIn("first-secret", json.dumps(data))
+        self.assertNotIn("second-secret", json.dumps(data))
+        self.assertIn("saved secret env:TAVILY_API_KEY_1", output.getvalue())
+
+        secrets = provider_config.load_secrets(self.secrets_path)
+        self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_1"], "first-secret")
+        self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_2"], "second-secret")
+        self.assertEqual(Path(self.secrets_path).stat().st_mode & 0o777, 0o600)
+
+        resolved = provider_config.resolve_provider(
+            "tavily",
+            capability="web_search",
+            config_path=self.config_path,
+            state_path=self.state_path,
+            require_secret=True,
+        )
+        self.assertEqual(resolved["auth"]["key_ref"], "env:TAVILY_API_KEY_1")
+        self.assertEqual(resolved["auth"]["value"], "first-secret")
+
+        provider_config.record_provider_result(
+            "tavily",
+            key_ref=resolved["auth"]["key_ref"],
+            ok=False,
+            status=429,
+            config_path=self.config_path,
+            state_path=self.state_path,
+        )
+        second = provider_config.resolve_provider(
+            "tavily",
+            capability="web_search",
+            config_path=self.config_path,
+            state_path=self.state_path,
+            require_secret=True,
+        )
+        self.assertEqual(second["auth"]["key_ref"], "env:TAVILY_API_KEY_2")
+        self.assertEqual(second["auth"]["value"], "second-secret")
+
+    def test_tavily_setup_wizard_generates_multiple_secret_names(self):
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "tavily",
+                "base_url": None,
+                "env": [],
+                "save_secret": [],
+                "wizard": True,
+                "key_count": 2,
+                "prompt": False,
+                "secret_stdin": True,
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with patch.object(sys, "stdin", io.StringIO("first-secret\nsecond-secret\n")):
+            self.assertEqual(module.command_setup(args), 0)
+
+        data = provider_config.load_config(self.config_path)
+        entry = data["providers"]["tavily"]
+        self.assertEqual(entry["auth"]["key_refs"], ["env:TAVILY_API_KEY_1", "env:TAVILY_API_KEY_2"])
+
+        secrets = provider_config.load_secrets(self.secrets_path)
+        self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_1"], "first-secret")
+        self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_2"], "second-secret")
+
     def test_tavily_setup_command_allows_endpoint_only_setup(self):
         module = load_provider_manager_module()
         args = type(
@@ -312,6 +408,9 @@ class ProviderConfigTests(unittest.TestCase):
                 "provider": "tavily",
                 "base_url": None,
                 "env": [],
+                "save_secret": [],
+                "prompt": False,
+                "secret_stdin": False,
                 "config_path": self.config_path,
                 "state_path": self.state_path,
                 "check": False,
@@ -327,7 +426,8 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(entry["endpoints"][0]["base_url"], "https://api.tavily.com")
         self.assertEqual(entry["auth"]["type"], "none")
         self.assertNotIn("key_refs", entry["auth"])
-        self.assertIn("add an API key reference", output.getvalue())
+        self.assertIn("add and save an API key", output.getvalue())
+        self.assertIn("--save-secret TAVILY_API_KEY --prompt", output.getvalue())
 
 
 if __name__ == "__main__":
