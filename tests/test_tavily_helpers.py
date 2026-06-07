@@ -203,6 +203,22 @@ class TavilyHelperTests(unittest.TestCase):
         output = self.search.check_config(config_path=self.config_path, state_path=self.state_path)
         self.assertFalse(output["ok"])
         self.assertIn("provider tavily is not configured", output["error"])
+        self.assertIn("provider setup tavily --env <ENV_NAME>", output["error"])
+
+    def test_check_reports_endpoint_only_setup_needs_key_ref(self):
+        self.search.provider_config.set_provider_endpoint(
+            "tavily",
+            capability="web_search",
+            capabilities=["web_search", "web_fetch"],
+            base_url="https://api.tavily.com",
+            config_path=self.config_path,
+        )
+
+        output = self.search.check_config(config_path=self.config_path, state_path=self.state_path)
+
+        self.assertFalse(output["ok"])
+        self.assertIn("provider tavily has no key refs", output["error"])
+        self.assertIn("provider setup tavily --env <ENV_NAME>", output["error"])
 
     def test_search_check_markdown_prints_success_message(self):
         result = {"ok": True, "provider": "tavily", "capability": "web_search"}

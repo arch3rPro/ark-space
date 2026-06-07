@@ -44,9 +44,8 @@ python3 scripts/arkspace.py provider configure searxng --base-url "https://searx
 Configure Tavily API search and extraction:
 
 ```bash
-python3 scripts/arkspace.py provider configure tavily --base-url "https://api.tavily.com"
-python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
-python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_2 --header Authorization --prefix "Bearer "
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+python3 scripts/arkspace.py provider check tavily --capability web_search
 ```
 
 Inspect provider config without secret values:
@@ -69,6 +68,8 @@ python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 
 ```
 
 The config stores `env:BRAVE_API_KEY_1` or `env:TAVILY_API_KEY_1` references, not the actual key values.
+
+Use `provider setup` when a provider has ArkSpace defaults, such as Tavily. Use `provider configure` and `provider add-key` as advanced commands for self-hosted endpoints or new providers that do not have setup defaults yet.
 
 ## Key Rotation
 

@@ -49,6 +49,20 @@ export SEARXNG_URL="https://searx.example.org"
 
 For API-backed providers, store only key references in ArkSpace config. Store actual keys in the host environment or secret manager.
 
+For Tavily, use the setup command:
+
+```bash
+export TAVILY_API_KEY_1="..."
+export TAVILY_API_KEY_2="..."
+
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+python3 scripts/arkspace.py provider check tavily
+```
+
+The setup command writes the Tavily endpoint, `web_search`/`web_fetch` capabilities, and key references in one step.
+
+For providers without setup defaults, use the lower-level key reference command:
+
 ```bash
 export BRAVE_API_KEY_1="..."
 export BRAVE_API_KEY_2="..."

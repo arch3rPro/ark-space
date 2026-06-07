@@ -394,6 +394,13 @@ def validate_registry_files():
                 fail(f"{provider_kind} {provider_id} must set missingConfigBehavior when configRequired is true")
             if item.get("recommendedEnv") and not item.get("checkCommand"):
                 fail(f"{provider_kind} {provider_id} with recommendedEnv must set checkCommand")
+            if provider_id == "tavily":
+                provider_config_command = item.get("providerConfigCommand", "")
+                values = " ".join(str(value) for value in item.values())
+                if "provider setup tavily --env" not in provider_config_command:
+                    fail(f"{provider_kind} tavily must use provider setup tavily in providerConfigCommand")
+                if "provider configure tavily" in values or "provider add-key tavily" in values:
+                    fail(f"{provider_kind} tavily registry metadata must not use old configure/add-key setup")
 
 
 def validate_agent_frontmatter():

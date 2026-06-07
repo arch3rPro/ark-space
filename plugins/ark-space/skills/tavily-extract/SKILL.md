@@ -27,8 +27,8 @@ python3 scripts/arkspace.py provider check tavily --capability web_fetch
 Configure Tavily once:
 
 ```bash
-python3 scripts/arkspace.py provider configure tavily --base-url "https://api.tavily.com"
-python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY
+python3 scripts/arkspace.py provider check tavily --capability web_fetch
 ```
 
 ## Helper Script

@@ -32,11 +32,11 @@ providers:
     configEnv: TAVILY_API_KEY
     configRequired: true
     recommendedEnv: TAVILY_API_KEY_1
-    providerConfigCommand: python3 scripts/arkspace.py provider configure tavily --base-url https://api.tavily.com
-    keyConfigCommand: python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
+    providerConfigCommand: python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1
+    keyConfigCommand: python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
     checkCommand: python3 scripts/arkspace.py provider check tavily --capability web_search
     missingConfigBehavior: guide-user-through-provider-manager-configuration
-    setupHint: "Run provider configure for tavily, then add one or more env-backed API key refs such as TAVILY_API_KEY_1."
+    setupHint: "Run python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1. Repeat --env for multiple API keys."
     authModes: api_key
     rotationSupported: true
     outputFields: title,url,snippet,score,published,answer,usage,request_id

@@ -131,6 +131,44 @@ class ArkspaceCliTests(unittest.TestCase):
             ],
         )
 
+    def test_provider_setup_tavily_delegates_env_refs_to_provider_manager(self):
+        status, calls = self.run_cli(
+            [
+                "provider",
+                "setup",
+                "tavily",
+                "--env",
+                "TAVILY_API_KEY_1",
+                "--env",
+                "TAVILY_API_KEY_2",
+                "--check",
+                "--config-path",
+                "/tmp/providers.json",
+                "--state-path",
+                "/tmp/state.json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "scripts/arkspace_provider.py",
+                "--config-path",
+                "/tmp/providers.json",
+                "--state-path",
+                "/tmp/state.json",
+                "setup",
+                "tavily",
+                "--env",
+                "TAVILY_API_KEY_1",
+                "--env",
+                "TAVILY_API_KEY_2",
+                "--check",
+            ],
+        )
+
     def test_web_search_tavily_delegates_to_tavily_search_helper(self):
         status, calls = self.run_cli(
             ["web", "search", "--provider", "tavily", "--max-results", "3", "--output", "json", "agent skills"]

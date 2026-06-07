@@ -56,6 +56,16 @@ class ValidateSkillsContractTests(unittest.TestCase):
     def test_provider_registry_capabilities_match_skill_metadata(self):
         self.validate.validate_registry_files()
 
+    def test_tavily_provider_registries_use_setup_first_metadata(self):
+        for registry_name in ["search-providers.yaml", "web-fetch-providers.yaml"]:
+            with self.subTest(registry=registry_name):
+                providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
+                tavily = next(item for item in providers if item.get("id") == "tavily")
+                joined = " ".join(str(value) for value in tavily.values())
+                self.assertIn("provider setup tavily --env", tavily.get("providerConfigCommand", ""))
+                self.assertNotIn("provider configure tavily", joined)
+                self.assertNotIn("provider add-key tavily", joined)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -24,6 +24,15 @@ DEFAULT_CAPABILITIES = {
     "tavily": ["web_search", "web_fetch"],
 }
 
+SETUP_DEFAULTS = {
+    "tavily": {
+        "base_url": "https://api.tavily.com",
+        "capabilities": ["web_search", "web_fetch"],
+        "auth_header": "Authorization",
+        "auth_prefix": "Bearer ",
+    }
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Manage ArkSpace provider configuration.")
@@ -42,6 +51,17 @@ def parse_args() -> argparse.Namespace:
     add_key.add_argument("--env", required=True, help="Environment variable name that contains the key")
     add_key.add_argument("--header", help="HTTP header used by this provider")
     add_key.add_argument("--prefix", help="Prefix prepended to the secret value in the auth header")
+
+    setup = subparsers.add_parser("setup", help="Set up a provider with sensible defaults")
+    setup.add_argument("provider")
+    setup.add_argument("--base-url", help="Provider base URL; defaults by provider when available")
+    setup.add_argument(
+        "--env",
+        action="append",
+        default=[],
+        help="Environment variable name containing an API key; repeat or comma-separate for rotation",
+    )
+    setup.add_argument("--check", action="store_true", help="Run provider resolution after writing setup")
 
     resolve = subparsers.add_parser("resolve", help="Resolve a configured provider")
     resolve.add_argument("provider")
@@ -78,6 +98,62 @@ def command_add_key(args: argparse.Namespace) -> int:
         config_path=args.config_path,
     )
     print(f"added key reference env:{args.env} for provider {args.provider} in {path}")
+    return 0
+
+
+def normalize_env_names(values: list[str]) -> list[str]:
+    names: list[str] = []
+    for value in values:
+        for item in value.split(","):
+            name = item.strip()
+            if name and name not in names:
+                names.append(name)
+    return names
+
+
+def command_setup(args: argparse.Namespace) -> int:
+    defaults = SETUP_DEFAULTS.get(args.provider)
+    if not defaults:
+        raise ProviderConfigError(f"provider {args.provider} does not have setup defaults")
+
+    capabilities = list(defaults["capabilities"])
+    base_url = args.base_url or defaults["base_url"]
+    path = set_provider_endpoint(
+        args.provider,
+        capability=capabilities[0],
+        capabilities=capabilities,
+        base_url=base_url,
+        endpoint_id="default",
+        config_path=args.config_path,
+    )
+    print(f"configured provider {args.provider} endpoint default in {path}")
+
+    env_names = normalize_env_names(args.env or [])
+    for env_name in env_names:
+        path = add_key_ref(
+            args.provider,
+            key_ref=f"env:{env_name}",
+            auth_header=defaults["auth_header"],
+            auth_prefix=defaults["auth_prefix"],
+            config_path=args.config_path,
+        )
+        print(f"added key reference env:{env_name} for provider {args.provider} in {path}")
+
+    if not env_names:
+        print(
+            "Next: add an API key reference with "
+            f"`python3 scripts/arkspace.py provider setup {args.provider} --env TAVILY_API_KEY`"
+        )
+
+    if args.check:
+        resolved = resolve_provider(
+            args.provider,
+            capability=capabilities[0],
+            config_path=args.config_path,
+            state_path=args.state_path,
+            require_secret=True,
+        )
+        print(json.dumps(public_view(resolved), ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 
 
@@ -121,6 +197,8 @@ def main() -> int:
             return command_configure(args)
         if args.command == "add-key":
             return command_add_key(args)
+        if args.command == "setup":
+            return command_setup(args)
         if args.command == "resolve":
             return command_resolve(args)
         if args.command == "show":

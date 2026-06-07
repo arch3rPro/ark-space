@@ -1,13 +1,26 @@
+import importlib.util
+import io
+import json
 import os
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "skills" / "provider-manager" / "scripts"))
 
 from arkspace_runtime import provider_config
+
+
+def load_provider_manager_module():
+    script = ROOT / "skills" / "provider-manager" / "scripts" / "arkspace_provider.py"
+    spec = importlib.util.spec_from_file_location("arkspace_provider_test_module", script)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
 
 
 class ProviderConfigTests(unittest.TestCase):
@@ -38,13 +51,7 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(resolved["endpoint"]["base_url"], "https://api.tavily.com")
 
     def test_tavily_configure_command_writes_search_and_fetch_capabilities(self):
-        import importlib.util
-
-        script = ROOT / "skills" / "provider-manager" / "scripts" / "arkspace_provider.py"
-        spec = importlib.util.spec_from_file_location("arkspace_provider_test_module", script)
-        module = importlib.util.module_from_spec(spec)
-        assert spec.loader is not None
-        spec.loader.exec_module(module)
+        module = load_provider_manager_module()
 
         args = type(
             "Args",
@@ -191,6 +198,136 @@ class ProviderConfigTests(unittest.TestCase):
                 state_path=self.state_path,
                 require_secret=True,
             )
+
+    def test_key_rotation_skips_unavailable_env_refs(self):
+        os.environ["TAVILY_API_KEY_AVAILABLE"] = "second"
+        self.addCleanup(os.environ.pop, "TAVILY_API_KEY_AVAILABLE", None)
+        provider_config.set_provider_endpoint(
+            "tavily",
+            capability="web_search",
+            base_url="https://api.tavily.com",
+            config_path=self.config_path,
+        )
+        provider_config.add_key_ref(
+            "tavily",
+            key_ref="env:TAVILY_API_KEY_MISSING",
+            auth_header="Authorization",
+            auth_prefix="Bearer ",
+            config_path=self.config_path,
+        )
+        provider_config.add_key_ref(
+            "tavily",
+            key_ref="env:TAVILY_API_KEY_AVAILABLE",
+            auth_header="Authorization",
+            auth_prefix="Bearer ",
+            config_path=self.config_path,
+        )
+
+        resolved = provider_config.resolve_provider(
+            "tavily",
+            capability="web_search",
+            config_path=self.config_path,
+            state_path=self.state_path,
+            require_secret=True,
+        )
+
+        self.assertEqual(resolved["auth"]["key_ref"], "env:TAVILY_API_KEY_AVAILABLE")
+        self.assertEqual(resolved["auth"]["value"], "second")
+
+    def test_tavily_setup_command_writes_endpoint_capabilities_and_key_ref(self):
+        os.environ["TAVILY_API_KEY"] = "tvly-test-key"
+        self.addCleanup(os.environ.pop, "TAVILY_API_KEY", None)
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "tavily",
+                "base_url": None,
+                "env": ["TAVILY_API_KEY"],
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(module.command_setup(args), 0)
+
+        data = provider_config.load_config(self.config_path)
+        entry = data["providers"]["tavily"]
+        self.assertEqual(entry["capabilities"], ["web_search", "web_fetch"])
+        self.assertEqual(entry["endpoints"][0]["base_url"], "https://api.tavily.com")
+        self.assertEqual(entry["auth"]["type"], "api_key")
+        self.assertEqual(entry["auth"]["header"], "Authorization")
+        self.assertEqual(entry["auth"]["prefix"], "Bearer ")
+        self.assertEqual(entry["auth"]["key_refs"], ["env:TAVILY_API_KEY"])
+        self.assertNotIn("tvly-test-key", json.dumps(data))
+        self.assertIn("configured provider tavily", output.getvalue())
+
+    def test_tavily_setup_command_is_idempotent_and_appends_new_env_refs(self):
+        module = load_provider_manager_module()
+        first = type(
+            "Args",
+            (),
+            {
+                "provider": "tavily",
+                "base_url": None,
+                "env": ["TAVILY_API_KEY_1", "TAVILY_API_KEY_2"],
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+        second = type(
+            "Args",
+            (),
+            {
+                "provider": "tavily",
+                "base_url": None,
+                "env": ["TAVILY_API_KEY_2", "TAVILY_API_KEY_3"],
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        self.assertEqual(module.command_setup(first), 0)
+        self.assertEqual(module.command_setup(second), 0)
+
+        data = provider_config.load_config(self.config_path)
+        self.assertEqual(
+            data["providers"]["tavily"]["auth"]["key_refs"],
+            ["env:TAVILY_API_KEY_1", "env:TAVILY_API_KEY_2", "env:TAVILY_API_KEY_3"],
+        )
+        self.assertEqual(len(data["providers"]["tavily"]["endpoints"]), 1)
+        self.assertEqual(data["providers"]["tavily"]["endpoints"][0]["base_url"], "https://api.tavily.com")
+
+    def test_tavily_setup_command_allows_endpoint_only_setup(self):
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "tavily",
+                "base_url": None,
+                "env": [],
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(module.command_setup(args), 0)
+
+        data = provider_config.load_config(self.config_path)
+        entry = data["providers"]["tavily"]
+        self.assertEqual(entry["capabilities"], ["web_search", "web_fetch"])
+        self.assertEqual(entry["endpoints"][0]["base_url"], "https://api.tavily.com")
+        self.assertEqual(entry["auth"]["type"], "none")
+        self.assertNotIn("key_refs", entry["auth"])
+        self.assertIn("add an API key reference", output.getvalue())
 
 
 if __name__ == "__main__":

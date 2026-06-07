@@ -40,8 +40,7 @@ Use `web_search` to discover sources. Use `web_fetch` to read a known URL or a U
 Provider configuration lives outside committed package files. For Tavily:
 
 ```bash
-python3 scripts/arkspace.py provider configure tavily --base-url https://api.tavily.com
-python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1
 python3 scripts/arkspace.py provider check tavily
 ```
 

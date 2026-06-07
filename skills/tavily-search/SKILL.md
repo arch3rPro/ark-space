@@ -25,17 +25,16 @@ Check configuration:
 python3 scripts/arkspace.py provider check tavily --capability web_search
 ```
 
-Configure the endpoint:
+Set up Tavily once:
 
 ```bash
-python3 scripts/arkspace.py provider configure tavily --base-url "https://api.tavily.com"
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY
 ```
 
-Add one or more API key references:
+For multiple API keys, repeat `--env`:
 
 ```bash
-python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_1 --header Authorization --prefix "Bearer "
-python3 scripts/arkspace.py provider add-key tavily --env TAVILY_API_KEY_2 --header Authorization --prefix "Bearer "
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
 ```
 
 The config stores `env:<NAME>` references, not raw keys. The agent should help run these commands when the user provides env var names or a base URL.

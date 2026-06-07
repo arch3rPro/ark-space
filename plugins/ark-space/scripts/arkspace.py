@@ -60,6 +60,14 @@ def main():
     provider_add_key.add_argument("--config-path")
     provider_add_key.add_argument("--state-path")
 
+    provider_setup = provider_sub.add_parser("setup")
+    provider_setup.add_argument("provider")
+    provider_setup.add_argument("--base-url")
+    provider_setup.add_argument("--env", action="append", default=[])
+    provider_setup.add_argument("--check", action="store_true")
+    provider_setup.add_argument("--config-path")
+    provider_setup.add_argument("--state-path")
+
     provider_resolve = provider_sub.add_parser("resolve")
     provider_resolve.add_argument("provider")
     provider_resolve.add_argument("--capability")
@@ -197,7 +205,7 @@ def provider_command(args):
     cmd = [sys.executable, "scripts/arkspace_provider.py"]
     cmd = append_path_flags(cmd, args, include_state=True)
     cmd.append(args.provider_command)
-    if args.provider_command in {"configure", "add-key", "resolve"}:
+    if args.provider_command in {"configure", "add-key", "setup", "resolve"}:
         cmd.append(args.provider)
     if args.provider_command == "configure":
         cmd.extend(["--base-url", args.base_url])
@@ -211,6 +219,13 @@ def provider_command(args):
             cmd.extend(["--header", args.header])
         if args.prefix:
             cmd.extend(["--prefix", args.prefix])
+    if args.provider_command == "setup":
+        if args.base_url:
+            cmd.extend(["--base-url", args.base_url])
+        for env_name in args.env:
+            cmd.extend(["--env", env_name])
+        if args.check:
+            cmd.append("--check")
     if args.provider_command == "resolve":
         if args.capability:
             cmd.extend(["--capability", args.capability])
@@ -230,7 +245,7 @@ def web_command(args):
                 cmd.extend(["--limit", args.max_results])
             return cmd
         if args.base_url:
-            raise CliError("tavily web search does not accept --base-url; configure the endpoint with provider configure")
+            raise CliError("tavily web search does not accept --base-url; use provider setup tavily --base-url <url>")
         for name in ["max_results", "search_depth", "topic", "time_range", "include_domains", "exclude_domains", "timeout", "config_path", "state_path", "output"]:
             value = getattr(args, name)
             if value:

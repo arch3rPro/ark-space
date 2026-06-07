@@ -95,6 +95,18 @@ def save_state(data: dict[str, Any], state_path: str | None = None) -> Path:
     return path
 
 
+def configure_hint(provider_id: str) -> str:
+    if provider_id == "tavily":
+        return "`python3 scripts/arkspace.py provider setup tavily --env <ENV_NAME>`"
+    return f"`python3 scripts/arkspace.py provider configure {provider_id} --base-url <url>`"
+
+
+def add_key_hint(provider_id: str) -> str:
+    if provider_id == "tavily":
+        return "`python3 scripts/arkspace.py provider setup tavily --env <ENV_NAME>`"
+    return f"`python3 scripts/arkspace.py provider add-key {provider_id} --env <ENV_NAME>`"
+
+
 def provider_entry(config: dict[str, Any], provider_id: str) -> dict[str, Any] | None:
     providers = config.get("providers", {})
     if not isinstance(providers, dict):
@@ -198,8 +210,7 @@ def resolve_provider(
     entry = provider_entry(config, provider_id)
     if entry is None or entry.get("enabled") is False:
         raise ProviderConfigError(
-            f"provider {provider_id} is not configured; run "
-            f"`python3 scripts/arkspace.py provider configure {provider_id} --base-url <url>`"
+            f"provider {provider_id} is not configured; run {configure_hint(provider_id)}"
         )
     resolved_capability = resolve_capability(provider_id, entry, capability)
 
@@ -243,8 +254,7 @@ def select_endpoint(
     if not usable:
         if require_endpoint:
             raise ProviderConfigError(
-                f"provider {provider_id} has no endpoint; run "
-                f"`python3 scripts/arkspace.py provider configure {provider_id} --base-url <url>`"
+                f"provider {provider_id} has no endpoint; run {configure_hint(provider_id)}"
             )
         return None
     selected = select_round_robin(provider_id, "endpoints", usable, state, lambda item: item.get("id"))
@@ -266,6 +276,8 @@ def select_credential(
         raise ProviderConfigError(f"provider {provider_id} auth must be an object")
     auth_type = auth.get("type", "none")
     if auth_type == "none":
+        if require_secret:
+            raise ProviderConfigError(f"provider {provider_id} has no key refs; run {add_key_hint(provider_id)}")
         return {"type": "none"}
     if auth_type != "api_key":
         raise ProviderConfigError(f"provider {provider_id} auth type {auth_type} is not supported")
@@ -274,11 +286,14 @@ def select_credential(
     if not isinstance(key_refs, list):
         raise ProviderConfigError(f"provider {provider_id} auth.key_refs must be a list")
     if not key_refs:
-        raise ProviderConfigError(
-            f"provider {provider_id} has no key refs; run "
-            f"`python3 scripts/arkspace.py provider add-key {provider_id} --env <ENV_NAME>`"
-        )
-    selected = select_round_robin(provider_id, "keys", key_refs, state, lambda item: str(item))
+        raise ProviderConfigError(f"provider {provider_id} has no key refs; run {add_key_hint(provider_id)}")
+    available_key_refs = [key_ref for key_ref in key_refs if read_key_ref(str(key_ref))]
+    if not available_key_refs:
+        if require_secret:
+            raise ProviderConfigError(f"provider {provider_id} has no available API key; run {add_key_hint(provider_id)}")
+        available_key_refs = key_refs
+
+    selected = select_round_robin(provider_id, "keys", available_key_refs, state, lambda item: str(item))
     secret = read_key_ref(str(selected))
     if require_secret and not secret:
         raise ProviderConfigError(f"provider {provider_id} key {selected} is not available in the environment")

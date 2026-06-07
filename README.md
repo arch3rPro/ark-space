@@ -140,6 +140,8 @@ Personal provider configuration should live outside committed package files. The
 ```bash
 python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
 python3 scripts/arkspace.py provider check searxng
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY
+python3 scripts/arkspace.py provider check tavily
 ```
 
 Claude Code can also pass provider variables from `.claude/settings.local.json`:
@@ -171,6 +173,7 @@ For Codex, use the same ArkSpace setup command, or export provider variables in 
 
 ```bash
 export SEARXNG_URL="https://searx.example.org"
+export TAVILY_API_KEY="tvly-..."
 codex
 ```
 
@@ -182,6 +185,13 @@ python3 scripts/arkspace.py provider resolve searxng --capability web_search
 ```
 
 This writes `~/.config/ark-space/providers.json` by default. Use `ARKSPACE_PROVIDER_CONFIG` or `--config-path` for a custom location. `--base-url` and environment variables still override the saved value.
+
+For Tavily, use setup-first configuration. This stores only `env:<NAME>` references and supports multiple keys:
+
+```bash
+python3 scripts/arkspace.py provider setup tavily --env TAVILY_API_KEY_1 --env TAVILY_API_KEY_2
+python3 scripts/arkspace.py provider check tavily
+```
 
 To add this repository as a Codex plugin marketplace:
 
