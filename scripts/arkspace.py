@@ -10,6 +10,9 @@ PROVIDER_CHECK_COMMANDS = {
     ("searxng", "web_search"): [sys.executable, "skills/searxng-search/scripts/searxng_search.py", "--check"],
     ("tavily", "web_search"): [sys.executable, "skills/tavily-search/scripts/tavily_search.py", "--check"],
     ("tavily", "web_fetch"): [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py", "--check"],
+    ("tavily", "web_map"): [sys.executable, "skills/tavily-map/scripts/tavily_map.py", "--check"],
+    ("tavily", "web_crawl"): [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py", "--check"],
+    ("tavily", "deep_research"): [sys.executable, "skills/tavily-research/scripts/tavily_research.py", "--check"],
 }
 
 WEB_SEARCH_COMMANDS = {
@@ -19,6 +22,18 @@ WEB_SEARCH_COMMANDS = {
 
 WEB_FETCH_COMMANDS = {
     "tavily": [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py"],
+}
+
+SITE_MAP_COMMANDS = {
+    "tavily": [sys.executable, "skills/tavily-map/scripts/tavily_map.py"],
+}
+
+SITE_CRAWL_COMMANDS = {
+    "tavily": [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py"],
+}
+
+RESEARCH_COMMANDS = {
+    "tavily": [sys.executable, "skills/tavily-research/scripts/tavily_research.py"],
 }
 
 
@@ -123,6 +138,78 @@ def main():
     web_fetch.add_argument("--state-path")
     web_fetch.add_argument("--output", choices=["json", "markdown"])
 
+    site = sub.add_parser("site")
+    site_sub = site.add_subparsers(dest="site_command", required=True)
+    site_map = site_sub.add_parser("map")
+    site_map.add_argument("url")
+    site_map.add_argument("--provider", required=True, choices=sorted(SITE_MAP_COMMANDS))
+    site_map.add_argument("--instructions")
+    site_map.add_argument("--max-depth")
+    site_map.add_argument("--max-breadth")
+    site_map.add_argument("--limit")
+    site_map.add_argument("--select-paths")
+    site_map.add_argument("--exclude-paths")
+    site_map.add_argument("--select-domains")
+    site_map.add_argument("--exclude-domains")
+    site_map.add_argument("--allow-external", action="store_true")
+    site_map.add_argument("--no-external", action="store_true")
+    site_map.add_argument("--include-usage", action="store_true")
+    site_map.add_argument("--timeout")
+    site_map.add_argument("--config-path")
+    site_map.add_argument("--state-path")
+    site_map.add_argument("--output", choices=["json", "markdown"])
+
+    site_crawl = site_sub.add_parser("crawl")
+    site_crawl.add_argument("url")
+    site_crawl.add_argument("--provider", required=True, choices=sorted(SITE_CRAWL_COMMANDS))
+    site_crawl.add_argument("--instructions")
+    site_crawl.add_argument("--chunks-per-source")
+    site_crawl.add_argument("--max-depth")
+    site_crawl.add_argument("--max-breadth")
+    site_crawl.add_argument("--limit")
+    site_crawl.add_argument("--select-paths")
+    site_crawl.add_argument("--exclude-paths")
+    site_crawl.add_argument("--select-domains")
+    site_crawl.add_argument("--exclude-domains")
+    site_crawl.add_argument("--allow-external", action="store_true")
+    site_crawl.add_argument("--no-external", action="store_true")
+    site_crawl.add_argument("--include-images", action="store_true")
+    site_crawl.add_argument("--include-favicon", action="store_true")
+    site_crawl.add_argument("--extract-depth")
+    site_crawl.add_argument("--format")
+    site_crawl.add_argument("--include-usage", action="store_true")
+    site_crawl.add_argument("--timeout")
+    site_crawl.add_argument("--config-path")
+    site_crawl.add_argument("--state-path")
+    site_crawl.add_argument("--output", choices=["json", "markdown"])
+
+    research = sub.add_parser("research")
+    research_sub = research.add_subparsers(dest="research_command", required=True)
+    research_run = research_sub.add_parser("run")
+    research_run.add_argument("input")
+    research_run.add_argument("--provider", required=True, choices=sorted(RESEARCH_COMMANDS))
+    research_run.add_argument("--model")
+    research_run.add_argument("--citation-format")
+    research_run.add_argument("--include-domains")
+    research_run.add_argument("--exclude-domains")
+    research_run.add_argument("--output-length")
+    research_run.add_argument("--output-schema")
+    research_run.add_argument("--wait", action="store_true")
+    research_run.add_argument("--poll-interval")
+    research_run.add_argument("--timeout")
+    research_run.add_argument("--config-path")
+    research_run.add_argument("--state-path")
+    research_run.add_argument("--output", choices=["json", "markdown"])
+
+    research_status = research_sub.add_parser("status")
+    research_status.add_argument("request_id")
+    research_status.add_argument("--provider", required=True, choices=sorted(RESEARCH_COMMANDS))
+    research_status.add_argument("--poll-interval")
+    research_status.add_argument("--timeout")
+    research_status.add_argument("--config-path")
+    research_status.add_argument("--state-path")
+    research_status.add_argument("--output", choices=["json", "markdown"])
+
     convert = sub.add_parser("convert")
     convert.add_argument("--host", choices=["codex", "claude-code", "all"], default="all")
     convert.add_argument("--check", action="store_true")
@@ -152,6 +239,10 @@ def main():
         return run_or_cli_error(provider_command, args)
     if args.command == "web":
         return run_or_cli_error(web_command, args)
+    if args.command == "site":
+        return run_or_cli_error(site_command, args)
+    if args.command == "research":
+        return run_or_cli_error(research_command, args)
     if args.command == "convert":
         cmd = [sys.executable, "scripts/convert-agents.py", "--host", args.host]
         if args.check:
@@ -285,11 +376,109 @@ def web_command(args):
     raise ValueError(f"unknown web command {args.web_command}")
 
 
+def site_command(args):
+    if args.site_command == "map":
+        cmd = [*SITE_MAP_COMMANDS[args.provider], args.url]
+        for name in [
+            "instructions",
+            "max_depth",
+            "max_breadth",
+            "limit",
+            "select_paths",
+            "exclude_paths",
+            "select_domains",
+            "exclude_domains",
+            "timeout",
+            "config_path",
+            "state_path",
+            "output",
+        ]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        append_boolean_pair(cmd, args, "allow_external", "no_external", "--allow-external", "--no-external")
+        if args.include_usage:
+            cmd.append("--include-usage")
+        return cmd
+
+    if args.site_command == "crawl":
+        cmd = [*SITE_CRAWL_COMMANDS[args.provider], args.url]
+        for name in [
+            "instructions",
+            "chunks_per_source",
+            "max_depth",
+            "max_breadth",
+            "limit",
+            "select_paths",
+            "exclude_paths",
+            "select_domains",
+            "exclude_domains",
+            "extract_depth",
+            "format",
+            "timeout",
+            "config_path",
+            "state_path",
+            "output",
+        ]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        append_boolean_pair(cmd, args, "allow_external", "no_external", "--allow-external", "--no-external")
+        for name in ["include_images", "include_favicon", "include_usage"]:
+            if getattr(args, name):
+                cmd.append(f"--{name.replace('_', '-')}")
+        return cmd
+
+    raise ValueError(f"unknown site command {args.site_command}")
+
+
+def research_command(args):
+    if args.research_command == "run":
+        cmd = [*RESEARCH_COMMANDS[args.provider], args.input]
+        for name in [
+            "model",
+            "citation_format",
+            "include_domains",
+            "exclude_domains",
+            "output_length",
+            "output_schema",
+            "poll_interval",
+            "timeout",
+            "config_path",
+            "state_path",
+            "output",
+        ]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        if args.wait:
+            cmd.append("--wait")
+        return cmd
+
+    if args.research_command == "status":
+        cmd = [*RESEARCH_COMMANDS[args.provider], "--status", args.request_id]
+        for name in ["poll_interval", "timeout", "config_path", "state_path", "output"]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        return cmd
+
+    raise ValueError(f"unknown research command {args.research_command}")
+
+
 def append_value_flags(cmd, args, names):
     for name in names:
         value = getattr(args, name)
         if value:
             cmd.extend([f"--{name.replace('_', '-')}", value])
+    return cmd
+
+
+def append_boolean_pair(cmd, args, true_attr, false_attr, true_flag, false_flag):
+    if getattr(args, true_attr):
+        cmd.append(true_flag)
+    if getattr(args, false_attr):
+        cmd.append(false_flag)
     return cmd
 
 

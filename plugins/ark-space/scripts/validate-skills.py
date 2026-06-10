@@ -15,6 +15,9 @@ VALID_CAPABILITIES = {
     "provider_configuration",
     "web_search",
     "web_fetch",
+    "web_map",
+    "web_crawl",
+    "deep_research",
     "knowledge_management",
 }
 
@@ -102,6 +105,9 @@ def validate_public_skill_contract(skills):
     routable_capabilities = {
         "web_search",
         "web_fetch",
+        "web_map",
+        "web_crawl",
+        "deep_research",
         "knowledge_management",
         "skill_governance",
         "provider_configuration",

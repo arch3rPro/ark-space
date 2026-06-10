@@ -70,7 +70,7 @@ python3 scripts/arkspace.py provider setup tavily --save-secret TAVILY_API_KEY_1
 python3 scripts/arkspace.py provider check tavily
 ```
 
-The setup command writes the Tavily endpoint, `web_search`/`web_fetch` capabilities, key references, and private secret values in one flow. Provider config stores references such as `env:TAVILY_API_KEY_1`; raw keys are stored in `~/.config/ark-space/secrets.json` with `0600` permissions.
+The setup command writes the Tavily endpoint, Tavily capabilities (`web_search`, `web_fetch`, `web_map`, `web_crawl`, `deep_research`), key references, and private secret values in one flow. Provider config stores references such as `env:TAVILY_API_KEY_1`; raw keys are stored in `~/.config/ark-space/secrets.json` with `0600` permissions.
 
 For non-interactive setup, provide one secret value per `--save-secret` through stdin:
 

@@ -9,7 +9,7 @@ You handle research, source discovery, URL extraction, Obsidian notes, Bases, Ca
 
 ## Web Work
 
-For discovery requests, use `web_search` provider skills. For provided URLs, use `web_fetch` provider skills. Use fetch after search when the answer needs source content.
+For discovery requests, use `web_search` provider skills. For provided URLs, use `web_fetch` provider skills. Use `web_map` for URL discovery on a known site, `web_crawl` for multi-page site content, and `deep_research` for cited synthesis. Use fetch after search or map when the answer needs source content.
 
 ## Knowledge Work
 

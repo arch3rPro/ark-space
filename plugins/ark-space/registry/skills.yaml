@@ -84,6 +84,45 @@ skills:
     categories: research,web,fetch,api-provider
     roles: docs/knowledge-manager,product/competitive-analyst
 
+  - name: tavily-map
+    path: skills/tavily-map
+    status: active
+    public: true
+    capabilities: web_map
+    providers: tavily
+    directInvocation: "$ark-space:tavily-map 映射 https://docs.example.com"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 映射 https://docs.example.com"
+    syncMode: adapted
+    upstreamId: tavily-agent-skills
+    categories: research,web,map,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: tavily-crawl
+    path: skills/tavily-crawl
+    status: active
+    public: true
+    capabilities: web_crawl
+    providers: tavily
+    directInvocation: "$ark-space:tavily-crawl 抓取 https://docs.example.com"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 抓取 https://docs.example.com/docs"
+    syncMode: adapted
+    upstreamId: tavily-agent-skills
+    categories: research,web,crawl,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: tavily-research
+    path: skills/tavily-research
+    status: active
+    public: true
+    capabilities: deep_research
+    providers: tavily
+    directInvocation: "$ark-space:tavily-research 调研 AI coding agents 市场"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 深度调研 AI coding agents 市场"
+    syncMode: adapted
+    upstreamId: tavily-agent-skills
+    categories: research,web,analysis,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
   - name: json-canvas
     path: skills/json-canvas
     status: active

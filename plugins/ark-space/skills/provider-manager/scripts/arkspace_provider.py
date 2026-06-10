@@ -26,13 +26,13 @@ from arkspace_runtime.provider_config import (
 
 DEFAULT_CAPABILITIES = {
     "searxng": "web_search",
-    "tavily": ["web_search", "web_fetch"],
+    "tavily": ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"],
 }
 
 SETUP_DEFAULTS = {
     "tavily": {
         "base_url": "https://api.tavily.com",
-        "capabilities": ["web_search", "web_fetch"],
+        "capabilities": ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"],
         "auth_header": "Authorization",
         "auth_prefix": "Bearer ",
     }

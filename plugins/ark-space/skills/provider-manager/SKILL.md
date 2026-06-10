@@ -1,6 +1,6 @@
 ---
 name: provider-manager
-description: Use when configuring ArkSpace providers, fixing missing provider URLs or API keys, checking search/fetch provider readiness, or setting up multiple API key rotation.
+description: Use when configuring ArkSpace providers, fixing missing provider URLs or API keys, checking provider readiness, or setting up multiple API key rotation.
 ---
 
 # Provider Manager
@@ -47,7 +47,7 @@ Configure a self-hosted SearXNG endpoint:
 python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
 ```
 
-Configure Tavily API search and extraction:
+Configure Tavily API-backed skills:
 
 ```bash
 python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2

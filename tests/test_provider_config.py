@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
+TAVILY_CAPABILITIES = ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"]
 sys.path.insert(0, str(ROOT / "skills" / "provider-manager" / "scripts"))
 
 from arkspace_runtime import provider_config
@@ -54,7 +55,7 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(resolved["capability"], "web_fetch")
         self.assertEqual(resolved["endpoint"]["base_url"], "https://api.tavily.com")
 
-    def test_tavily_configure_command_writes_search_and_fetch_capabilities(self):
+    def test_tavily_configure_command_writes_tavily_capabilities(self):
         module = load_provider_manager_module()
 
         args = type(
@@ -72,7 +73,7 @@ class ProviderConfigTests(unittest.TestCase):
         module.command_configure(args)
         data = provider_config.load_config(self.config_path)
 
-        self.assertEqual(data["providers"]["tavily"]["capabilities"], ["web_search", "web_fetch"])
+        self.assertEqual(data["providers"]["tavily"]["capabilities"], TAVILY_CAPABILITIES)
         self.assertNotIn("capability", data["providers"]["tavily"])
 
     def test_resolve_api_key_auth_preserves_header_prefix_and_hides_secret(self):
@@ -260,7 +261,7 @@ class ProviderConfigTests(unittest.TestCase):
 
         data = provider_config.load_config(self.config_path)
         entry = data["providers"]["tavily"]
-        self.assertEqual(entry["capabilities"], ["web_search", "web_fetch"])
+        self.assertEqual(entry["capabilities"], TAVILY_CAPABILITIES)
         self.assertEqual(entry["endpoints"][0]["base_url"], "https://api.tavily.com")
         self.assertEqual(entry["auth"]["type"], "api_key")
         self.assertEqual(entry["auth"]["header"], "Authorization")
@@ -451,7 +452,7 @@ class ProviderConfigTests(unittest.TestCase):
 
         data = provider_config.load_config(self.config_path)
         entry = data["providers"]["tavily"]
-        self.assertEqual(entry["capabilities"], ["web_search", "web_fetch"])
+        self.assertEqual(entry["capabilities"], TAVILY_CAPABILITIES)
         self.assertEqual(entry["endpoints"][0]["base_url"], "https://api.tavily.com")
         self.assertEqual(entry["auth"]["type"], "none")
         self.assertNotIn("key_refs", entry["auth"])

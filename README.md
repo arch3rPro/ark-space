@@ -92,6 +92,9 @@ Do not edit generated integration files by hand; update `agents/` and regenerate
 | `searxng-search` | Query a configured self-hosted SearXNG instance |
 | `tavily-search` | Query Tavily through ArkSpace web search routing |
 | `tavily-extract` | Extract readable content from URLs through Tavily |
+| `tavily-map` | Discover URLs and site structure through Tavily |
+| `tavily-crawl` | Crawl a website section and extract many pages through Tavily |
+| `tavily-research` | Run Tavily deep research for cited multi-source reports |
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases |
 | `obsidian-cli` | Interact with Obsidian through the CLI |
@@ -110,6 +113,9 @@ Use direct skill invocation when the caller already knows the provider or skill:
 $ark-space:tavily-search 搜索 claude-code-everything
 $ark-space:searxng-search 搜索 claude-code-everything
 $ark-space:tavily-extract 提取 https://example.com
+$ark-space:tavily-map 映射 https://docs.example.com
+$ark-space:tavily-crawl 抓取 https://docs.example.com/docs
+$ark-space:tavily-research 调研 AI coding agents 市场
 ```
 
 Use the Orchestrator when the caller wants ArkSpace to choose the route:
@@ -118,9 +124,10 @@ Use the Orchestrator when the caller wants ArkSpace to choose the route:
 $ark-space:orchestrator 使用 tavily 搜索 claude-code-everything
 $ark-space:orchestrator 搜索 claude-code-everything 项目
 $ark-space:orchestrator 抓取并总结 https://example.com
+$ark-space:orchestrator 使用 tavily 调研 AI coding agents 市场
 ```
 
-`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. Search and fetch can be chained, but they are separate provider capabilities with separate registries.
+`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. Tavily also adds `web_map` for URL discovery on a known site, `web_crawl` for multi-page site extraction, and `deep_research` for cited synthesis. Search, map, fetch, crawl, and research are related but separate capabilities.
 
 ## Installation
 
@@ -193,6 +200,16 @@ For Tavily, use setup-first configuration. This stores `env:<NAME>` references i
 ```bash
 python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
 python3 scripts/arkspace.py provider check tavily
+```
+
+Useful Tavily runtime commands:
+
+```bash
+python3 scripts/arkspace.py web search --provider tavily "query"
+python3 scripts/arkspace.py web fetch --provider tavily "https://example.com"
+python3 scripts/arkspace.py site map --provider tavily "https://docs.example.com"
+python3 scripts/arkspace.py site crawl --provider tavily "https://docs.example.com/docs"
+python3 scripts/arkspace.py research run --provider tavily "market analysis topic"
 ```
 
 To add this repository as a Codex plugin marketplace:

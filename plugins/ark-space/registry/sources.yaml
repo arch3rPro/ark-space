@@ -50,7 +50,7 @@ sources:
     documentation: https://docs.tavily.com/documentation/agent-skills
     license: MIT
     syncPolicy: adapted
-    notes: "Official Tavily Agent Skills used as upstream structure for search and extract skills while keeping ArkSpace provider-manager as the runtime configuration layer."
+    notes: "Official Tavily Agent Skills used as upstream structure for search, extract, map, crawl, and research skills while keeping ArkSpace provider-manager as the runtime configuration layer."
 
   - id: openclaw-tavily
     type: github

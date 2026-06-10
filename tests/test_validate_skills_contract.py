@@ -36,6 +36,9 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "searxng-search",
             "tavily-search",
             "tavily-extract",
+            "tavily-map",
+            "tavily-crawl",
+            "tavily-research",
             "defuddle",
         ]:
             with self.subTest(name=name):
@@ -47,7 +50,15 @@ class ValidateSkillsContractTests(unittest.TestCase):
         skills = self.validate.parse_simple_yaml_list(ROOT / "registry" / "skills.yaml", "skills")
         by_name = {item["name"]: item for item in skills}
 
-        for name in ["searxng-search", "tavily-search", "tavily-extract", "defuddle"]:
+        for name in [
+            "searxng-search",
+            "tavily-search",
+            "tavily-extract",
+            "tavily-map",
+            "tavily-crawl",
+            "tavily-research",
+            "defuddle",
+        ]:
             with self.subTest(name=name):
                 invocation = by_name[name].get("orchestratorInvocation", "")
                 self.assertIn("$ark-space:orchestrator", invocation)
@@ -87,6 +98,21 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertIn("Do not return Tavily", text)
                 self.assertIn("declines, defers, or cannot complete setup", text)
                 self.assertIn("clearly labeled non-ArkSpace fallback", text)
+
+    def test_new_tavily_skills_use_setup_first_recovery(self):
+        expectations = {
+            "skills/tavily-map/SKILL.md": "provider check tavily --capability web_map",
+            "skills/tavily-crawl/SKILL.md": "provider check tavily --capability web_crawl",
+            "skills/tavily-research/SKILL.md": "provider check tavily --capability deep_research",
+        }
+        for skill_path, check_command in expectations.items():
+            with self.subTest(skill=skill_path):
+                text = (ROOT / skill_path).read_text(encoding="utf-8")
+                self.assertIn("Missing Configuration Recovery", text)
+                self.assertIn("Start setup wizard", text)
+                self.assertIn("Not now", text)
+                self.assertIn("provider setup tavily --wizard", text)
+                self.assertIn(check_command, text)
 
     def test_provider_manager_guides_interactive_setup_before_manual_commands(self):
         text = (ROOT / "skills" / "provider-manager" / "SKILL.md").read_text(encoding="utf-8")

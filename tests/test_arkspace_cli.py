@@ -51,6 +51,18 @@ class ArkspaceCliTests(unittest.TestCase):
             [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py", "--check"],
         )
 
+    def test_provider_check_tavily_extended_capabilities_delegate_to_helpers(self):
+        expectations = {
+            "web_map": [sys.executable, "skills/tavily-map/scripts/tavily_map.py", "--check"],
+            "web_crawl": [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py", "--check"],
+            "deep_research": [sys.executable, "skills/tavily-research/scripts/tavily_research.py", "--check"],
+        }
+        for capability, expected in expectations.items():
+            with self.subTest(capability=capability):
+                status, calls = self.run_cli(["provider", "check", "tavily", "--capability", capability])
+                self.assertEqual(status, 0)
+                self.assertEqual(calls[0], expected)
+
     def test_provider_resolve_forwards_custom_config_and_state_paths(self):
         status, calls = self.run_cli(
             [
@@ -314,6 +326,149 @@ class ArkspaceCliTests(unittest.TestCase):
                 "/tmp/providers.json",
                 "--state-path",
                 "/tmp/state.json",
+                "--output",
+                "json",
+            ],
+        )
+
+    def test_site_map_tavily_delegates_to_tavily_map_helper(self):
+        status, calls = self.run_cli(
+            [
+                "site",
+                "map",
+                "--provider",
+                "tavily",
+                "--instructions",
+                "Find auth docs",
+                "--max-depth",
+                "2",
+                "--limit",
+                "50",
+                "--no-external",
+                "--output",
+                "json",
+                "https://docs.example.com",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/tavily-map/scripts/tavily_map.py",
+                "https://docs.example.com",
+                "--instructions",
+                "Find auth docs",
+                "--max-depth",
+                "2",
+                "--limit",
+                "50",
+                "--output",
+                "json",
+                "--no-external",
+            ],
+        )
+
+    def test_site_crawl_tavily_delegates_to_tavily_crawl_helper(self):
+        status, calls = self.run_cli(
+            [
+                "site",
+                "crawl",
+                "--provider",
+                "tavily",
+                "--instructions",
+                "Find auth docs",
+                "--chunks-per-source",
+                "3",
+                "--extract-depth",
+                "advanced",
+                "--include-images",
+                "--output",
+                "json",
+                "https://docs.example.com",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/tavily-crawl/scripts/tavily_crawl.py",
+                "https://docs.example.com",
+                "--instructions",
+                "Find auth docs",
+                "--chunks-per-source",
+                "3",
+                "--extract-depth",
+                "advanced",
+                "--output",
+                "json",
+                "--include-images",
+            ],
+        )
+
+    def test_research_run_tavily_delegates_to_tavily_research_helper(self):
+        status, calls = self.run_cli(
+            [
+                "research",
+                "run",
+                "--provider",
+                "tavily",
+                "--model",
+                "pro",
+                "--wait",
+                "--timeout",
+                "600",
+                "--output",
+                "json",
+                "AI coding agents market",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/tavily-research/scripts/tavily_research.py",
+                "AI coding agents market",
+                "--model",
+                "pro",
+                "--timeout",
+                "600",
+                "--output",
+                "json",
+                "--wait",
+            ],
+        )
+
+    def test_research_status_tavily_delegates_to_tavily_research_helper(self):
+        status, calls = self.run_cli(
+            [
+                "research",
+                "status",
+                "--provider",
+                "tavily",
+                "--timeout",
+                "60",
+                "--output",
+                "json",
+                "req-123",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/tavily-research/scripts/tavily_research.py",
+                "--status",
+                "req-123",
+                "--timeout",
+                "60",
                 "--output",
                 "json",
             ],
