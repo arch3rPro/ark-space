@@ -13,6 +13,7 @@ import termios
 from arkspace_runtime.provider_config import (
     ProviderConfigError,
     add_key_ref,
+    arkspace_command,
     default_config_path,
     default_secrets_path,
     default_state_path,
@@ -222,7 +223,7 @@ def command_setup(args: argparse.Namespace) -> int:
     if not env_names:
         print(
             "Next: add and save an API key with "
-            f"`python3 scripts/arkspace.py provider setup {args.provider} --save-secret TAVILY_API_KEY --prompt`"
+            f"`{arkspace_command()} provider setup {args.provider} --save-secret TAVILY_API_KEY --prompt`"
         )
 
     if args.check:

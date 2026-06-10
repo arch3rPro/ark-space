@@ -19,22 +19,24 @@ Tavily configuration is managed by `provider-manager`; do not ask the user to ed
 
 ## Before Use
 
+Resolve the installed ArkSpace package root before running commands. Replace `<installed-arkspace-path>` with the directory two levels above this loaded `SKILL.md`, such as `/Users/<user>/.claude/plugins/cache/ark-space/ark-space/0.1.2`. Use the installed package path, not a repository-relative command.
+
 Check configuration:
 
 ```bash
-python3 scripts/arkspace.py provider check tavily --capability web_search
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_search
 ```
 
 Set up Tavily once:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --wizard
+python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard
 ```
 
 For multiple API keys:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
+python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard --key-count 2
 ```
 
 The provider config stores `env:<NAME>` references. Raw keys saved through setup live in ArkSpace's local private secrets file, not in committed package files. The agent should help run these commands when the user asks to configure Tavily.
@@ -61,13 +63,13 @@ If the provider check reports a missing Tavily API key:
 Basic search:
 
 ```bash
-python3 scripts/arkspace.py web search --provider tavily "agent skills" --output json
+python3 <installed-arkspace-path>/scripts/arkspace.py web search --provider tavily "agent skills" --output json
 ```
 
 Search with Tavily controls:
 
 ```bash
-python3 scripts/arkspace.py web search --provider tavily "AI coding assistants" \
+python3 <installed-arkspace-path>/scripts/arkspace.py web search --provider tavily "AI coding assistants" \
   --search-depth basic \
   --max-results 5 \
   --topic general \

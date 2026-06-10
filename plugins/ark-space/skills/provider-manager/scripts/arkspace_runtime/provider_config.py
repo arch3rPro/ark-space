@@ -12,6 +12,7 @@ from typing import Any
 CONFIG_ENV = "ARKSPACE_PROVIDER_CONFIG"
 STATE_ENV = "ARKSPACE_PROVIDER_STATE"
 SECRETS_ENV = "ARKSPACE_PROVIDER_SECRETS"
+PACKAGE_ROOT = Path(__file__).resolve().parents[4]
 
 
 class ProviderConfigError(ValueError):
@@ -133,16 +134,20 @@ def set_secret_value(name: str, value: str, secrets_path: str | None = None) -> 
     return save_secrets(data, secrets_path)
 
 
+def arkspace_command() -> str:
+    return f"python3 {PACKAGE_ROOT / 'scripts' / 'arkspace.py'}"
+
+
 def configure_hint(provider_id: str) -> str:
     if provider_id == "tavily":
-        return "`python3 scripts/arkspace.py provider setup tavily --wizard`"
-    return f"`python3 scripts/arkspace.py provider configure {provider_id} --base-url <url>`"
+        return f"`{arkspace_command()} provider setup tavily --wizard`"
+    return f"`{arkspace_command()} provider configure {provider_id} --base-url <url>`"
 
 
 def add_key_hint(provider_id: str) -> str:
     if provider_id == "tavily":
-        return "`python3 scripts/arkspace.py provider setup tavily --wizard`"
-    return f"`python3 scripts/arkspace.py provider add-key {provider_id} --env <ENV_NAME>`"
+        return f"`{arkspace_command()} provider setup tavily --wizard`"
+    return f"`{arkspace_command()} provider add-key {provider_id} --env <ENV_NAME>`"
 
 
 def provider_entry(config: dict[str, Any], provider_id: str) -> dict[str, Any] | None:

@@ -67,6 +67,25 @@ class ValidateSkillsContractTests(unittest.TestCase):
     def test_provider_registry_capabilities_match_skill_metadata(self):
         self.validate.validate_registry_files()
 
+    def test_runtime_instructions_use_installed_arkspace_path(self):
+        runtime_paths = [
+            ROOT / "registry" / "search-providers.yaml",
+            ROOT / "registry" / "web-fetch-providers.yaml",
+            ROOT / "skills" / "provider-manager" / "SKILL.md",
+            ROOT / "skills" / "searxng-search" / "SKILL.md",
+            ROOT / "skills" / "tavily-search" / "SKILL.md",
+            ROOT / "skills" / "tavily-extract" / "SKILL.md",
+            ROOT / "skills" / "tavily-map" / "SKILL.md",
+            ROOT / "skills" / "tavily-crawl" / "SKILL.md",
+            ROOT / "skills" / "tavily-research" / "SKILL.md",
+        ]
+        for path in runtime_paths:
+            with self.subTest(path=path.relative_to(ROOT)):
+                text = path.read_text(encoding="utf-8")
+                self.assertNotIn("python3 scripts/arkspace.py", text)
+                self.assertNotIn("python3 skills/", text)
+                self.assertIn("<installed-arkspace-path>", text)
+
     def test_tavily_provider_registries_use_setup_first_metadata(self):
         for registry_name in ["search-providers.yaml", "web-fetch-providers.yaml"]:
             with self.subTest(registry=registry_name):

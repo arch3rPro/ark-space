@@ -76,6 +76,15 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(data["providers"]["tavily"]["capabilities"], TAVILY_CAPABILITIES)
         self.assertNotIn("capability", data["providers"]["tavily"])
 
+    def test_provider_hints_use_installed_package_absolute_command(self):
+        command = f"python3 {ROOT / 'scripts' / 'arkspace.py'}"
+
+        self.assertIn(command, provider_config.configure_hint("tavily"))
+        self.assertIn(command, provider_config.configure_hint("searxng"))
+        self.assertIn(command, provider_config.add_key_hint("tavily"))
+        self.assertIn(command, provider_config.add_key_hint("brave-search"))
+        self.assertNotIn("python3 scripts/arkspace.py", provider_config.configure_hint("tavily"))
+
     def test_resolve_api_key_auth_preserves_header_prefix_and_hides_secret(self):
         os.environ["TAVILY_API_KEY_1"] = "tvly-test-key"
         self.addCleanup(os.environ.pop, "TAVILY_API_KEY_1", None)

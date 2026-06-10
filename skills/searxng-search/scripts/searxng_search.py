@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT / "skills" / "provider-manager" / "scripts"))
 
 from arkspace_runtime.provider_config import (  # noqa: E402
     ProviderConfigError,
+    arkspace_command,
     default_config_path,
     public_view,
     resolve_provider,
@@ -278,7 +279,7 @@ def main() -> int:
         config_path = default_config_path(args.config_path)
         print(
             "no SearXNG instance available; set SEARXNG_URL, run "
-            "`python3 scripts/arkspace.py provider configure searxng --base-url <url>`, "
+            f"`{arkspace_command()} provider configure searxng --base-url <url>`, "
             f"or pass --base-url; config path: {config_path}",
             file=sys.stderr,
         )

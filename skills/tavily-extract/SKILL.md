@@ -18,17 +18,19 @@ Tavily configuration is shared with `tavily-search` through `provider-manager`.
 
 ## Before Use
 
+Resolve the installed ArkSpace package root before running commands. Replace `<installed-arkspace-path>` with the directory two levels above this loaded `SKILL.md`, such as `/Users/<user>/.claude/plugins/cache/ark-space/ark-space/0.1.2`. Use the installed package path, not a repository-relative command.
+
 Check configuration:
 
 ```bash
-python3 scripts/arkspace.py provider check tavily --capability web_fetch
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_fetch
 ```
 
 Configure Tavily once:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --wizard
-python3 scripts/arkspace.py provider check tavily --capability web_fetch
+python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_fetch
 ```
 
 ## Missing Configuration Recovery
@@ -53,13 +55,13 @@ If the provider check reports a missing Tavily API key:
 Single URL:
 
 ```bash
-python3 scripts/arkspace.py web fetch --provider tavily "https://example.com/article" --output json
+python3 <installed-arkspace-path>/scripts/arkspace.py web fetch --provider tavily "https://example.com/article" --output json
 ```
 
 Query-focused extraction:
 
 ```bash
-python3 scripts/arkspace.py web fetch --provider tavily "https://example.com/docs" \
+python3 <installed-arkspace-path>/scripts/arkspace.py web fetch --provider tavily "https://example.com/docs" \
   --query "authentication API" \
   --chunks-per-source 3 \
   --output json
@@ -68,7 +70,7 @@ python3 scripts/arkspace.py web fetch --provider tavily "https://example.com/doc
 Advanced extraction for JavaScript-rendered pages:
 
 ```bash
-python3 scripts/arkspace.py web fetch --provider tavily "https://app.example.com" \
+python3 <installed-arkspace-path>/scripts/arkspace.py web fetch --provider tavily "https://app.example.com" \
   --extract-depth advanced \
   --timeout 60 \
   --output json

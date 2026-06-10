@@ -17,16 +17,18 @@ Tavily configuration is shared with all Tavily skills through `provider-manager`
 
 ## Before Use
 
+Resolve the installed ArkSpace package root before running commands. Replace `<installed-arkspace-path>` with the directory two levels above this loaded `SKILL.md`, such as `/Users/<user>/.claude/plugins/cache/ark-space/ark-space/0.1.2`. Use the installed package path, not a repository-relative command.
+
 Check configuration:
 
 ```bash
-python3 scripts/arkspace.py provider check tavily --capability web_crawl
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_crawl
 ```
 
 Configure Tavily once:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --wizard
+python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard
 ```
 
 ## Missing Configuration Recovery
@@ -51,13 +53,13 @@ If the provider check reports a missing Tavily API key or missing Tavily capabil
 Basic crawl:
 
 ```bash
-python3 scripts/arkspace.py site crawl --provider tavily "https://docs.example.com" --output json
+python3 <installed-arkspace-path>/scripts/arkspace.py site crawl --provider tavily "https://docs.example.com" --output json
 ```
 
 Conservative documentation crawl:
 
 ```bash
-python3 scripts/arkspace.py site crawl --provider tavily "https://docs.example.com" \
+python3 <installed-arkspace-path>/scripts/arkspace.py site crawl --provider tavily "https://docs.example.com" \
   --max-depth 1 \
   --limit 20 \
   --select-paths "/docs/.*" \
@@ -67,7 +69,7 @@ python3 scripts/arkspace.py site crawl --provider tavily "https://docs.example.c
 Semantic crawl for agent context:
 
 ```bash
-python3 scripts/arkspace.py site crawl --provider tavily "https://docs.example.com" \
+python3 <installed-arkspace-path>/scripts/arkspace.py site crawl --provider tavily "https://docs.example.com" \
   --instructions "Find authentication and API key setup docs" \
   --chunks-per-source 3 \
   --output json

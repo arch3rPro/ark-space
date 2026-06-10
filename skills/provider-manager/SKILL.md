@@ -35,42 +35,44 @@ Override paths with `ARKSPACE_PROVIDER_CONFIG`, `ARKSPACE_PROVIDER_STATE`, `ARKS
 
 ## Common Commands
 
+Resolve the installed ArkSpace package root before running commands. Replace `<installed-arkspace-path>` with the directory two levels above the loaded ArkSpace `SKILL.md`, such as `/Users/<user>/.claude/plugins/cache/ark-space/ark-space/0.1.2`. Use the installed package path, not a repository-relative command, in installed host sessions.
+
 Show paths:
 
 ```bash
-python3 scripts/arkspace.py provider paths
+python3 <installed-arkspace-path>/scripts/arkspace.py provider paths
 ```
 
 Configure a self-hosted SearXNG endpoint:
 
 ```bash
-python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
+python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
 ```
 
 Configure Tavily API-backed skills:
 
 ```bash
-python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
-python3 scripts/arkspace.py provider check tavily --capability web_search
+python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard --key-count 2
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_search
 ```
 
 Inspect provider config without secret values:
 
 ```bash
-python3 scripts/arkspace.py provider show
+python3 <installed-arkspace-path>/scripts/arkspace.py provider show
 ```
 
 Resolve a provider before use:
 
 ```bash
-python3 scripts/arkspace.py provider resolve searxng --capability web_search
+python3 <installed-arkspace-path>/scripts/arkspace.py provider resolve searxng --capability web_search
 ```
 
 Add API key references for future API-backed providers:
 
 ```bash
-python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_1 --header X-Subscription-Token
-python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
+python3 <installed-arkspace-path>/scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_1 --header X-Subscription-Token
+python3 <installed-arkspace-path>/scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
 ```
 
 The provider config stores `env:BRAVE_API_KEY_1` or `env:TAVILY_API_KEY_1` references. When `--save-secret` is used, the actual key values are stored in the local private secrets file with `0600` permissions.

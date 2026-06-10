@@ -12,10 +12,10 @@ providers:
     configRequired: true
     recommendedEnv: SEARXNG_URL
     compatibleEnv: SEARXNG_BASE_URL
-    providerConfigCommand: python3 scripts/arkspace.py provider configure searxng --base-url <url>
-    checkCommand: python3 scripts/arkspace.py provider check searxng
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url <url>
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check searxng
     missingConfigBehavior: guide-user-through-provider-manager-configuration
-    setupHint: "Run python3 scripts/arkspace.py provider configure searxng --base-url <url>, set SEARXNG_URL, or pass --base-url for one-off use."
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url <url>, set SEARXNG_URL, or pass --base-url for one-off use."
     authModes: none
     rotationSupported: false
     outputFields: title,url,content,engine,parsed_url,img_src,thumbnail,author,publishedDate,score
@@ -32,11 +32,11 @@ providers:
     configEnv: TAVILY_API_KEY
     configRequired: true
     recommendedEnv: TAVILY_API_KEY_1
-    providerConfigCommand: python3 scripts/arkspace.py provider setup tavily --wizard
-    keyConfigCommand: python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
-    checkCommand: python3 scripts/arkspace.py provider check tavily --capability web_search
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_search
     missingConfigBehavior: guide-user-through-provider-manager-configuration
-    setupHint: "Run python3 scripts/arkspace.py provider setup tavily --wizard. Use --key-count for multiple API keys."
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard. Use --key-count for multiple API keys."
     authModes: api_key
     rotationSupported: true
     outputFields: title,url,snippet,score,published,answer,usage,request_id

@@ -28,31 +28,33 @@ In ArkSpace, SearXNG is exposed through this skill and its bundled helper script
 
 ## Before Use
 
+Resolve the installed ArkSpace package root before running commands. Replace `<installed-arkspace-path>` with the directory two levels above this loaded `SKILL.md`, such as `/Users/<user>/.claude/plugins/cache/ark-space/ark-space/0.1.2`. Use the installed package path, not a repository-relative command or relative skill script path.
+
 Check configuration before searching when privacy, reproducibility, or reliability matters:
 
 ```bash
-python3 scripts/arkspace.py provider check searxng
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check searxng
 ```
 
 Persist a self-hosted URL once:
 
 ```bash
-python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
+python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
 ```
 
 Inspect the resolved configuration:
 
 ```bash
-python3 scripts/arkspace.py provider resolve searxng --capability web_search
+python3 <installed-arkspace-path>/scripts/arkspace.py provider resolve searxng --capability web_search
 ```
 
 If the check fails because no instance is configured:
 
-- If the user already gave a SearXNG URL, run `python3 scripts/arkspace.py provider configure searxng --base-url "<url>"` for them.
+- If the user already gave a SearXNG URL, run `python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url "<url>"` for them.
 - If the user has not provided a URL, ask for the self-hosted SearXNG base URL.
 - For one-off searches, use `--base-url`.
 
-Configuration belongs in the host environment or ArkSpace user config, not in committed skill files. Use `--base-url` for one-off overrides, `SEARXNG_URL` / `SEARXNG_BASE_URL` for host-managed config, and `python3 scripts/arkspace.py provider configure searxng --base-url <url>` for durable user-level config. Set `ARKSPACE_PROVIDER_CONFIG` or pass `--config-path` to use a custom provider config file.
+Configuration belongs in the host environment or ArkSpace user config, not in committed skill files. Use `--base-url` for one-off overrides, `SEARXNG_URL` / `SEARXNG_BASE_URL` for host-managed config, and `python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url <url>` for durable user-level config. Set `ARKSPACE_PROVIDER_CONFIG` or pass `--config-path` to use a custom provider config file.
 
 ## API Pattern
 
@@ -84,27 +86,27 @@ If `format=json` returns `403`, `406`, or HTML, the instance probably has JSON d
 Use the bundled helper for repeatable searches:
 
 ```bash
-python3 skills/searxng-search/scripts/searxng_search.py "query text"
+python3 <installed-arkspace-path>/skills/searxng-search/scripts/searxng_search.py "query text"
 ```
 
 Check configured availability:
 
 ```bash
-python3 scripts/arkspace.py provider check searxng
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check searxng
 ```
 
 Self-hosted instance:
 
 ```bash
 SEARXNG_URL="https://searx.example.org" \
-python3 skills/searxng-search/scripts/searxng_search.py "query text" --limit 5
+python3 <installed-arkspace-path>/skills/searxng-search/scripts/searxng_search.py "query text" --limit 5
 ```
 
 Persisted self-hosted instance:
 
 ```bash
-python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
-python3 skills/searxng-search/scripts/searxng_search.py "query text" --limit 5
+python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
+python3 <installed-arkspace-path>/skills/searxng-search/scripts/searxng_search.py "query text" --limit 5
 ```
 
 `SEARXNG_BASE_URL` is also accepted for hosts that use that convention.
@@ -112,7 +114,7 @@ python3 skills/searxng-search/scripts/searxng_search.py "query text" --limit 5
 Explicit instance and filters:
 
 ```bash
-python3 skills/searxng-search/scripts/searxng_search.py "query text" \
+python3 <installed-arkspace-path>/skills/searxng-search/scripts/searxng_search.py "query text" \
   --base-url "https://searx.example.org" \
   --categories general \
   --language en \
@@ -123,8 +125,8 @@ python3 skills/searxng-search/scripts/searxng_search.py "query text" \
 Output modes:
 
 ```bash
-python3 skills/searxng-search/scripts/searxng_search.py "query text" --output markdown
-python3 skills/searxng-search/scripts/searxng_search.py "query text" --output json
+python3 <installed-arkspace-path>/skills/searxng-search/scripts/searxng_search.py "query text" --output markdown
+python3 <installed-arkspace-path>/skills/searxng-search/scripts/searxng_search.py "query text" --output json
 ```
 
 If a non-`general` category returns zero results, the helper retries once with `categories=general` unless `--no-category-fallback` is set.
