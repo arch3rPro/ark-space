@@ -7,10 +7,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-LIVE_PROMPT = "[$ark-space:orchestrator] 帮我查询 claude-code-everything 项目"
+LIVE_PROMPT = "User: [/ark-space:orchestrator] search for the claude-code-everything project"
 REGISTRY_ROUTED_CAPABILITIES = {
     "web_search",
     "web_fetch",
+    "web_map",
+    "web_crawl",
+    "deep_research",
+    "code_context",
+    "related_pages",
     "knowledge_management",
     "provider_configuration",
     "skill_governance",
@@ -138,12 +143,12 @@ def check_registry_route_examples():
             continue
 
         invocation = entry.get("orchestratorInvocation", "")
-        if "$ark-space:orchestrator" not in invocation:
+        if "/ark-space:orchestrator" not in invocation:
             name = entry.get("name", "<unnamed>")
             print(
                 "ERROR: registry/skills.yaml active public skill "
                 f"{name} has routed capabilities {','.join(routed_capabilities)} "
-                'but orchestratorInvocation does not contain "$ark-space:orchestrator"',
+                'but orchestratorInvocation does not contain "/ark-space:orchestrator"',
                 file=sys.stderr,
             )
             status = 1

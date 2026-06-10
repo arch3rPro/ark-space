@@ -4,8 +4,8 @@ skills:
     status: active
     public: true
     capabilities: routing
-    directInvocation: "$ark-space:orchestrator 帮我规划这个任务"
-    orchestratorInvocation: "$ark-space:orchestrator 帮我规划这个任务"
+    directInvocation: "/ark-space:orchestrator help me plan this task"
+    orchestratorInvocation: "/ark-space:orchestrator help me plan this task"
     syncMode: local
     categories: meta,routing
     roles: orchestrator
@@ -15,8 +15,8 @@ skills:
     status: active
     public: true
     capabilities: skill_governance
-    directInvocation: "$ark-space:skill-manager 创建一个新的搜索 skill"
-    orchestratorInvocation: "$ark-space:orchestrator 创建一个新的搜索 skill"
+    directInvocation: "/ark-space:skill-manager create a new search skill"
+    orchestratorInvocation: "/ark-space:orchestrator create a new search skill"
     syncMode: local
     categories: meta,governance
     roles: skills/skill-manager
@@ -26,8 +26,8 @@ skills:
     status: active
     public: true
     capabilities: provider_configuration
-    directInvocation: "$ark-space:provider-manager 配置 tavily API key"
-    orchestratorInvocation: "$ark-space:orchestrator 配置 tavily API key"
+    directInvocation: "/ark-space:provider-manager configure the Tavily API key"
+    orchestratorInvocation: "/ark-space:orchestrator configure the Tavily API key"
     syncMode: local
     categories: meta,providers,configuration
     roles: skills/skill-manager,orchestrator
@@ -38,8 +38,8 @@ skills:
     public: true
     capabilities: web_fetch
     providers: defuddle
-    directInvocation: "$ark-space:defuddle 提取 https://example.com"
-    orchestratorInvocation: "$ark-space:orchestrator 抓取并总结 https://example.com"
+    directInvocation: "/ark-space:defuddle extract https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator fetch and summarize https://example.com"
     syncMode: adapted
     upstreamId: defuddle-cli
     categories: docs,research,web,fetch
@@ -51,8 +51,8 @@ skills:
     public: true
     capabilities: web_search
     providers: searxng
-    directInvocation: "$ark-space:searxng-search 搜索 claude-code-everything"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 searxng 搜索 claude-code-everything"
+    directInvocation: "/ark-space:searxng-search search claude-code-everything"
+    orchestratorInvocation: "/ark-space:orchestrator use SearXNG to search claude-code-everything"
     syncMode: local
     upstreamId: searxng
     categories: research,web,search
@@ -64,8 +64,8 @@ skills:
     public: true
     capabilities: web_search
     providers: exa
-    directInvocation: "$ark-space:exa-search 搜索 Claude Code plugin docs"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 搜索 Claude Code plugin docs"
+    directInvocation: "/ark-space:exa-search search Claude Code plugin docs"
+    orchestratorInvocation: "/ark-space:orchestrator use Exa to search Claude Code plugin docs"
     syncMode: adapted
     upstreamId: exa
     categories: research,web,search,semantic,api-provider
@@ -77,8 +77,8 @@ skills:
     public: true
     capabilities: web_fetch
     providers: exa
-    directInvocation: "$ark-space:exa-contents 提取 https://example.com"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 提取 https://example.com"
+    directInvocation: "/ark-space:exa-contents extract https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator use Exa to extract https://example.com"
     syncMode: adapted
     upstreamId: exa
     categories: research,web,fetch,semantic,api-provider
@@ -90,8 +90,8 @@ skills:
     public: true
     capabilities: deep_research
     providers: exa
-    directInvocation: "$ark-space:exa-answer 回答 AI coding assistants 2025 有什么变化"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 回答 AI coding assistants 2025 有什么变化"
+    directInvocation: "/ark-space:exa-answer answer what changed in AI coding assistants in 2025"
+    orchestratorInvocation: "/ark-space:orchestrator use Exa to answer what changed in AI coding assistants in 2025"
     syncMode: adapted
     upstreamId: exa
     categories: research,web,answer,semantic,api-provider
@@ -103,8 +103,8 @@ skills:
     public: true
     capabilities: code_context
     providers: exa
-    directInvocation: "$ark-space:exa-context 查询 React hooks state management examples"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 查询 React hooks state management examples"
+    directInvocation: "/ark-space:exa-context find React hooks state management examples"
+    orchestratorInvocation: "/ark-space:orchestrator use Exa to find React hooks state management examples"
     syncMode: adapted
     upstreamId: exa-context
     categories: code,research,web,context,api-provider
@@ -116,8 +116,8 @@ skills:
     public: true
     capabilities: related_pages
     providers: exa
-    directInvocation: "$ark-space:exa-similar 查找 https://example.com 的相似页面"
-    orchestratorInvocation: "$ark-space:orchestrator 查找 https://example.com 的相似页面"
+    directInvocation: "/ark-space:exa-similar find pages similar to https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator find pages similar to https://example.com"
     syncMode: adapted
     upstreamId: exa-similar
     categories: research,web,similar,discovery,api-provider
@@ -129,8 +129,8 @@ skills:
     public: true
     capabilities: web_search
     providers: tavily
-    directInvocation: "$ark-space:tavily-search 搜索 claude-code-everything"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 搜索 claude-code-everything"
+    directInvocation: "/ark-space:tavily-search search claude-code-everything"
+    orchestratorInvocation: "/ark-space:orchestrator use Tavily to search claude-code-everything"
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,search,api-provider
@@ -142,8 +142,8 @@ skills:
     public: true
     capabilities: web_fetch
     providers: tavily
-    directInvocation: "$ark-space:tavily-extract 提取 https://example.com"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 提取 https://example.com"
+    directInvocation: "/ark-space:tavily-extract extract https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator use Tavily to extract https://example.com"
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,fetch,api-provider
@@ -155,8 +155,8 @@ skills:
     public: true
     capabilities: web_map
     providers: tavily
-    directInvocation: "$ark-space:tavily-map 映射 https://docs.example.com"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 映射 https://docs.example.com"
+    directInvocation: "/ark-space:tavily-map map https://docs.example.com"
+    orchestratorInvocation: "/ark-space:orchestrator use Tavily to map https://docs.example.com"
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,map,api-provider
@@ -168,8 +168,8 @@ skills:
     public: true
     capabilities: web_crawl
     providers: tavily
-    directInvocation: "$ark-space:tavily-crawl 抓取 https://docs.example.com"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 抓取 https://docs.example.com/docs"
+    directInvocation: "/ark-space:tavily-crawl crawl https://docs.example.com"
+    orchestratorInvocation: "/ark-space:orchestrator use Tavily to crawl https://docs.example.com/docs"
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,crawl,api-provider
@@ -181,8 +181,8 @@ skills:
     public: true
     capabilities: deep_research
     providers: tavily
-    directInvocation: "$ark-space:tavily-research 调研 AI coding agents 市场"
-    orchestratorInvocation: "$ark-space:orchestrator 使用 tavily 深度调研 AI coding agents 市场"
+    directInvocation: "/ark-space:tavily-research research the AI coding agents market"
+    orchestratorInvocation: "/ark-space:orchestrator use Tavily to deeply research the AI coding agents market"
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,analysis,api-provider
@@ -193,8 +193,8 @@ skills:
     status: active
     public: true
     capabilities: knowledge_management
-    directInvocation: "$ark-space:json-canvas 创建 canvas"
-    orchestratorInvocation: "$ark-space:orchestrator 创建 Obsidian canvas"
+    directInvocation: "/ark-space:json-canvas create a canvas"
+    orchestratorInvocation: "/ark-space:orchestrator create an Obsidian canvas"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,canvas
@@ -205,8 +205,8 @@ skills:
     status: active
     public: true
     capabilities: knowledge_management
-    directInvocation: "$ark-space:obsidian-bases 创建 base"
-    orchestratorInvocation: "$ark-space:orchestrator 创建 Obsidian base"
+    directInvocation: "/ark-space:obsidian-bases create a base"
+    orchestratorInvocation: "/ark-space:orchestrator create an Obsidian base"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian
@@ -217,8 +217,8 @@ skills:
     status: active
     public: true
     capabilities: knowledge_management
-    directInvocation: "$ark-space:obsidian-cli 管理笔记"
-    orchestratorInvocation: "$ark-space:orchestrator 管理 Obsidian 笔记"
+    directInvocation: "/ark-space:obsidian-cli manage notes"
+    orchestratorInvocation: "/ark-space:orchestrator manage Obsidian notes"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian
@@ -229,8 +229,8 @@ skills:
     status: active
     public: true
     capabilities: knowledge_management
-    directInvocation: "$ark-space:obsidian-kanban 创建看板"
-    orchestratorInvocation: "$ark-space:orchestrator 创建 Obsidian 看板"
+    directInvocation: "/ark-space:obsidian-kanban create a kanban board"
+    orchestratorInvocation: "/ark-space:orchestrator create an Obsidian kanban board"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: project,knowledge,obsidian
@@ -241,8 +241,8 @@ skills:
     status: active
     public: true
     capabilities: knowledge_management
-    directInvocation: "$ark-space:obsidian-markdown 编辑 Markdown"
-    orchestratorInvocation: "$ark-space:orchestrator 编辑 Obsidian Markdown"
+    directInvocation: "/ark-space:obsidian-markdown edit Markdown"
+    orchestratorInvocation: "/ark-space:orchestrator edit Obsidian Markdown"
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian

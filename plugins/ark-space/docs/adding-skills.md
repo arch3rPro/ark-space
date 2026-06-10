@@ -14,7 +14,7 @@ Use `skill-manager` when adding, adapting, validating, or assigning skills.
 
 1. Create `skills/<skill-name>/SKILL.md`.
 2. Add a `registry/skills.yaml` entry with `public: true`.
-3. Set `directInvocation` and include `$ark-space:<skill-name>`.
+3. Set `directInvocation` and include `/ark-space:<skill-name>`.
 4. Set `capabilities` for each user-visible capability.
 5. Add `orchestratorInvocation` when the skill is routable through Orchestrator.
 6. Add a provider registry entry for `web_search` or `web_fetch` provider skills.

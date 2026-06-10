@@ -49,7 +49,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
             with self.subTest(name=name):
                 item = active[name]
                 self.assertTrue(is_public_true(item.get("public")))
-                self.assertIn(f"$ark-space:{name}", item.get("directInvocation", ""))
+                self.assertIn(f"/ark-space:{name}", item.get("directInvocation", ""))
 
     def test_routable_provider_skills_expose_orchestrator_invocation(self):
         skills = self.validate.parse_simple_yaml_list(ROOT / "registry" / "skills.yaml", "skills")
@@ -71,8 +71,8 @@ class ValidateSkillsContractTests(unittest.TestCase):
         ]:
             with self.subTest(name=name):
                 invocation = by_name[name].get("orchestratorInvocation", "")
-                self.assertIn("$ark-space:orchestrator", invocation)
-                self.assertRegex(invocation, r"\$ark-space:orchestrator\s+\S+")
+                self.assertIn("/ark-space:orchestrator", invocation)
+                self.assertRegex(invocation, r"/ark-space:orchestrator\s+\S+")
 
     def test_provider_registry_capabilities_match_skill_metadata(self):
         self.validate.validate_registry_files()

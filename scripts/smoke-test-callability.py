@@ -127,7 +127,7 @@ def check_direct_invocations():
             print(f"missing direct skill entrypoint for {name}: {path}/SKILL.md")
             status = 1
 
-        expected = f"$ark-space:{name}"
+        expected = f"/ark-space:{name}"
         direct_invocation = str(item.get("directInvocation", ""))
         if expected not in direct_invocation:
             print(f"missing direct invocation for {name}: directInvocation must contain {expected}")

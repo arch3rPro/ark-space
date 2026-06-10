@@ -97,7 +97,7 @@ When a provider entry includes `checkCommand`, run it when configuration state m
 ## Search Request Example
 
 ```text
-User: [$ark-space:orchestrator] 帮我查询 claude-code-everything 项目
+User: [/ark-space:orchestrator] search for the claude-code-everything project
 Route: docs/knowledge-manager -> web_search -> registry/search-providers.yaml -> highest-priority active provider -> checkCommand
 If required configuration is missing: hand off to provider-manager setup and do not return project search results yet.
 ```

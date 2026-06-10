@@ -115,29 +115,29 @@ ArkSpace exposes public skills through two paths.
 Use direct skill invocation when the caller already knows the provider or skill:
 
 ```text
-$ark-space:tavily-search 搜索 claude-code-everything
-$ark-space:searxng-search 搜索 claude-code-everything
-$ark-space:exa-search 搜索 Claude Code plugin docs
-$ark-space:exa-contents 提取 https://example.com/article
-$ark-space:exa-answer 回答 2025 AI coding agents 有哪些变化
-$ark-space:exa-context 查询 React hooks state management examples
-$ark-space:exa-similar 查找 https://example.com/article 的相似页面
-$ark-space:tavily-extract 提取 https://example.com
-$ark-space:tavily-map 映射 https://docs.example.com
-$ark-space:tavily-crawl 抓取 https://docs.example.com/docs
-$ark-space:tavily-research 调研 AI coding agents 市场
+/ark-space:tavily-search search claude-code-everything
+/ark-space:searxng-search search claude-code-everything
+/ark-space:exa-search search Claude Code plugin docs
+/ark-space:exa-contents extract https://example.com/article
+/ark-space:exa-answer answer what changed in AI coding agents in 2025
+/ark-space:exa-context find React hooks state management examples
+/ark-space:exa-similar find pages similar to https://example.com/article
+/ark-space:tavily-extract extract https://example.com
+/ark-space:tavily-map map https://docs.example.com
+/ark-space:tavily-crawl crawl https://docs.example.com/docs
+/ark-space:tavily-research research the AI coding agents market
 ```
 
 Use the Orchestrator when the caller wants ArkSpace to choose the route:
 
 ```text
-$ark-space:orchestrator 使用 tavily 搜索 claude-code-everything
-$ark-space:orchestrator 使用 exa 搜索 Claude Code plugin docs
-$ark-space:orchestrator 使用 exa 查询 React hooks state management examples
-$ark-space:orchestrator 查找 https://example.com/article 的相似页面
-$ark-space:orchestrator 搜索 claude-code-everything 项目
-$ark-space:orchestrator 抓取并总结 https://example.com
-$ark-space:orchestrator 使用 tavily 调研 AI coding agents 市场
+/ark-space:orchestrator use Tavily to search claude-code-everything
+/ark-space:orchestrator use Exa to search Claude Code plugin docs
+/ark-space:orchestrator use Exa to find React hooks state management examples
+/ark-space:orchestrator find pages similar to https://example.com/article
+/ark-space:orchestrator search for the claude-code-everything project
+/ark-space:orchestrator fetch and summarize https://example.com
+/ark-space:orchestrator use Tavily to research the AI coding agents market
 ```
 
 `web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. `related_pages` starts from a known URL and returns similar pages or comparable resources. `code_context` returns implementation-oriented code examples and API usage context. Exa provides semantic `web_search`, URL `web_fetch`, concise cited `deep_research` through Exa Answer, `code_context` through Exa Context, and `related_pages` through Exa Similar. Tavily also adds `web_map` for URL discovery on a known site, `web_crawl` for multi-page site extraction, and long-form `deep_research` for cited synthesis. Search, similar-page discovery, map, fetch, crawl, research, and code context are related but separate capabilities.

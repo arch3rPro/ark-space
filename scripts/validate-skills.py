@@ -128,8 +128,11 @@ def validate_public_skill_contract(skills):
         direct_invocation = item.get("directInvocation")
         if not direct_invocation:
             fail(f"public skill {name} is missing directInvocation")
-        if f"$ark-space:{name}" not in direct_invocation:
-            fail(f"public skill {name} directInvocation must include $ark-space:{name}")
+        if f"/ark-space:{name}" not in direct_invocation:
+            fail(f"public skill {name} directInvocation must include /ark-space:{name}")
+        legacy_invocation = item.get("legacyInvocation", "")
+        if legacy_invocation and f"$ark-space:{name}" not in legacy_invocation:
+            fail(f"public skill {name} legacyInvocation must include $ark-space:{name}")
 
         capabilities = split_csv(item.get("capabilities"))
         for capability in capabilities:
@@ -138,8 +141,8 @@ def validate_public_skill_contract(skills):
 
         if routable_capabilities.intersection(capabilities):
             orchestrator_invocation = item.get("orchestratorInvocation", "")
-            if "$ark-space:orchestrator" not in orchestrator_invocation:
-                fail(f"public skill {name} orchestratorInvocation must include $ark-space:orchestrator")
+            if "/ark-space:orchestrator" not in orchestrator_invocation:
+                fail(f"public skill {name} orchestratorInvocation must include /ark-space:orchestrator")
 
         if name not in readme_skill_names:
             fail(f"README Included Skills table is missing public skill {name}")

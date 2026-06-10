@@ -7,33 +7,33 @@ ArkSpace supports direct skill invocation and Orchestrator-routed invocation. Pu
 Use a direct skill path when the caller already knows the skill or provider to use:
 
 ```text
-$ark-space:tavily-search 搜索 claude-code-everything
-$ark-space:searxng-search 搜索 claude-code-everything
-$ark-space:exa-search 搜索 Claude Code plugin docs
-$ark-space:exa-contents 提取 https://example.com/article
-$ark-space:exa-answer 回答 2025 AI coding agents 有哪些变化
-$ark-space:exa-context 查询 React hooks state management examples
-$ark-space:exa-similar 查找 https://example.com/article 的相似页面
-$ark-space:tavily-extract 提取 https://example.com
-$ark-space:tavily-map 映射 https://docs.example.com
-$ark-space:tavily-crawl 抓取 https://docs.example.com/docs
-$ark-space:tavily-research 调研 AI coding agents 市场
+/ark-space:tavily-search search claude-code-everything
+/ark-space:searxng-search search claude-code-everything
+/ark-space:exa-search search Claude Code plugin docs
+/ark-space:exa-contents extract https://example.com/article
+/ark-space:exa-answer answer what changed in AI coding agents in 2025
+/ark-space:exa-context find React hooks state management examples
+/ark-space:exa-similar find pages similar to https://example.com/article
+/ark-space:tavily-extract extract https://example.com
+/ark-space:tavily-map map https://docs.example.com
+/ark-space:tavily-crawl crawl https://docs.example.com/docs
+/ark-space:tavily-research research the AI coding agents market
 ```
 
-Direct invocation is declared in `registry/skills.yaml` with `directInvocation` and must include `$ark-space:<skill-name>`.
+Direct invocation is declared in `registry/skills.yaml` with `directInvocation` and must include `/ark-space:<skill-name>`. Slash invocation is the public contract for user-facing examples and host smoke tests.
 
 ## Orchestrator Path
 
 Use the Orchestrator path when ArkSpace should choose the role, workflow, provider capability, or provider:
 
 ```text
-$ark-space:orchestrator 使用 tavily 搜索 claude-code-everything
-$ark-space:orchestrator 使用 exa 搜索 Claude Code plugin docs
-$ark-space:orchestrator 使用 exa 查询 React hooks state management examples
-$ark-space:orchestrator 查找 https://example.com/article 的相似页面
-$ark-space:orchestrator 搜索 claude-code-everything 项目
-$ark-space:orchestrator 抓取并总结 https://example.com
-$ark-space:orchestrator 使用 tavily 深度调研 AI coding agents 市场
+/ark-space:orchestrator use Tavily to search claude-code-everything
+/ark-space:orchestrator use Exa to search Claude Code plugin docs
+/ark-space:orchestrator use Exa to find React hooks state management examples
+/ark-space:orchestrator find pages similar to https://example.com/article
+/ark-space:orchestrator search for the claude-code-everything project
+/ark-space:orchestrator fetch and summarize https://example.com
+/ark-space:orchestrator use Tavily to deeply research the AI coding agents market
 ```
 
 Routable public skills declare `orchestratorInvocation` in `registry/skills.yaml`. The Orchestrator selects the role first, then the capability and provider registry.
