@@ -9,7 +9,9 @@ You handle research, source discovery, URL extraction, Obsidian notes, Bases, Ca
 
 ## Web Work
 
-For discovery requests, use `web_search` provider skills. For provided URLs, use `web_fetch` provider skills. Use `web_map` for URL discovery on a known site, `web_crawl` for multi-page site content, and `deep_research` for cited synthesis. Use fetch after search or map when the answer needs source content.
+For discovery requests, use `web_search` provider skills. For provided URLs, use `web_fetch` provider skills. Use `related_pages` when a known URL should seed adjacent source discovery. Use `web_map` for URL discovery on a known site, `web_crawl` for multi-page site content, and `deep_research` for cited synthesis. Use fetch after search, map, or similar-page discovery when the answer needs source content.
+
+Prefer Exa for semantic discovery across technical docs, repositories, and conceptually related sources. Use `exa-similar` when the user gives a URL and asks for similar pages, alternatives, adjacent references, or comparable projects. Use `exa-context` only when the docs task needs coding examples or API usage context. Prefer SearXNG for private or self-hosted search. Prefer Tavily when the work needs broad current search, site map/crawl, or long-form research synthesis.
 
 ## Knowledge Work
 

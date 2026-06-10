@@ -90,6 +90,11 @@ Do not edit generated integration files by hand; update `agents/` and regenerate
 | `provider-manager` | Configure and inspect provider URLs, key references, and readiness |
 | `defuddle` | Extract clean Markdown from web pages |
 | `searxng-search` | Query a configured self-hosted SearXNG instance |
+| `exa-search` | Query Exa for semantic search, technical docs, repositories, and domain-filtered discovery |
+| `exa-contents` | Fetch full text, summaries, highlights, and metadata from known URLs through Exa |
+| `exa-answer` | Ask Exa for concise cited answers to focused research questions |
+| `exa-context` | Get Exa Code context for API syntax, framework setup, and repository-grounded examples |
+| `exa-similar` | Find similar pages, projects, papers, products, or competitors from a known URL |
 | `tavily-search` | Query Tavily through ArkSpace web search routing |
 | `tavily-extract` | Extract readable content from URLs through Tavily |
 | `tavily-map` | Discover URLs and site structure through Tavily |
@@ -112,6 +117,11 @@ Use direct skill invocation when the caller already knows the provider or skill:
 ```text
 $ark-space:tavily-search 搜索 claude-code-everything
 $ark-space:searxng-search 搜索 claude-code-everything
+$ark-space:exa-search 搜索 Claude Code plugin docs
+$ark-space:exa-contents 提取 https://example.com/article
+$ark-space:exa-answer 回答 2025 AI coding agents 有哪些变化
+$ark-space:exa-context 查询 React hooks state management examples
+$ark-space:exa-similar 查找 https://example.com/article 的相似页面
 $ark-space:tavily-extract 提取 https://example.com
 $ark-space:tavily-map 映射 https://docs.example.com
 $ark-space:tavily-crawl 抓取 https://docs.example.com/docs
@@ -122,12 +132,15 @@ Use the Orchestrator when the caller wants ArkSpace to choose the route:
 
 ```text
 $ark-space:orchestrator 使用 tavily 搜索 claude-code-everything
+$ark-space:orchestrator 使用 exa 搜索 Claude Code plugin docs
+$ark-space:orchestrator 使用 exa 查询 React hooks state management examples
+$ark-space:orchestrator 查找 https://example.com/article 的相似页面
 $ark-space:orchestrator 搜索 claude-code-everything 项目
 $ark-space:orchestrator 抓取并总结 https://example.com
 $ark-space:orchestrator 使用 tavily 调研 AI coding agents 市场
 ```
 
-`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. Tavily also adds `web_map` for URL discovery on a known site, `web_crawl` for multi-page site extraction, and `deep_research` for cited synthesis. Search, map, fetch, crawl, and research are related but separate capabilities.
+`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. `related_pages` starts from a known URL and returns similar pages or comparable resources. `code_context` returns implementation-oriented code examples and API usage context. Exa provides semantic `web_search`, URL `web_fetch`, concise cited `deep_research` through Exa Answer, `code_context` through Exa Context, and `related_pages` through Exa Similar. Tavily also adds `web_map` for URL discovery on a known site, `web_crawl` for multi-page site extraction, and long-form `deep_research` for cited synthesis. Search, similar-page discovery, map, fetch, crawl, research, and code context are related but separate capabilities.
 
 ## Installation
 
@@ -149,6 +162,8 @@ Personal provider configuration should live outside committed package files. The
 ```bash
 python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
 python3 scripts/arkspace.py provider check searxng
+python3 scripts/arkspace.py provider setup exa --wizard --key-count 2
+python3 scripts/arkspace.py provider check exa
 python3 scripts/arkspace.py provider setup tavily --wizard
 python3 scripts/arkspace.py provider check tavily
 ```
@@ -182,6 +197,7 @@ For Codex, use the same ArkSpace setup command, or export provider variables in 
 
 ```bash
 export SEARXNG_URL="https://searx.example.org"
+export EXA_API_KEY="exa-..."
 export TAVILY_API_KEY="tvly-..."
 codex
 ```
@@ -202,6 +218,13 @@ python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
 python3 scripts/arkspace.py provider check tavily
 ```
 
+Exa uses the same setup and rotation model:
+
+```bash
+python3 scripts/arkspace.py provider setup exa --wizard --key-count 2
+python3 scripts/arkspace.py provider check exa
+```
+
 Useful Tavily runtime commands:
 
 ```bash
@@ -210,6 +233,16 @@ python3 scripts/arkspace.py web fetch --provider tavily "https://example.com"
 python3 scripts/arkspace.py site map --provider tavily "https://docs.example.com"
 python3 scripts/arkspace.py site crawl --provider tavily "https://docs.example.com/docs"
 python3 scripts/arkspace.py research run --provider tavily "market analysis topic"
+```
+
+Useful Exa runtime commands:
+
+```bash
+python3 scripts/arkspace.py web search --provider exa "Claude Code plugin docs"
+python3 scripts/arkspace.py web fetch --provider exa "https://example.com"
+python3 scripts/arkspace.py web similar --provider exa "https://example.com"
+python3 scripts/arkspace.py research run --provider exa "What changed in AI coding assistants in 2025?"
+python3 scripts/arkspace.py code context --provider exa "React hooks state management examples"
 ```
 
 To add this repository as a Codex plugin marketplace:
@@ -250,6 +283,9 @@ Registries under `registry/` are the source of truth for package metadata:
 - `registry/sources.yaml`: upstream repositories and source policies.
 - `registry/search-providers.yaml`: search-provider selection metadata for compatible search skills.
 - `registry/web-fetch-providers.yaml`: URL fetch/extraction provider metadata for compatible fetch skills.
+- `registry/web-map-providers.yaml`: site URL discovery provider metadata.
+- `registry/web-crawl-providers.yaml`: site crawl provider metadata.
+- `registry/deep-research-providers.yaml`: deep research provider metadata.
 
 Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, and key rotation support. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.
 

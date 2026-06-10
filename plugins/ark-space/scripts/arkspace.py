@@ -13,15 +13,26 @@ PROVIDER_CHECK_COMMANDS = {
     ("tavily", "web_map"): [sys.executable, "skills/tavily-map/scripts/tavily_map.py", "--check"],
     ("tavily", "web_crawl"): [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py", "--check"],
     ("tavily", "deep_research"): [sys.executable, "skills/tavily-research/scripts/tavily_research.py", "--check"],
+    ("exa", "web_search"): [sys.executable, "skills/exa-search/scripts/exa_search.py", "--check"],
+    ("exa", "web_fetch"): [sys.executable, "skills/exa-contents/scripts/exa_contents.py", "--check"],
+    ("exa", "deep_research"): [sys.executable, "skills/exa-answer/scripts/exa_answer.py", "--check"],
+    ("exa", "code_context"): [sys.executable, "skills/exa-context/scripts/exa_context.py", "--check"],
+    ("exa", "related_pages"): [sys.executable, "skills/exa-similar/scripts/exa_similar.py", "--check"],
 }
 
 WEB_SEARCH_COMMANDS = {
+    "exa": [sys.executable, "skills/exa-search/scripts/exa_search.py"],
     "searxng": [sys.executable, "skills/searxng-search/scripts/searxng_search.py"],
     "tavily": [sys.executable, "skills/tavily-search/scripts/tavily_search.py"],
 }
 
 WEB_FETCH_COMMANDS = {
+    "exa": [sys.executable, "skills/exa-contents/scripts/exa_contents.py"],
     "tavily": [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py"],
+}
+
+WEB_SIMILAR_COMMANDS = {
+    "exa": [sys.executable, "skills/exa-similar/scripts/exa_similar.py"],
 }
 
 SITE_MAP_COMMANDS = {
@@ -33,7 +44,12 @@ SITE_CRAWL_COMMANDS = {
 }
 
 RESEARCH_COMMANDS = {
+    "exa": [sys.executable, "skills/exa-answer/scripts/exa_answer.py"],
     "tavily": [sys.executable, "skills/tavily-research/scripts/tavily_research.py"],
+}
+
+CODE_CONTEXT_COMMANDS = {
+    "exa": [sys.executable, "skills/exa-context/scripts/exa_context.py"],
 }
 
 
@@ -120,6 +136,28 @@ def main():
     web_search.add_argument("--include-domains")
     web_search.add_argument("--exclude-domains")
     web_search.add_argument("--include-answer", action="store_true")
+    web_search.add_argument("--search-type")
+    web_search.add_argument("--category")
+    web_search.add_argument("--freshness")
+    web_search.add_argument("--start-crawl-date")
+    web_search.add_argument("--end-crawl-date")
+    web_search.add_argument("--start-published-date")
+    web_search.add_argument("--end-published-date")
+    web_search.add_argument("--include-text", action="store_true")
+    web_search.add_argument("--include-highlights", action="store_true")
+    web_search.add_argument("--include-summary", action="store_true")
+    web_search.add_argument("--text-max-characters")
+    web_search.add_argument("--highlight-query")
+    web_search.add_argument("--highlight-num-sentences")
+    web_search.add_argument("--highlights-per-url")
+    web_search.add_argument("--highlight-max-characters")
+    web_search.add_argument("--summary-query")
+    web_search.add_argument("--additional-queries")
+    web_search.add_argument("--user-location")
+    web_search.add_argument("--moderation", action="store_true")
+    web_search.add_argument("--output-schema")
+    web_search.add_argument("--system-prompt")
+    web_search.add_argument("--stream", action="store_true")
     web_search.add_argument("--base-url")
     web_search.add_argument("--config-path")
     web_search.add_argument("--state-path")
@@ -127,16 +165,48 @@ def main():
     web_search.add_argument("--output", choices=["json", "markdown"])
 
     web_fetch = web_sub.add_parser("fetch")
-    web_fetch.add_argument("urls", nargs="+")
+    web_fetch.add_argument("urls", nargs="*")
     web_fetch.add_argument("--provider", required=True, choices=sorted(WEB_FETCH_COMMANDS))
+    web_fetch.add_argument("--ids")
     web_fetch.add_argument("--query")
     web_fetch.add_argument("--extract-depth")
     web_fetch.add_argument("--chunks-per-source")
     web_fetch.add_argument("--include-images", action="store_true")
+    web_fetch.add_argument("--include-summary", action="store_true")
+    web_fetch.add_argument("--include-highlights", action="store_true")
+    web_fetch.add_argument("--text-max-characters")
+    web_fetch.add_argument("--highlight-query")
+    web_fetch.add_argument("--highlight-num-sentences")
+    web_fetch.add_argument("--highlights-per-url")
+    web_fetch.add_argument("--highlight-max-characters")
+    web_fetch.add_argument("--summary-query")
+    web_fetch.add_argument("--max-age-hours")
+    web_fetch.add_argument("--subpages")
+    web_fetch.add_argument("--subpage-target")
+    web_fetch.add_argument("--include-links", action="store_true")
     web_fetch.add_argument("--timeout")
     web_fetch.add_argument("--config-path")
     web_fetch.add_argument("--state-path")
     web_fetch.add_argument("--output", choices=["json", "markdown"])
+
+    web_similar = web_sub.add_parser("similar")
+    web_similar.add_argument("url")
+    web_similar.add_argument("--provider", required=True, choices=sorted(WEB_SIMILAR_COMMANDS))
+    web_similar.add_argument("--max-results")
+    web_similar.add_argument("--search-type")
+    web_similar.add_argument("--include-domains")
+    web_similar.add_argument("--exclude-domains")
+    web_similar.add_argument("--start-crawl-date")
+    web_similar.add_argument("--end-crawl-date")
+    web_similar.add_argument("--start-published-date")
+    web_similar.add_argument("--end-published-date")
+    web_similar.add_argument("--include-text", action="store_true")
+    web_similar.add_argument("--include-highlights", action="store_true")
+    web_similar.add_argument("--include-summary", action="store_true")
+    web_similar.add_argument("--timeout")
+    web_similar.add_argument("--config-path")
+    web_similar.add_argument("--state-path")
+    web_similar.add_argument("--output", choices=["json", "markdown"])
 
     site = sub.add_parser("site")
     site_sub = site.add_subparsers(dest="site_command", required=True)
@@ -210,6 +280,17 @@ def main():
     research_status.add_argument("--state-path")
     research_status.add_argument("--output", choices=["json", "markdown"])
 
+    code = sub.add_parser("code")
+    code_sub = code.add_subparsers(dest="code_command", required=True)
+    code_context = code_sub.add_parser("context")
+    code_context.add_argument("query")
+    code_context.add_argument("--provider", required=True, choices=sorted(CODE_CONTEXT_COMMANDS))
+    code_context.add_argument("--tokens")
+    code_context.add_argument("--timeout")
+    code_context.add_argument("--config-path")
+    code_context.add_argument("--state-path")
+    code_context.add_argument("--output", choices=["json", "markdown"])
+
     convert = sub.add_parser("convert")
     convert.add_argument("--host", choices=["codex", "claude-code", "all"], default="all")
     convert.add_argument("--check", action="store_true")
@@ -243,6 +324,8 @@ def main():
         return run_or_cli_error(site_command, args)
     if args.command == "research":
         return run_or_cli_error(research_command, args)
+    if args.command == "code":
+        return run_or_cli_error(code_command, args)
     if args.command == "convert":
         cmd = [sys.executable, "scripts/convert-agents.py", "--host", args.host]
         if args.check:
@@ -299,7 +382,7 @@ def provider_command(args):
         command = PROVIDER_CHECK_COMMANDS.get((args.provider, capability))
         if not command:
             raise CliError(f"provider {args.provider} does not have a {capability} check")
-        return append_path_flags([*command], args, include_state=args.provider == "tavily")
+        return append_path_flags([*command], args, include_state=args.provider in {"tavily", "exa"})
 
     cmd = [sys.executable, "scripts/arkspace_provider.py"]
     cmd = append_path_flags(cmd, args, include_state=True)
@@ -347,14 +430,107 @@ def web_command(args):
     if args.web_command == "search":
         cmd = [*WEB_SEARCH_COMMANDS[args.provider], args.query]
         if args.provider == "searxng":
-            if args.search_depth or args.topic or args.include_domains or args.exclude_domains or args.include_answer:
-                raise CliError("searxng web search does not support Tavily-specific search options")
+            if (
+                args.search_depth
+                or args.topic
+                or args.include_domains
+                or args.exclude_domains
+                or args.include_answer
+                or args.search_type
+                or args.category
+                or args.freshness
+                or args.start_crawl_date
+                or args.end_crawl_date
+                or args.start_published_date
+                or args.end_published_date
+                or args.include_text
+                or args.include_highlights
+                or args.include_summary
+                or args.text_max_characters
+                or args.highlight_query
+                or args.highlight_num_sentences
+                or args.highlights_per_url
+                or args.highlight_max_characters
+                or args.summary_query
+                or args.additional_queries
+                or args.user_location
+                or args.output_schema
+                or args.system_prompt
+                or args.stream
+                or args.moderation
+            ):
+                raise CliError("searxng web search does not support Exa/Tavily-specific search options")
             cmd = append_value_flags(cmd, args, ["base_url", "time_range", "config_path", "timeout", "output"])
             if args.max_results:
                 cmd.extend(["--limit", args.max_results])
             return cmd
+        if args.provider == "exa":
+            if args.base_url:
+                raise CliError("exa web search does not accept --base-url; use provider setup exa --base-url <url>")
+            if args.search_depth or args.topic or args.time_range or args.include_answer:
+                raise CliError("exa web search does not support Tavily-specific search options")
+            for name in [
+                "max_results",
+                "search_type",
+                "category",
+                "freshness",
+                "include_domains",
+                "exclude_domains",
+                "start_crawl_date",
+                "end_crawl_date",
+                "start_published_date",
+                "end_published_date",
+                "text_max_characters",
+                "highlight_query",
+                "highlight_num_sentences",
+                "highlights_per_url",
+                "highlight_max_characters",
+                "summary_query",
+                "additional_queries",
+                "user_location",
+                "output_schema",
+                "system_prompt",
+                "timeout",
+                "config_path",
+                "state_path",
+                "output",
+            ]:
+                value = getattr(args, name)
+                if value:
+                    cmd.extend([f"--{name.replace('_', '-')}", value])
+            for name in ["include_text", "include_highlights", "include_summary", "stream"]:
+                if getattr(args, name):
+                    cmd.append(f"--{name.replace('_', '-')}")
+            if args.moderation:
+                cmd.append("--moderation")
+            return cmd
         if args.base_url:
             raise CliError("tavily web search does not accept --base-url; use provider setup tavily --base-url <url>")
+        if (
+            args.search_type
+            or args.category
+            or args.freshness
+            or args.start_crawl_date
+            or args.end_crawl_date
+            or args.start_published_date
+            or args.end_published_date
+            or args.include_text
+            or args.include_highlights
+            or args.include_summary
+            or args.text_max_characters
+            or args.highlight_query
+            or args.highlight_num_sentences
+            or args.highlights_per_url
+            or args.highlight_max_characters
+            or args.summary_query
+            or args.additional_queries
+            or args.user_location
+            or args.output_schema
+            or args.system_prompt
+            or args.stream
+            or args.moderation
+        ):
+            raise CliError("tavily web search does not support Exa-specific search options")
         for name in ["max_results", "search_depth", "topic", "time_range", "include_domains", "exclude_domains", "timeout", "config_path", "state_path", "output"]:
             value = getattr(args, name)
             if value:
@@ -365,12 +541,78 @@ def web_command(args):
 
     if args.web_command == "fetch":
         cmd = [*WEB_FETCH_COMMANDS[args.provider], *args.urls]
+        if args.provider == "exa":
+            if args.query or args.extract_depth or args.chunks_per_source or args.include_images:
+                raise CliError("exa web fetch does not support Tavily-specific fetch options")
+            for name in [
+                "ids",
+                "text_max_characters",
+                "highlight_query",
+                "highlight_num_sentences",
+                "highlights_per_url",
+                "highlight_max_characters",
+                "summary_query",
+                "max_age_hours",
+                "subpages",
+                "subpage_target",
+                "timeout",
+                "config_path",
+                "state_path",
+                "output",
+            ]:
+                value = getattr(args, name)
+                if value:
+                    cmd.extend([f"--{name.replace('_', '-')}", value])
+            for name in ["include_summary", "include_highlights", "include_links"]:
+                if getattr(args, name):
+                    cmd.append(f"--{name.replace('_', '-')}")
+            return cmd
+        if not args.urls:
+            raise CliError("tavily web fetch requires at least one URL")
+        if (
+            args.ids
+            or args.text_max_characters
+            or args.highlight_query
+            or args.highlight_num_sentences
+            or args.highlights_per_url
+            or args.highlight_max_characters
+            or args.summary_query
+            or args.max_age_hours
+            or args.subpages
+            or args.subpage_target
+            or args.include_links
+        ):
+            raise CliError("tavily web fetch does not support Exa-specific fetch options")
         for name in ["query", "extract_depth", "chunks_per_source", "timeout", "config_path", "state_path", "output"]:
             value = getattr(args, name)
             if value:
                 cmd.extend([f"--{name.replace('_', '-')}", value])
         if args.include_images:
             cmd.append("--include-images")
+        return cmd
+
+    if args.web_command == "similar":
+        cmd = [*WEB_SIMILAR_COMMANDS[args.provider], args.url]
+        for name in [
+            "max_results",
+            "search_type",
+            "include_domains",
+            "exclude_domains",
+            "start_crawl_date",
+            "end_crawl_date",
+            "start_published_date",
+            "end_published_date",
+            "timeout",
+            "config_path",
+            "state_path",
+            "output",
+        ]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        for name in ["include_text", "include_highlights", "include_summary"]:
+            if getattr(args, name):
+                cmd.append(f"--{name.replace('_', '-')}")
         return cmd
 
     raise ValueError(f"unknown web command {args.web_command}")
@@ -435,6 +677,14 @@ def site_command(args):
 def research_command(args):
     if args.research_command == "run":
         cmd = [*RESEARCH_COMMANDS[args.provider], args.input]
+        if args.provider == "exa":
+            if args.model or args.citation_format or args.include_domains or args.exclude_domains or args.output_length or args.output_schema or args.wait or args.poll_interval:
+                raise CliError("exa research run does not support Tavily Research task options")
+            for name in ["timeout", "config_path", "state_path", "output"]:
+                value = getattr(args, name)
+                if value:
+                    cmd.extend([f"--{name.replace('_', '-')}", value])
+            return cmd
         for name in [
             "model",
             "citation_format",
@@ -456,6 +706,8 @@ def research_command(args):
         return cmd
 
     if args.research_command == "status":
+        if args.provider == "exa":
+            raise CliError("exa research status is not supported; Exa Answer returns synchronously")
         cmd = [*RESEARCH_COMMANDS[args.provider], "--status", args.request_id]
         for name in ["poll_interval", "timeout", "config_path", "state_path", "output"]:
             value = getattr(args, name)
@@ -464,6 +716,18 @@ def research_command(args):
         return cmd
 
     raise ValueError(f"unknown research command {args.research_command}")
+
+
+def code_command(args):
+    if args.code_command == "context":
+        cmd = [*CODE_CONTEXT_COMMANDS[args.provider], args.query]
+        for name in ["tokens", "timeout", "config_path", "state_path", "output"]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        return cmd
+
+    raise ValueError(f"unknown code command {args.code_command}")
 
 
 def append_value_flags(cmd, args, names):

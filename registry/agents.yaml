@@ -12,15 +12,15 @@ agents:
   - id: arkspace-code-engineer
     path: agents/code/code-engineer.md
     domain: code
-    skills: orchestrator
-    workflows: quality-gates
+    skills: orchestrator,exa-search,exa-contents,exa-answer,exa-context,exa-similar
+    workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
   - id: arkspace-code-reviewer
     path: agents/code/code-reviewer.md
     domain: code
-    skills: orchestrator
-    workflows: quality-gates
+    skills: orchestrator,exa-search,exa-contents,exa-context,exa-similar
+    workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
   - id: arkspace-doc-writer
@@ -33,7 +33,7 @@ agents:
   - id: arkspace-knowledge-manager
     path: agents/docs/knowledge-manager.md
     domain: docs
-    skills: orchestrator,searxng-search,tavily-search,tavily-extract,defuddle,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
+    skills: orchestrator,searxng-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -47,7 +47,7 @@ agents:
   - id: arkspace-competitive-analyst
     path: agents/product/competitive-analyst.md
     domain: product
-    skills: orchestrator,searxng-search,tavily-search,tavily-extract,defuddle
+    skills: orchestrator,searxng-search,exa-search,exa-contents,exa-answer,exa-similar,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 

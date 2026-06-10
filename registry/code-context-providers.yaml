@@ -1,0 +1,24 @@
+defaultCodeContextPolicy: code-role-first-provider-second
+
+providers:
+  - id: exa
+    skill: exa-context
+    status: active
+    capability: code_context
+    providerType: code-context-api
+    priority: 100
+    privacy: api-backed
+    configEnv: EXA_API_KEY
+    configRequired: true
+    recommendedEnv: EXA_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check exa --capability code_context
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard. Use --key-count for multiple API keys."
+    authModes: api_key
+    rotationSupported: true
+    input: coding_query
+    outputFields: response,results_count,cost_dollars,search_time,output_tokens,request_id
+    roles: code/code-engineer,code/code-reviewer,docs/knowledge-manager,orchestrator
+    notes: "Use for code examples, API syntax, framework setup, library usage, and repository-grounded implementation context."

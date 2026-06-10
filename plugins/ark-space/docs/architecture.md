@@ -41,15 +41,15 @@ Workflows are reusable protocols:
 - `workflows/lightweight-routing.md`: routing and escalation.
 - `workflows/handoff-template.md`: role-to-role context transfer.
 - `workflows/quality-gates.md`: evidence, retry, and completion checks.
-- `workflows/provider-capabilities.md`: `web_search` and `web_fetch` capability selection.
+- `workflows/provider-capabilities.md`: web provider capability selection.
 
 ## Web Providers
 
 Web skills are selected as providers after role routing.
 
-`web_search` takes a query and returns candidate URLs, snippets, and source metadata. `web_fetch` takes a URL and returns readable content such as Markdown, text, or extraction metadata.
+`web_search` takes a query and returns candidate URLs, snippets, and source metadata. `web_fetch` takes a URL and returns readable content such as Markdown, text, or extraction metadata. `related_pages` takes a URL and returns similar pages or adjacent sources. `code_context` takes a coding query and returns repository-grounded examples and API usage context. Provider registries also cover `web_map`, `web_crawl`, `deep_research`, `code_context`, and `related_pages` when a provider supports those capabilities.
 
-A general source-discovery request routes to `agents/docs/knowledge-manager.md`. A competitor or market-evidence request routes to `agents/product/competitive-analyst.md`. Those agents then select a configured provider skill such as `searxng-search` for search or `defuddle` for fetch.
+A general source-discovery request routes to `agents/docs/knowledge-manager.md`. A competitor or market-evidence request routes to `agents/product/competitive-analyst.md`. Code documentation and upstream library discovery route through code agents when local repository context is not enough. Those agents then select a configured provider skill such as `searxng-search` for private search, `exa-search` for semantic technical discovery, `exa-similar` for URL-seeded related discovery, `exa-context` for implementation examples, `tavily-search` for broad current search, or `defuddle` for local fetch.
 
 Provider configuration is metadata-driven. Registry entries declare whether configuration is required, which environment variables are recommended or compatible, how to check availability, and what to do when configuration is missing. Actual URLs, API keys, and private endpoints stay in the host environment or local ignored settings.
 

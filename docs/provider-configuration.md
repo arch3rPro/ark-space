@@ -56,11 +56,13 @@ export SEARXNG_URL="https://searx.example.org"
 
 For API-backed providers, ArkSpace provider config stores key references. Raw key values can stay in the host environment or be stored in ArkSpace's local private secrets file.
 
-For Tavily, use the setup command. It writes provider config and prompts for the key values:
+For Tavily or Exa, use the setup command. It writes provider config and prompts for the key values:
 
 ```bash
 python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
 python3 scripts/arkspace.py provider check tavily
+python3 scripts/arkspace.py provider setup exa --wizard --key-count 2
+python3 scripts/arkspace.py provider check exa
 ```
 
 If you want to choose the stored key reference names explicitly:
@@ -72,12 +74,19 @@ python3 scripts/arkspace.py provider check tavily
 
 The setup command writes the Tavily endpoint, Tavily capabilities (`web_search`, `web_fetch`, `web_map`, `web_crawl`, `deep_research`), key references, and private secret values in one flow. Provider config stores references such as `env:TAVILY_API_KEY_1`; raw keys are stored in `~/.config/ark-space/secrets.json` with `0600` permissions.
 
+Exa setup writes the Exa endpoint, Exa capabilities (`web_search`, `web_fetch`, `deep_research`, `code_context`, `related_pages`), key references such as `env:EXA_API_KEY_1`, and private secret values with the same rotation model.
+
 For non-interactive setup, provide one secret value per `--save-secret` through stdin:
 
 ```bash
 python3 scripts/arkspace.py provider setup tavily \
   --save-secret TAVILY_API_KEY_1 \
   --save-secret TAVILY_API_KEY_2 \
+  --secret-stdin
+
+python3 scripts/arkspace.py provider setup exa \
+  --save-secret EXA_API_KEY_1 \
+  --save-secret EXA_API_KEY_2 \
   --secret-stdin
 ```
 

@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 TAVILY_CAPABILITIES = ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"]
+EXA_CAPABILITIES = ["web_search", "web_fetch", "deep_research", "code_context", "related_pages"]
 sys.path.insert(0, str(ROOT / "skills" / "provider-manager" / "scripts"))
 
 from arkspace_runtime import provider_config
@@ -76,12 +77,35 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(data["providers"]["tavily"]["capabilities"], TAVILY_CAPABILITIES)
         self.assertNotIn("capability", data["providers"]["tavily"])
 
+    def test_exa_configure_command_writes_exa_capabilities(self):
+        module = load_provider_manager_module()
+
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "exa",
+                "capability": None,
+                "base_url": "https://api.exa.ai",
+                "endpoint_id": "default",
+                "config_path": self.config_path,
+            },
+        )()
+
+        module.command_configure(args)
+        data = provider_config.load_config(self.config_path)
+
+        self.assertEqual(data["providers"]["exa"]["capabilities"], EXA_CAPABILITIES)
+        self.assertNotIn("capability", data["providers"]["exa"])
+
     def test_provider_hints_use_installed_package_absolute_command(self):
         command = f"python3 {ROOT / 'scripts' / 'arkspace.py'}"
 
         self.assertIn(command, provider_config.configure_hint("tavily"))
+        self.assertIn(command, provider_config.configure_hint("exa"))
         self.assertIn(command, provider_config.configure_hint("searxng"))
         self.assertIn(command, provider_config.add_key_hint("tavily"))
+        self.assertIn(command, provider_config.add_key_hint("exa"))
         self.assertIn(command, provider_config.add_key_hint("brave-search"))
         self.assertNotIn("python3 scripts/arkspace.py", provider_config.configure_hint("tavily"))
 
@@ -279,6 +303,37 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertNotIn("tvly-test-key", json.dumps(data))
         self.assertIn("configured provider tavily", output.getvalue())
 
+    def test_exa_setup_command_writes_endpoint_capabilities_and_key_ref(self):
+        os.environ["EXA_API_KEY"] = "exa-test-key"
+        self.addCleanup(os.environ.pop, "EXA_API_KEY", None)
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "exa",
+                "base_url": None,
+                "env": ["EXA_API_KEY"],
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(module.command_setup(args), 0)
+
+        data = provider_config.load_config(self.config_path)
+        entry = data["providers"]["exa"]
+        self.assertEqual(entry["capabilities"], EXA_CAPABILITIES)
+        self.assertEqual(entry["endpoints"][0]["base_url"], "https://api.exa.ai")
+        self.assertEqual(entry["auth"]["type"], "api_key")
+        self.assertEqual(entry["auth"]["header"], "x-api-key")
+        self.assertEqual(entry["auth"]["prefix"], "")
+        self.assertEqual(entry["auth"]["key_refs"], ["env:EXA_API_KEY"])
+        self.assertNotIn("exa-test-key", json.dumps(data))
+        self.assertIn("configured provider exa", output.getvalue())
+
     def test_tavily_setup_command_is_idempotent_and_appends_new_env_refs(self):
         module = load_provider_manager_module()
         first = type(
@@ -409,6 +464,39 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_1"], "first-secret")
         self.assertEqual(secrets["secrets"]["TAVILY_API_KEY_2"], "second-secret")
 
+    def test_exa_setup_wizard_generates_multiple_secret_names(self):
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "exa",
+                "base_url": None,
+                "env": [],
+                "save_secret": [],
+                "wizard": True,
+                "key_count": 2,
+                "prompt": False,
+                "secret_stdin": True,
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with patch.object(sys, "stdin", io.StringIO("first-secret\nsecond-secret\n")):
+            self.assertEqual(module.command_setup(args), 0)
+
+        data = provider_config.load_config(self.config_path)
+        entry = data["providers"]["exa"]
+        self.assertEqual(entry["auth"]["key_refs"], ["env:EXA_API_KEY_1", "env:EXA_API_KEY_2"])
+        self.assertEqual(entry["auth"]["header"], "x-api-key")
+        self.assertEqual(entry["auth"]["prefix"], "")
+
+        secrets = provider_config.load_secrets(self.secrets_path)
+        self.assertEqual(secrets["secrets"]["EXA_API_KEY_1"], "first-secret")
+        self.assertEqual(secrets["secrets"]["EXA_API_KEY_2"], "second-secret")
+
     def test_tavily_setup_wizard_requires_tty_before_writing_config(self):
         module = load_provider_manager_module()
         args = type(
@@ -467,6 +555,36 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertNotIn("key_refs", entry["auth"])
         self.assertIn("add and save an API key", output.getvalue())
         self.assertIn("--save-secret TAVILY_API_KEY --prompt", output.getvalue())
+
+    def test_exa_setup_command_allows_endpoint_only_setup(self):
+        module = load_provider_manager_module()
+        args = type(
+            "Args",
+            (),
+            {
+                "provider": "exa",
+                "base_url": None,
+                "env": [],
+                "save_secret": [],
+                "prompt": False,
+                "secret_stdin": False,
+                "config_path": self.config_path,
+                "state_path": self.state_path,
+                "check": False,
+            },
+        )()
+
+        with redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(module.command_setup(args), 0)
+
+        data = provider_config.load_config(self.config_path)
+        entry = data["providers"]["exa"]
+        self.assertEqual(entry["capabilities"], EXA_CAPABILITIES)
+        self.assertEqual(entry["endpoints"][0]["base_url"], "https://api.exa.ai")
+        self.assertEqual(entry["auth"]["type"], "none")
+        self.assertNotIn("key_refs", entry["auth"])
+        self.assertIn("add and save an API key", output.getvalue())
+        self.assertIn("--save-secret EXA_API_KEY --prompt", output.getvalue())
 
 
 if __name__ == "__main__":

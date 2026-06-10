@@ -63,6 +63,35 @@ class ArkspaceCliTests(unittest.TestCase):
                 self.assertEqual(status, 0)
                 self.assertEqual(calls[0], expected)
 
+    def test_provider_check_exa_capabilities_delegate_to_helpers(self):
+        expectations = {
+            "web_search": [sys.executable, "skills/exa-search/scripts/exa_search.py", "--check"],
+            "web_fetch": [sys.executable, "skills/exa-contents/scripts/exa_contents.py", "--check"],
+            "deep_research": [sys.executable, "skills/exa-answer/scripts/exa_answer.py", "--check"],
+            "code_context": [sys.executable, "skills/exa-context/scripts/exa_context.py", "--check"],
+            "related_pages": [sys.executable, "skills/exa-similar/scripts/exa_similar.py", "--check"],
+        }
+        for capability, expected in expectations.items():
+            with self.subTest(capability=capability):
+                status, calls = self.run_cli(
+                    [
+                        "provider",
+                        "check",
+                        "exa",
+                        "--capability",
+                        capability,
+                        "--config-path",
+                        "/tmp/providers.json",
+                        "--state-path",
+                        "/tmp/state.json",
+                    ]
+                )
+                self.assertEqual(status, 0)
+                self.assertEqual(
+                    calls[0],
+                    [*expected, "--config-path", "/tmp/providers.json", "--state-path", "/tmp/state.json"],
+                )
+
     def test_provider_resolve_forwards_custom_config_and_state_paths(self):
         status, calls = self.run_cli(
             [
@@ -229,6 +258,24 @@ class ArkspaceCliTests(unittest.TestCase):
             ],
         )
 
+    def test_provider_setup_exa_forwards_wizard_options(self):
+        status, calls = self.run_cli(["provider", "setup", "exa", "--wizard", "--key-count", "2", "--secret-stdin"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "scripts/arkspace_provider.py",
+                "setup",
+                "exa",
+                "--wizard",
+                "--key-count",
+                "2",
+                "--secret-stdin",
+            ],
+        )
+
     def test_web_search_tavily_delegates_to_tavily_search_helper(self):
         status, calls = self.run_cli(
             ["web", "search", "--provider", "tavily", "--max-results", "3", "--output", "json", "agent skills"]
@@ -274,6 +321,69 @@ class ArkspaceCliTests(unittest.TestCase):
                 "https://searx.example.org",
                 "--limit",
                 "3",
+            ],
+        )
+
+    def test_web_search_exa_delegates_to_exa_search_helper(self):
+        status, calls = self.run_cli(
+            [
+                "web",
+                "search",
+                "--provider",
+                "exa",
+                "--max-results",
+                "3",
+                "--search-type",
+                "deep-reasoning",
+                "--include-domains",
+                "docs.example.com,github.com",
+                "--freshness",
+                "week",
+                "--include-summary",
+                "--include-highlights",
+                "--highlight-num-sentences",
+                "3",
+                "--additional-queries",
+                "skills frameworks,agent plugin systems",
+                "--user-location",
+                "US",
+                "--output-schema",
+                '{"type":"object"}',
+                "--moderation",
+                "--output",
+                "json",
+                "agent skills",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/exa-search/scripts/exa_search.py",
+                "agent skills",
+                "--max-results",
+                "3",
+                "--search-type",
+                "deep-reasoning",
+                "--freshness",
+                "week",
+                "--include-domains",
+                "docs.example.com,github.com",
+                "--highlight-num-sentences",
+                "3",
+                "--additional-queries",
+                "skills frameworks,agent plugin systems",
+                "--user-location",
+                "US",
+                "--output-schema",
+                '{"type":"object"}',
+                "--output",
+                "json",
+                "--include-highlights",
+                "--include-summary",
+                "--moderation",
             ],
         )
 
@@ -328,6 +438,98 @@ class ArkspaceCliTests(unittest.TestCase):
                 "/tmp/state.json",
                 "--output",
                 "json",
+            ],
+        )
+
+    def test_web_fetch_exa_delegates_to_exa_contents_helper(self):
+        status, calls = self.run_cli(
+            [
+                "web",
+                "fetch",
+                "--provider",
+                "exa",
+                "--include-summary",
+                "--include-highlights",
+                "--text-max-characters",
+                "1000",
+                "--max-age-hours",
+                "24",
+                "--subpages",
+                "2",
+                "--subpage-target",
+                "docs",
+                "--include-links",
+                "--timeout",
+                "60",
+                "--output",
+                "json",
+                "https://example.com",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/exa-contents/scripts/exa_contents.py",
+                "https://example.com",
+                "--text-max-characters",
+                "1000",
+                "--max-age-hours",
+                "24",
+                "--subpages",
+                "2",
+                "--subpage-target",
+                "docs",
+                "--timeout",
+                "60",
+                "--output",
+                "json",
+                "--include-summary",
+                "--include-highlights",
+                "--include-links",
+            ],
+        )
+
+    def test_web_similar_exa_delegates_to_exa_similar_helper(self):
+        status, calls = self.run_cli(
+            [
+                "web",
+                "similar",
+                "--provider",
+                "exa",
+                "--max-results",
+                "4",
+                "--search-type",
+                "deep",
+                "--include-domains",
+                "github.com",
+                "--include-summary",
+                "--include-highlights",
+                "--output",
+                "json",
+                "https://example.com",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/exa-similar/scripts/exa_similar.py",
+                "https://example.com",
+                "--max-results",
+                "4",
+                "--search-type",
+                "deep",
+                "--include-domains",
+                "github.com",
+                "--output",
+                "json",
+                "--include-highlights",
+                "--include-summary",
             ],
         )
 
@@ -441,6 +643,76 @@ class ArkspaceCliTests(unittest.TestCase):
                 "--output",
                 "json",
                 "--wait",
+            ],
+        )
+
+    def test_research_run_exa_delegates_to_exa_answer_helper(self):
+        status, calls = self.run_cli(
+            [
+                "research",
+                "run",
+                "--provider",
+                "exa",
+                "--timeout",
+                "60",
+                "--output",
+                "json",
+                "AI coding agents market",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/exa-answer/scripts/exa_answer.py",
+                "AI coding agents market",
+                "--timeout",
+                "60",
+                "--output",
+                "json",
+            ],
+        )
+
+    def test_research_status_exa_fails_cleanly(self):
+        with patch.object(
+            sys,
+            "argv",
+            ["arkspace", "research", "status", "--provider", "exa", "req-123"],
+        ):
+            self.assertEqual(self.arkspace.main(), 2)
+
+    def test_code_context_exa_delegates_to_exa_context_helper(self):
+        status, calls = self.run_cli(
+            [
+                "code",
+                "context",
+                "--provider",
+                "exa",
+                "--tokens",
+                "5000",
+                "--timeout",
+                "60",
+                "--output",
+                "json",
+                "React hooks state management examples",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/exa-context/scripts/exa_context.py",
+                "React hooks state management examples",
+                "--tokens",
+                "5000",
+                "--timeout",
+                "60",
+                "--output",
+                "json",
             ],
         )
 

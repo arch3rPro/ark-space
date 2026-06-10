@@ -1,0 +1,24 @@
+defaultRelatedPagesPolicy: url-first-provider-second
+
+providers:
+  - id: exa
+    skill: exa-similar
+    status: active
+    capability: related_pages
+    providerType: similar-links-api
+    priority: 100
+    privacy: api-backed
+    configEnv: EXA_API_KEY
+    configRequired: true
+    recommendedEnv: EXA_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check exa --capability related_pages
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard. Use --key-count for multiple API keys."
+    authModes: api_key
+    rotationSupported: true
+    input: url
+    outputFields: title,url,snippet,score,published,author,highlights,highlight_scores,summary,entities,extras,cost_dollars,request_id
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    notes: "Use when a known URL should seed discovery of similar pages, papers, products, repositories, competitors, or adjacent resources."

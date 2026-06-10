@@ -49,11 +49,13 @@ Configure a self-hosted SearXNG endpoint:
 python3 <installed-arkspace-path>/scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
 ```
 
-Configure Tavily API-backed skills:
+Configure API-backed skills with ArkSpace defaults:
 
 ```bash
 python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard --key-count 2
 python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_search
+python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard --key-count 2
+python3 <installed-arkspace-path>/scripts/arkspace.py provider check exa --capability web_search
 ```
 
 Inspect provider config without secret values:
@@ -75,9 +77,9 @@ python3 <installed-arkspace-path>/scripts/arkspace.py provider add-key brave-sea
 python3 <installed-arkspace-path>/scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
 ```
 
-The provider config stores `env:BRAVE_API_KEY_1` or `env:TAVILY_API_KEY_1` references. When `--save-secret` is used, the actual key values are stored in the local private secrets file with `0600` permissions.
+The provider config stores `env:BRAVE_API_KEY_1`, `env:TAVILY_API_KEY_1`, or `env:EXA_API_KEY_1` references. When `--save-secret` is used, the actual key values are stored in the local private secrets file with `0600` permissions.
 
-Use `provider setup` when a provider has ArkSpace defaults, such as Tavily. Use `provider configure` and `provider add-key` as advanced commands for self-hosted endpoints or new providers that do not have setup defaults yet.
+Use `provider setup` when a provider has ArkSpace defaults, such as Tavily or Exa. Use `provider configure` and `provider add-key` as advanced commands for self-hosted endpoints or new providers that do not have setup defaults yet.
 
 ## Key Rotation
 
@@ -102,9 +104,9 @@ When a provider is missing:
 2. Ask whether to start setup now and present exactly two choices:
    - "Start setup wizard" - start interactive setup with the setup command.
    - "Not now" - leave the provider unconfigured; if the user still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
-3. Give the one setup command that fixes it. For Tavily API keys, prefer `provider setup tavily --wizard`.
+3. Give the one setup command that fixes it. For Tavily or Exa API keys, prefer `provider setup <provider> --wizard`.
 4. If the current host can execute shell commands and can provide interactive secret input, run the setup command for them.
-5. If the host shell is non-interactive, do not run `--wizard` through that tool. Offer either interactive terminal setup or saving a pasted key through `provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin`.
+5. If the host shell is non-interactive, do not run `--wizard` through that tool. Offer either interactive terminal setup or saving a pasted key through `provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin` or `provider setup exa --save-secret EXA_API_KEY --secret-stdin`.
 6. Re-run the provider check after setup.
 7. If setup succeeds, rerun or tell the user to rerun the original skill invocation.
 

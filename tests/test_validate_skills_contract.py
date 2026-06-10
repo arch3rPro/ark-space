@@ -34,6 +34,11 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "skill-manager",
             "provider-manager",
             "searxng-search",
+            "exa-search",
+            "exa-contents",
+            "exa-answer",
+            "exa-context",
+            "exa-similar",
             "tavily-search",
             "tavily-extract",
             "tavily-map",
@@ -52,6 +57,11 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
         for name in [
             "searxng-search",
+            "exa-search",
+            "exa-contents",
+            "exa-answer",
+            "exa-context",
+            "exa-similar",
             "tavily-search",
             "tavily-extract",
             "tavily-map",
@@ -67,12 +77,58 @@ class ValidateSkillsContractTests(unittest.TestCase):
     def test_provider_registry_capabilities_match_skill_metadata(self):
         self.validate.validate_registry_files()
 
+    def test_tavily_extended_capabilities_are_provider_registered(self):
+        expectations = {
+            "search-providers.yaml": ("tavily-search", "web_search"),
+            "web-fetch-providers.yaml": ("tavily-extract", "web_fetch"),
+            "web-map-providers.yaml": ("tavily-map", "web_map"),
+            "web-crawl-providers.yaml": ("tavily-crawl", "web_crawl"),
+            "deep-research-providers.yaml": ("tavily-research", "deep_research"),
+        }
+        for registry_name, (skill, capability) in expectations.items():
+            with self.subTest(registry=registry_name):
+                providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
+                tavily = next(item for item in providers if item.get("id") == "tavily")
+                self.assertEqual(tavily.get("skill"), skill)
+                self.assertEqual(tavily.get("capability"), capability)
+                self.assertIn(f"--capability {capability}", tavily.get("checkCommand", ""))
+
+        invocation = (ROOT / "docs" / "invocation.md").read_text(encoding="utf-8")
+        self.assertIn("registry/web-map-providers.yaml", invocation)
+        self.assertIn("registry/web-crawl-providers.yaml", invocation)
+        self.assertIn("registry/deep-research-providers.yaml", invocation)
+        self.assertIn("registry/code-context-providers.yaml", invocation)
+        self.assertNotIn("Direct Tavily skill", invocation)
+
+    def test_exa_capabilities_are_provider_registered(self):
+        expectations = {
+            "search-providers.yaml": ("exa-search", "web_search"),
+            "web-fetch-providers.yaml": ("exa-contents", "web_fetch"),
+            "deep-research-providers.yaml": ("exa-answer", "deep_research"),
+            "code-context-providers.yaml": ("exa-context", "code_context"),
+            "related-page-providers.yaml": ("exa-similar", "related_pages"),
+        }
+        for registry_name, (skill, capability) in expectations.items():
+            with self.subTest(registry=registry_name):
+                providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
+                exa = next(item for item in providers if item.get("id") == "exa")
+                self.assertEqual(exa.get("skill"), skill)
+                self.assertEqual(exa.get("capability"), capability)
+                self.assertIn(f"--capability {capability}", exa.get("checkCommand", ""))
+
     def test_runtime_instructions_use_installed_arkspace_path(self):
         runtime_paths = [
             ROOT / "registry" / "search-providers.yaml",
             ROOT / "registry" / "web-fetch-providers.yaml",
+            ROOT / "registry" / "code-context-providers.yaml",
+            ROOT / "registry" / "related-page-providers.yaml",
             ROOT / "skills" / "provider-manager" / "SKILL.md",
             ROOT / "skills" / "searxng-search" / "SKILL.md",
+            ROOT / "skills" / "exa-search" / "SKILL.md",
+            ROOT / "skills" / "exa-contents" / "SKILL.md",
+            ROOT / "skills" / "exa-answer" / "SKILL.md",
+            ROOT / "skills" / "exa-context" / "SKILL.md",
+            ROOT / "skills" / "exa-similar" / "SKILL.md",
             ROOT / "skills" / "tavily-search" / "SKILL.md",
             ROOT / "skills" / "tavily-extract" / "SKILL.md",
             ROOT / "skills" / "tavily-map" / "SKILL.md",
@@ -87,7 +143,13 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertIn("<installed-arkspace-path>", text)
 
     def test_tavily_provider_registries_use_setup_first_metadata(self):
-        for registry_name in ["search-providers.yaml", "web-fetch-providers.yaml"]:
+        for registry_name in [
+            "search-providers.yaml",
+            "web-fetch-providers.yaml",
+            "web-map-providers.yaml",
+            "web-crawl-providers.yaml",
+            "deep-research-providers.yaml",
+        ]:
             with self.subTest(registry=registry_name):
                 providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
                 tavily = next(item for item in providers if item.get("id") == "tavily")
@@ -95,6 +157,22 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertIn("provider setup tavily --wizard", tavily.get("providerConfigCommand", ""))
                 self.assertNotIn("provider configure tavily", joined)
                 self.assertNotIn("provider add-key tavily", joined)
+
+    def test_exa_provider_registries_use_setup_first_metadata(self):
+        for registry_name in [
+            "search-providers.yaml",
+            "web-fetch-providers.yaml",
+            "deep-research-providers.yaml",
+            "code-context-providers.yaml",
+            "related-page-providers.yaml",
+        ]:
+            with self.subTest(registry=registry_name):
+                providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
+                exa = next(item for item in providers if item.get("id") == "exa")
+                joined = " ".join(str(value) for value in exa.values())
+                self.assertIn("provider setup exa --wizard", exa.get("providerConfigCommand", ""))
+                self.assertNotIn("provider configure exa", joined)
+                self.assertNotIn("provider add-key exa", joined)
 
     def test_tavily_direct_skills_handle_missing_config_before_fallback(self):
         expectations = {
@@ -133,6 +211,23 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertIn("provider setup tavily --wizard", text)
                 self.assertIn(check_command, text)
 
+    def test_exa_direct_skills_use_setup_first_recovery(self):
+        expectations = {
+            "skills/exa-search/SKILL.md": "provider check exa --capability web_search",
+            "skills/exa-contents/SKILL.md": "provider check exa --capability web_fetch",
+            "skills/exa-answer/SKILL.md": "provider check exa --capability deep_research",
+            "skills/exa-context/SKILL.md": "provider check exa --capability code_context",
+            "skills/exa-similar/SKILL.md": "provider check exa --capability related_pages",
+        }
+        for skill_path, check_command in expectations.items():
+            with self.subTest(skill=skill_path):
+                text = (ROOT / skill_path).read_text(encoding="utf-8")
+                self.assertIn("Missing Configuration Recovery", text)
+                self.assertIn("Start setup wizard", text)
+                self.assertIn("Not now", text)
+                self.assertIn("provider setup exa --wizard", text)
+                self.assertIn(check_command, text)
+
     def test_provider_manager_guides_interactive_setup_before_manual_commands(self):
         text = (ROOT / "skills" / "provider-manager" / "SKILL.md").read_text(encoding="utf-8")
 
@@ -141,9 +236,11 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("Start setup wizard", text)
         self.assertIn("Not now", text)
         self.assertIn("provider setup tavily --wizard", text)
+        self.assertIn("provider setup exa --wizard", text)
         self.assertIn("can provide interactive secret input", text)
         self.assertIn("do not run `--wizard` through that tool", text)
         self.assertIn("provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin", text)
+        self.assertIn("provider setup exa --save-secret EXA_API_KEY --secret-stdin", text)
         self.assertIn("rerun the original skill invocation", text)
 
     def test_provider_workflow_allows_fallback_only_after_setup_path(self):
@@ -153,6 +250,8 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("declines, defers, or cannot complete setup", text)
         self.assertIn("clearly labeled non-ArkSpace fallback", text)
         self.assertIn("outside ArkSpace provider execution", text)
+        self.assertIn("registry/code-context-providers.yaml", text)
+        self.assertIn("registry/related-page-providers.yaml", text)
 
 
 if __name__ == "__main__":

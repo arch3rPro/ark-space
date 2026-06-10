@@ -58,6 +58,71 @@ skills:
     categories: research,web,search
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
 
+  - name: exa-search
+    path: skills/exa-search
+    status: active
+    public: true
+    capabilities: web_search
+    providers: exa
+    directInvocation: "$ark-space:exa-search 搜索 Claude Code plugin docs"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 搜索 Claude Code plugin docs"
+    syncMode: adapted
+    upstreamId: exa
+    categories: research,web,search,semantic,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+
+  - name: exa-contents
+    path: skills/exa-contents
+    status: active
+    public: true
+    capabilities: web_fetch
+    providers: exa
+    directInvocation: "$ark-space:exa-contents 提取 https://example.com"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 提取 https://example.com"
+    syncMode: adapted
+    upstreamId: exa
+    categories: research,web,fetch,semantic,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+
+  - name: exa-answer
+    path: skills/exa-answer
+    status: active
+    public: true
+    capabilities: deep_research
+    providers: exa
+    directInvocation: "$ark-space:exa-answer 回答 AI coding assistants 2025 有什么变化"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 回答 AI coding assistants 2025 有什么变化"
+    syncMode: adapted
+    upstreamId: exa
+    categories: research,web,answer,semantic,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer
+
+  - name: exa-context
+    path: skills/exa-context
+    status: active
+    public: true
+    capabilities: code_context
+    providers: exa
+    directInvocation: "$ark-space:exa-context 查询 React hooks state management examples"
+    orchestratorInvocation: "$ark-space:orchestrator 使用 exa 查询 React hooks state management examples"
+    syncMode: adapted
+    upstreamId: exa-context
+    categories: code,research,web,context,api-provider
+    roles: code/code-engineer,code/code-reviewer,docs/knowledge-manager
+
+  - name: exa-similar
+    path: skills/exa-similar
+    status: active
+    public: true
+    capabilities: related_pages
+    providers: exa
+    directInvocation: "$ark-space:exa-similar 查找 https://example.com 的相似页面"
+    orchestratorInvocation: "$ark-space:orchestrator 查找 https://example.com 的相似页面"
+    syncMode: adapted
+    upstreamId: exa-similar
+    categories: research,web,similar,discovery,api-provider
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+
   - name: tavily-search
     path: skills/tavily-search
     status: active

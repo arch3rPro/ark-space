@@ -28,6 +28,7 @@ from arkspace_runtime.provider_config import (
 DEFAULT_CAPABILITIES = {
     "searxng": "web_search",
     "tavily": ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"],
+    "exa": ["web_search", "web_fetch", "deep_research", "code_context", "related_pages"],
 }
 
 SETUP_DEFAULTS = {
@@ -36,6 +37,12 @@ SETUP_DEFAULTS = {
         "capabilities": ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"],
         "auth_header": "Authorization",
         "auth_prefix": "Bearer ",
+    },
+    "exa": {
+        "base_url": "https://api.exa.ai",
+        "capabilities": ["web_search", "web_fetch", "deep_research", "code_context", "related_pages"],
+        "auth_header": "x-api-key",
+        "auth_prefix": "",
     }
 }
 
@@ -168,13 +175,14 @@ def can_collect_interactive_secret() -> bool:
 
 
 def wizard_secret_names(provider: str, key_count: int) -> list[str]:
-    if provider != "tavily":
+    if provider not in {"tavily", "exa"}:
         raise ProviderConfigError(f"provider {provider} does not have a setup wizard")
     if key_count < 1:
         raise ProviderConfigError("--key-count must be at least 1")
+    prefix = "EXA_API_KEY" if provider == "exa" else "TAVILY_API_KEY"
     if key_count == 1:
-        return ["TAVILY_API_KEY"]
-    return [f"TAVILY_API_KEY_{index}" for index in range(1, key_count + 1)]
+        return [prefix]
+    return [f"{prefix}_{index}" for index in range(1, key_count + 1)]
 
 
 def command_setup(args: argparse.Namespace) -> int:
@@ -221,9 +229,10 @@ def command_setup(args: argparse.Namespace) -> int:
         print(f"saved secret env:{env_name} for provider {args.provider} in {path}")
 
     if not env_names:
+        default_key = "EXA_API_KEY" if args.provider == "exa" else "TAVILY_API_KEY"
         print(
             "Next: add and save an API key with "
-            f"`{arkspace_command()} provider setup {args.provider} --save-secret TAVILY_API_KEY --prompt`"
+            f"`{arkspace_command()} provider setup {args.provider} --save-secret {default_key} --prompt`"
         )
 
     if args.check:

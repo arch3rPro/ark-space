@@ -1,0 +1,46 @@
+defaultResearchPolicy: report-first-provider-second
+
+providers:
+  - id: exa
+    skill: exa-answer
+    status: active
+    capability: deep_research
+    providerType: answer-api
+    priority: 120
+    privacy: api-backed
+    configEnv: EXA_API_KEY
+    configRequired: true
+    recommendedEnv: EXA_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check exa --capability deep_research
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard. Use --key-count for multiple API keys."
+    authModes: api_key
+    rotationSupported: true
+    input: research_prompt
+    outputFields: answer,sources,request_id
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,orchestrator
+    notes: "Use for concise cited answers and focused synthesis. Use Tavily Research for long reports or broad market analysis."
+
+  - id: tavily
+    skill: tavily-research
+    status: active
+    capability: deep_research
+    providerType: research-api
+    priority: 100
+    privacy: api-backed
+    configEnv: TAVILY_API_KEY
+    configRequired: true
+    recommendedEnv: TAVILY_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability deep_research
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard. Use --key-count for multiple API keys."
+    authModes: api_key
+    rotationSupported: true
+    input: research_prompt
+    outputFields: request_id,status,content,sources,usage,response_time
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use for cited reports, comparisons, market analysis, or multi-source synthesis rather than quick source discovery."

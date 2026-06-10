@@ -16,7 +16,7 @@ ArkSpace work runs through ArkSpace roles, workflows, skills, and registries. Ho
 For any capability represented by a provider registry, use that registry as the authority before execution:
 
 1. Choose the role from `roles/` or the default route table.
-2. Choose the capability, such as `web_search` or `web_fetch`.
+2. Choose the capability, such as `web_search`, `web_fetch`, `web_map`, `web_crawl`, `deep_research`, `code_context`, or `related_pages`.
 3. Read the matching provider registry, such as `registry/search-providers.yaml`.
 4. Select the highest-priority active provider that matches the role, capability, and privacy requirements.
 5. Run the provider's `checkCommand` when configuration state matters.
@@ -55,14 +55,19 @@ For any capability represented by a provider registry, use that registry as the 
 
 ## Web Capability Selection
 
-Web work splits into two provider capabilities:
+Web and research work splits into provider capabilities:
 
 | Capability | Input | Output | Registry |
 |---|---|---|---|
 | `web_search` | Query | Candidate URLs, snippets, source metadata | `registry/search-providers.yaml` |
 | `web_fetch` | URL | Readable page content, Markdown/text, metadata | `registry/web-fetch-providers.yaml` |
+| `web_map` | Site URL | Discovered URLs and site structure | `registry/web-map-providers.yaml` |
+| `web_crawl` | Site URL | Extracted content from many pages | `registry/web-crawl-providers.yaml` |
+| `deep_research` | Research prompt | Cited synthesized report or async task status | `registry/deep-research-providers.yaml` |
+| `code_context` | Coding query | Repository-grounded examples, API syntax, framework usage, code snippets | `registry/code-context-providers.yaml` |
+| `related_pages` | URL | Similar pages, adjacent resources, comparable projects, related sources | `registry/related-page-providers.yaml` |
 
-Search and fetch are often chained: use `web_search` to discover candidate URLs, then `web_fetch` to read the selected primary sources.
+These capabilities are often chained: use `web_search` to discover candidate URLs, `related_pages` when a known URL should seed adjacent discovery, `web_map` to find specific pages on a known site, `web_fetch` to read selected primary sources, `web_crawl` to collect many pages from a site section, `deep_research` when the requested output is a cited synthesis rather than a source list, and `code_context` when a coding task needs examples or API usage context beyond the local repository.
 
 Selection order:
 
@@ -77,6 +82,15 @@ Selection order:
 9. Use the highest-priority active provider that fits the role and query.
 10. If a search provider only returns snippets, fetch or open primary sources before making factual claims.
 11. Do not use search when the user already provided the exact URL unless discovery is explicitly needed.
+
+Provider fit:
+
+| Provider | Best fit |
+|---|---|
+| SearXNG | Self-hosted or private metasearch where the endpoint is controlled by the user |
+| Exa | Semantic search, technical docs, repositories, concept discovery, domain/date filtered search, concise cited answers, code context, similar-page discovery |
+| Tavily | Broad current web search, JavaScript-heavy extraction, site mapping, crawling, and long-form research reports |
+| Defuddle | Local URL extraction when no API provider is needed |
 
 When a provider entry includes `checkCommand`, run it when configuration state matters. Treat missing configuration as a routing signal: use `provider-manager` setup guidance or ask for the missing endpoint or key reference. Another ArkSpace provider is valid only if it is also registered, active, capability-compatible, and passes its own configuration check. Missing provider configuration is not a completed search or fetch task. Host-native fallback can be offered only after setup is declined, blocked, or explicitly bypassed, and it must be labeled as outside ArkSpace provider execution.
 

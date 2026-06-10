@@ -61,6 +61,46 @@ sources:
     syncPolicy: reference-only
     notes: "Referenced for Tavily as a generic web_search provider plus explicit search/extract tools, API-key configuration, base URL, and tool capability boundaries."
 
+  - id: exa
+    type: documentation
+    url: https://exa.ai/docs/reference/search-api-guide
+    documentation: https://exa.ai/docs/reference/search
+    license: unknown
+    syncPolicy: adapted
+    notes: "Official Exa API documentation used for ArkSpace Exa search, contents, and answer provider helpers."
+
+  - id: openclaw-exa-search
+    type: documentation
+    url: https://docs.openclaw.ai/tools/exa-search
+    license: unknown
+    syncPolicy: reference-only
+    notes: "Referenced for Exa as a web_search provider with neural, keyword, hybrid search modes and API-key configuration."
+
+  - id: exa-context
+    type: documentation
+    url: https://exa.ai/docs/reference/context
+    documentation: https://exa.ai/docs/reference/context
+    license: unknown
+    syncPolicy: adapted
+    notes: "Official Exa Code Context API used for ArkSpace exa-context."
+
+  - id: exa-similar
+    type: documentation
+    url: https://exa.ai/docs/reference/find-similar-links
+    documentation: https://exa.ai/docs/reference/find-similar-links
+    license: unknown
+    syncPolicy: adapted
+    notes: "Official Exa Find Similar API used for ArkSpace exa-similar related page discovery."
+
+  - id: hermes-exa-provider
+    type: github
+    repo: NousResearch/hermes-agent
+    path: plugins/web/exa/provider.py
+    documentation: https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/features/web-search.md
+    license: MIT
+    syncPolicy: reference-only
+    notes: "Referenced for Hermes Exa search plus extract provider behavior and per-capability web provider split."
+
   - id: superpowers
     type: github
     repo: obra/superpowers

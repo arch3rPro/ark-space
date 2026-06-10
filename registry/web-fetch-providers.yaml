@@ -17,6 +17,29 @@ providers:
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use after web_search returns a URL, or when the user provides a normal web page URL to read or analyze."
 
+  - id: exa
+    skill: exa-contents
+    status: active
+    capability: web_fetch
+    providerType: contents-api
+    priority: 90
+    privacy: api-backed
+    configEnv: EXA_API_KEY
+    configRequired: true
+    recommendedEnv: EXA_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check exa --capability web_fetch
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard. Use --key-count for multiple API keys."
+    authModes: api_key
+    rotationSupported: true
+    input: url
+    outputFormats: markdown,text,json
+    outputFields: url,title,raw_content,summary,highlights,highlight_scores,published,author,id,image,favicon,subpages,extras,statuses,context,cost_dollars,request_id
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    notes: "Use for Exa search results, Exa result ids, URLs needing summaries/highlights, subpage discovery, content freshness control, or link extras."
+
   - id: tavily
     skill: tavily-extract
     status: active

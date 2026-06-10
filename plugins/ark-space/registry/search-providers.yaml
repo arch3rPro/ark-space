@@ -22,6 +22,27 @@ providers:
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use for SearXNG-specific requests or self-hosted/private search."
 
+  - id: exa
+    skill: exa-search
+    status: active
+    capability: web_search
+    providerType: semantic-search-api
+    priority: 175
+    privacy: api-backed
+    configEnv: EXA_API_KEY
+    configRequired: true
+    recommendedEnv: EXA_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check exa --capability web_search
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup exa --wizard. Use --key-count for multiple API keys."
+    authModes: api_key
+    rotationSupported: true
+    outputFields: title,url,snippet,score,published,author,highlights,highlight_scores,summary,entities,extras,context,structured,resolved_search_type,cost_dollars,request_id
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    notes: "Use for semantic/neural search, coding docs, repositories, technical research, company/people/news discovery, domain/date filtered discovery, content-bearing search results, deep/deep-reasoning search modes, and structured output."
+
   - id: tavily
     skill: tavily-search
     status: active

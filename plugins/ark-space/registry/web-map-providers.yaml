@@ -1,0 +1,24 @@
+defaultMapPolicy: site-first-provider-second
+
+providers:
+  - id: tavily
+    skill: tavily-map
+    status: active
+    capability: web_map
+    providerType: site-map-api
+    priority: 100
+    privacy: api-backed
+    configEnv: TAVILY_API_KEY
+    configRequired: true
+    recommendedEnv: TAVILY_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check tavily --capability web_map
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup tavily --wizard. Use --key-count for multiple API keys."
+    authModes: api_key
+    rotationSupported: true
+    input: site_url
+    outputFields: base_url,results,usage,request_id,response_time
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use when the site is known but the exact URL is not, or before crawl/extract on large sites."

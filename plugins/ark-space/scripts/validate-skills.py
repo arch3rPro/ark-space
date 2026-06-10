@@ -18,6 +18,8 @@ VALID_CAPABILITIES = {
     "web_map",
     "web_crawl",
     "deep_research",
+    "code_context",
+    "related_pages",
     "knowledge_management",
 }
 
@@ -108,6 +110,8 @@ def validate_public_skill_contract(skills):
         "web_map",
         "web_crawl",
         "deep_research",
+        "code_context",
+        "related_pages",
         "knowledge_management",
         "skill_governance",
         "provider_configuration",
@@ -272,6 +276,11 @@ def validate_registry_files():
     provider_registry_paths = [
         registry_dir / "search-providers.yaml",
         registry_dir / "web-fetch-providers.yaml",
+        registry_dir / "web-map-providers.yaml",
+        registry_dir / "web-crawl-providers.yaml",
+        registry_dir / "deep-research-providers.yaml",
+        registry_dir / "code-context-providers.yaml",
+        registry_dir / "related-page-providers.yaml",
     ]
 
     source_ids = {item.get("id") for item in sources if item.get("id")}
@@ -364,11 +373,12 @@ def validate_registry_files():
     for provider_path in provider_registry_paths:
         if not provider_path.exists():
             continue
-        expected_capability = "web_search" if provider_path.name == "search-providers.yaml" else "web_fetch"
-        provider_kind = "search provider" if expected_capability == "web_search" else "fetch provider"
+        registry_metadata = provider_registry_metadata(provider_path.name)
+        expected_capability = registry_metadata["capability"]
+        provider_kind = registry_metadata["kind"]
         provider_text = read_text(provider_path)
-        if not re.search(r"^default(Search|Fetch)Policy:\s*.+$", provider_text, re.MULTILINE):
-            fail(f"{provider_path} must set defaultSearchPolicy or defaultFetchPolicy")
+        if not re.search(registry_metadata["policy_pattern"], provider_text, re.MULTILINE):
+            fail(f"{provider_path} must set {registry_metadata['policy_name']}")
         providers = parse_simple_yaml_list(provider_path, "providers")
         for item in providers:
             provider_id = item.get("id")
@@ -400,13 +410,63 @@ def validate_registry_files():
                 fail(f"{provider_kind} {provider_id} must set missingConfigBehavior when configRequired is true")
             if item.get("recommendedEnv") and not item.get("checkCommand"):
                 fail(f"{provider_kind} {provider_id} with recommendedEnv must set checkCommand")
-            if provider_id == "tavily":
+            if provider_id in {"tavily", "exa"}:
                 provider_config_command = item.get("providerConfigCommand", "")
                 values = " ".join(str(value) for value in item.values())
-                if "provider setup tavily --wizard" not in provider_config_command:
-                    fail(f"{provider_kind} tavily must use provider setup tavily --wizard in providerConfigCommand")
-                if "provider configure tavily" in values or "provider add-key tavily" in values:
-                    fail(f"{provider_kind} tavily registry metadata must not use old configure/add-key setup")
+                if f"provider setup {provider_id} --wizard" not in provider_config_command:
+                    fail(f"{provider_kind} {provider_id} must use provider setup {provider_id} --wizard in providerConfigCommand")
+                if f"provider configure {provider_id}" in values or f"provider add-key {provider_id}" in values:
+                    fail(f"{provider_kind} {provider_id} registry metadata must not use old configure/add-key setup")
+
+
+def provider_registry_metadata(filename):
+    metadata = {
+        "search-providers.yaml": {
+            "capability": "web_search",
+            "kind": "search provider",
+            "policy_name": "defaultSearchPolicy",
+            "policy_pattern": r"^defaultSearchPolicy:\s*.+$",
+        },
+        "web-fetch-providers.yaml": {
+            "capability": "web_fetch",
+            "kind": "fetch provider",
+            "policy_name": "defaultFetchPolicy",
+            "policy_pattern": r"^defaultFetchPolicy:\s*.+$",
+        },
+        "web-map-providers.yaml": {
+            "capability": "web_map",
+            "kind": "map provider",
+            "policy_name": "defaultMapPolicy",
+            "policy_pattern": r"^defaultMapPolicy:\s*.+$",
+        },
+        "web-crawl-providers.yaml": {
+            "capability": "web_crawl",
+            "kind": "crawl provider",
+            "policy_name": "defaultCrawlPolicy",
+            "policy_pattern": r"^defaultCrawlPolicy:\s*.+$",
+        },
+        "deep-research-providers.yaml": {
+            "capability": "deep_research",
+            "kind": "research provider",
+            "policy_name": "defaultResearchPolicy",
+            "policy_pattern": r"^defaultResearchPolicy:\s*.+$",
+        },
+        "code-context-providers.yaml": {
+            "capability": "code_context",
+            "kind": "code context provider",
+            "policy_name": "defaultCodeContextPolicy",
+            "policy_pattern": r"^defaultCodeContextPolicy:\s*.+$",
+        },
+        "related-page-providers.yaml": {
+            "capability": "related_pages",
+            "kind": "related pages provider",
+            "policy_name": "defaultRelatedPagesPolicy",
+            "policy_pattern": r"^defaultRelatedPagesPolicy:\s*.+$",
+        },
+    }
+    if filename not in metadata:
+        fail(f"unknown provider registry {filename}")
+    return metadata[filename]
 
 
 def validate_agent_frontmatter():
