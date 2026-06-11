@@ -66,6 +66,8 @@ Callable agents live under `agents/` and describe runtime role behavior. They co
 
 Workflows live under `workflows/` and define reusable protocols for routing, handoffs, quality gates, and provider capabilities. Agents reference workflows when the task needs structure beyond a single direct response.
 
+Framework improvement priorities are tracked in `docs/improvement-backlog.md`.
+
 ### Host Integrations
 
 Host-native agent files are generated under `integrations/`:
@@ -95,6 +97,14 @@ Do not edit generated integration files by hand; update `agents/` and regenerate
 | `exa-answer` | Ask Exa for concise cited answers to focused research questions |
 | `exa-context` | Get Exa Code context for API syntax, framework setup, and repository-grounded examples |
 | `exa-similar` | Find similar pages, projects, papers, products, or competitors from a known URL |
+| `firecrawl-search` | Search through Firecrawl CLI with optional result scraping |
+| `firecrawl-scrape` | Scrape pages through Firecrawl CLI |
+| `firecrawl-map` | Discover site URLs through Firecrawl CLI |
+| `firecrawl-crawl` | Crawl site sections through Firecrawl CLI |
+| `firecrawl-agent` | Run schema-guided Firecrawl Agent extraction |
+| `firecrawl-browser` | Control Firecrawl remote browser sessions |
+| `firecrawl-interact` | Interact with a Firecrawl scraped page session |
+| `firecrawl-monitor` | Manage Firecrawl recurring monitors |
 | `tavily-search` | Query Tavily through ArkSpace web search routing |
 | `tavily-extract` | Extract readable content from URLs through Tavily |
 | `tavily-map` | Discover URLs and site structure through Tavily |
@@ -122,6 +132,14 @@ Use direct skill invocation when the caller already knows the provider or skill:
 /ark-space:exa-answer answer what changed in AI coding agents in 2025
 /ark-space:exa-context find React hooks state management examples
 /ark-space:exa-similar find pages similar to https://example.com/article
+/ark-space:firecrawl-search search OpenClaw documentation
+/ark-space:firecrawl-scrape scrape https://example.com
+/ark-space:firecrawl-map map https://docs.example.com
+/ark-space:firecrawl-crawl crawl https://docs.example.com/docs
+/ark-space:firecrawl-agent extract product pricing from https://example.com
+/ark-space:firecrawl-browser open https://example.com and snapshot
+/ark-space:firecrawl-interact interact with scrape <scrape-id>
+/ark-space:firecrawl-monitor create monitor for https://example.com/blog
 /ark-space:tavily-extract extract https://example.com
 /ark-space:tavily-map map https://docs.example.com
 /ark-space:tavily-crawl crawl https://docs.example.com/docs
@@ -134,13 +152,17 @@ Use the Orchestrator when the caller wants ArkSpace to choose the route:
 /ark-space:orchestrator use Tavily to search claude-code-everything
 /ark-space:orchestrator use Exa to search Claude Code plugin docs
 /ark-space:orchestrator use Exa to find React hooks state management examples
+/ark-space:orchestrator use Firecrawl to scrape https://example.com
+/ark-space:orchestrator use Firecrawl Agent to extract product pricing from https://example.com
+/ark-space:orchestrator use Firecrawl Browser to inspect https://example.com
+/ark-space:orchestrator use Firecrawl Monitor for https://example.com/blog
 /ark-space:orchestrator find pages similar to https://example.com/article
 /ark-space:orchestrator search for the claude-code-everything project
 /ark-space:orchestrator fetch and summarize https://example.com
 /ark-space:orchestrator use Tavily to research the AI coding agents market
 ```
 
-`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. `related_pages` starts from a known URL and returns similar pages or comparable resources. `code_context` returns implementation-oriented code examples and API usage context. Exa provides semantic `web_search`, URL `web_fetch`, concise cited `deep_research` through Exa Answer, `code_context` through Exa Context, and `related_pages` through Exa Similar. Tavily also adds `web_map` for URL discovery on a known site, `web_crawl` for multi-page site extraction, and long-form `deep_research` for cited synthesis. Search, similar-page discovery, map, fetch, crawl, research, and code context are related but separate capabilities.
+`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. `related_pages` starts from a known URL and returns similar pages or comparable resources. `structured_extract` asks for schema-shaped data from web sources. `web_interact` controls live browser or scrape-bound sessions. `web_monitor` manages recurring web checks. `code_context` returns implementation-oriented code examples and API usage context. Exa provides semantic `web_search`, URL `web_fetch`, concise cited `deep_research` through Exa Answer, `code_context` through Exa Context, and `related_pages` through Exa Similar. Firecrawl provides CLI-backed `web_search`, `web_fetch`, `web_map`, `web_crawl`, `structured_extract`, `web_interact`, and `web_monitor` for JS-heavy, bot-protected, interactive, or recurring web workflows. Tavily also adds `web_map` for URL discovery on a known site, `web_crawl` for multi-page site extraction, and long-form `deep_research` for cited synthesis. Search, similar-page discovery, map, fetch, crawl, structured extraction, interaction, monitoring, research, and code context are related but separate capabilities.
 
 ## Installation
 
@@ -164,6 +186,8 @@ python3 scripts/arkspace.py provider configure searxng --base-url "https://searx
 python3 scripts/arkspace.py provider check searxng
 python3 scripts/arkspace.py provider setup exa --wizard --key-count 2
 python3 scripts/arkspace.py provider check exa
+python3 scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+python3 scripts/arkspace.py provider check firecrawl
 python3 scripts/arkspace.py provider setup tavily --wizard
 python3 scripts/arkspace.py provider check tavily
 ```
@@ -198,6 +222,7 @@ For Codex, use the same ArkSpace setup command, or export provider variables in 
 ```bash
 export SEARXNG_URL="https://searx.example.org"
 export EXA_API_KEY="exa-..."
+export FIRECRAWL_API_KEY="fc-..."
 export TAVILY_API_KEY="tvly-..."
 codex
 ```
@@ -225,6 +250,13 @@ python3 scripts/arkspace.py provider setup exa --wizard --key-count 2
 python3 scripts/arkspace.py provider check exa
 ```
 
+Firecrawl uses the same setup and rotation model, plus the Firecrawl CLI must be installed or `npx` must be available:
+
+```bash
+python3 scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+python3 scripts/arkspace.py provider check firecrawl
+```
+
 Useful Tavily runtime commands:
 
 ```bash
@@ -243,6 +275,19 @@ python3 scripts/arkspace.py web fetch --provider exa "https://example.com"
 python3 scripts/arkspace.py web similar --provider exa "https://example.com"
 python3 scripts/arkspace.py research run --provider exa "What changed in AI coding assistants in 2025?"
 python3 scripts/arkspace.py code context --provider exa "React hooks state management examples"
+```
+
+Useful Firecrawl runtime commands:
+
+```bash
+python3 scripts/arkspace.py web search --provider firecrawl "OpenClaw documentation"
+python3 scripts/arkspace.py web fetch --provider firecrawl "https://example.com" --only-main-content
+python3 scripts/arkspace.py site map --provider firecrawl "https://docs.example.com" --search "auth"
+python3 scripts/arkspace.py site crawl --provider firecrawl "https://docs.example.com" --include-paths /docs --limit 20
+python3 scripts/arkspace.py structured extract --provider firecrawl "extract product names and prices" --urls "https://example.com/pricing" --wait
+python3 scripts/arkspace.py browser run --provider firecrawl "open https://example.com and snapshot"
+python3 scripts/arkspace.py interact run --provider firecrawl --scrape-id <scrape-id> --prompt "summarize visible pricing"
+python3 scripts/arkspace.py monitor create --provider firecrawl --name "Blog" --schedule "every 30 minutes" --page "https://example.com/blog" --goal "Alert when a new blog post is published."
 ```
 
 To add this repository as a Codex plugin marketplace:
@@ -285,6 +330,9 @@ Registries under `registry/` are the source of truth for package metadata:
 - `registry/web-fetch-providers.yaml`: URL fetch/extraction provider metadata for compatible fetch skills.
 - `registry/web-map-providers.yaml`: site URL discovery provider metadata.
 - `registry/web-crawl-providers.yaml`: site crawl provider metadata.
+- `registry/structured-extract-providers.yaml`: schema-guided extraction provider metadata.
+- `registry/web-interact-providers.yaml`: live browser and scrape-bound interaction provider metadata.
+- `registry/web-monitor-providers.yaml`: recurring web monitor provider metadata.
 - `registry/deep-research-providers.yaml`: deep research provider metadata.
 
 Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, and key rotation support. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.

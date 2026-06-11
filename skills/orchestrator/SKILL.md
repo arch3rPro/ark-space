@@ -16,7 +16,7 @@ ArkSpace work runs through ArkSpace roles, workflows, skills, and registries. Ho
 For any capability represented by a provider registry, use that registry as the authority before execution:
 
 1. Choose the role from `roles/` or the default route table.
-2. Choose the capability, such as `web_search`, `web_fetch`, `web_map`, `web_crawl`, `deep_research`, `code_context`, or `related_pages`.
+2. Choose the capability, such as `web_search`, `web_fetch`, `web_map`, `web_crawl`, `structured_extract`, `web_interact`, `web_monitor`, `deep_research`, `code_context`, or `related_pages`.
 3. Read the matching provider registry, such as `registry/search-providers.yaml`.
 4. Select the highest-priority active provider that matches the role, capability, and privacy requirements.
 5. Run the provider's `checkCommand` when configuration state matters.
@@ -63,11 +63,14 @@ Web and research work splits into provider capabilities:
 | `web_fetch` | URL | Readable page content, Markdown/text, metadata | `registry/web-fetch-providers.yaml` |
 | `web_map` | Site URL | Discovered URLs and site structure | `registry/web-map-providers.yaml` |
 | `web_crawl` | Site URL | Extracted content from many pages | `registry/web-crawl-providers.yaml` |
+| `structured_extract` | Prompt, URLs, optional schema | Schema-shaped extracted data or async job status | `registry/structured-extract-providers.yaml` |
+| `web_interact` | Browser instruction or scrape ID | Browser action output, session metadata, or live view links | `registry/web-interact-providers.yaml` |
+| `web_monitor` | Monitor target, schedule, goal | Monitor IDs, checks, statuses, and change results | `registry/web-monitor-providers.yaml` |
 | `deep_research` | Research prompt | Cited synthesized report or async task status | `registry/deep-research-providers.yaml` |
 | `code_context` | Coding query | Repository-grounded examples, API syntax, framework usage, code snippets | `registry/code-context-providers.yaml` |
 | `related_pages` | URL | Similar pages, adjacent resources, comparable projects, related sources | `registry/related-page-providers.yaml` |
 
-These capabilities are often chained: use `web_search` to discover candidate URLs, `related_pages` when a known URL should seed adjacent discovery, `web_map` to find specific pages on a known site, `web_fetch` to read selected primary sources, `web_crawl` to collect many pages from a site section, `deep_research` when the requested output is a cited synthesis rather than a source list, and `code_context` when a coding task needs examples or API usage context beyond the local repository.
+These capabilities are often chained: use `web_search` to discover candidate URLs, `related_pages` when a known URL should seed adjacent discovery, `web_map` to find specific pages on a known site, `web_fetch` to read selected primary sources, `web_crawl` to collect many pages from a site section, `structured_extract` when the user needs schema-shaped data, `web_interact` when the page must be operated in a browser or an existing scrape session, `web_monitor` for recurring checks, `deep_research` when the requested output is a cited synthesis rather than a source list, and `code_context` when a coding task needs examples or API usage context beyond the local repository.
 
 Selection order:
 
@@ -89,6 +92,7 @@ Provider fit:
 |---|---|
 | SearXNG | Self-hosted or private metasearch where the endpoint is controlled by the user |
 | Exa | Semantic search, technical docs, repositories, concept discovery, domain/date filtered search, concise cited answers, code context, similar-page discovery |
+| Firecrawl | CLI-backed search, scraping, site mapping, crawling, structured extraction, browser interaction, and monitoring for JS-heavy or bot-protected pages |
 | Tavily | Broad current web search, JavaScript-heavy extraction, site mapping, crawling, and long-form research reports |
 | Defuddle | Local URL extraction when no API provider is needed |
 

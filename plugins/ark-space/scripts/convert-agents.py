@@ -33,6 +33,11 @@ def parse_frontmatter(path):
         if raw.startswith("  - ") and current_list:
             data[current_list].append(raw[4:].strip())
             continue
+        if raw.endswith(":") and not raw.startswith(" "):
+            key = raw[:-1].strip()
+            data[key] = []
+            current_list = key
+            continue
         if ": " in raw:
             key, value = raw.split(": ", 1)
             key = key.strip()

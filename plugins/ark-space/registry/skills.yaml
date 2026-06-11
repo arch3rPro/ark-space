@@ -56,7 +56,7 @@ skills:
     syncMode: local
     upstreamId: searxng
     categories: research,web,search
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/knowledge-manager,product/competitive-analyst
 
   - name: exa-search
     path: skills/exa-search
@@ -122,6 +122,110 @@ skills:
     upstreamId: exa-similar
     categories: research,web,similar,discovery,api-provider
     roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+
+  - name: firecrawl-search
+    path: skills/firecrawl-search
+    status: active
+    public: true
+    capabilities: web_search
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-search search OpenClaw documentation"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to search OpenClaw documentation"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,search,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: firecrawl-scrape
+    path: skills/firecrawl-scrape
+    status: active
+    public: true
+    capabilities: web_fetch
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-scrape scrape https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to scrape https://example.com"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,fetch,scrape,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: firecrawl-map
+    path: skills/firecrawl-map
+    status: active
+    public: true
+    capabilities: web_map
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-map map https://docs.example.com"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to map https://docs.example.com"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,map,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: firecrawl-crawl
+    path: skills/firecrawl-crawl
+    status: active
+    public: true
+    capabilities: web_crawl
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-crawl crawl https://docs.example.com/docs"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to crawl https://docs.example.com/docs"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,crawl,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: firecrawl-agent
+    path: skills/firecrawl-agent
+    status: active
+    public: true
+    capabilities: structured_extract
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-agent extract product pricing from https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Agent to extract product pricing from https://example.com"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,extract,structured,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: firecrawl-browser
+    path: skills/firecrawl-browser
+    status: active
+    public: true
+    capabilities: web_interact
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-browser open https://example.com and snapshot"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Browser to inspect https://example.com"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,browser,interact,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: firecrawl-interact
+    path: skills/firecrawl-interact
+    status: active
+    public: true
+    capabilities: web_interact
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-interact interact with scrape <scrape-id>"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Interact with scrape <scrape-id>"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,interact,scrape,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
+
+  - name: firecrawl-monitor
+    path: skills/firecrawl-monitor
+    status: active
+    public: true
+    capabilities: web_monitor
+    providers: firecrawl
+    directInvocation: "/ark-space:firecrawl-monitor create monitor for https://example.com/blog"
+    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Monitor for https://example.com/blog"
+    syncMode: adapted
+    upstreamId: firecrawl-cli
+    categories: research,web,monitor,automation,cli-provider
+    roles: docs/knowledge-manager,product/competitive-analyst
 
   - name: tavily-search
     path: skills/tavily-search
@@ -246,4 +350,4 @@ skills:
     syncMode: adapted
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian
-    roles: docs/knowledge-manager,docs/doc-writer,docs/doc-editor
+    roles: docs/knowledge-manager,docs/doc-writer

@@ -63,3 +63,24 @@ providers:
     outputFields: title,url,snippet,score,published,answer,usage,request_id
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use for API-backed public web search, Tavily-specific depth/topic/domain controls, current news, finance, and LLM-optimized snippets."
+
+  - id: firecrawl
+    skill: firecrawl-search
+    status: active
+    capability: web_search
+    providerType: cli-backed-search-scrape
+    priority: 140
+    privacy: api-backed-cli
+    configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
+    configRequired: true
+    recommendedEnv: FIRECRAWL_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability web_search
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    authModes: api_key
+    rotationSupported: true
+    outputFields: id,data,web,images,news,title,url,description,markdown,creditsUsed,warning
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use when search should optionally scrape full page content, when JS-heavy sources are likely, or when the user explicitly asks for Firecrawl."

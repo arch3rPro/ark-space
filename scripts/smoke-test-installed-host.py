@@ -15,52 +15,32 @@ HOST_SOURCE_ROOT = {
     "claude-code": ROOT,
 }
 
-HOST_REQUIRED_FILES = {
+HOST_INCLUDED_ROOTS = {
     "codex": [
-        ".codex-plugin/plugin.json",
-        "README.md",
-        "registry/search-providers.yaml",
-        "registry/web-fetch-providers.yaml",
-        "registry/code-context-providers.yaml",
-        "registry/related-page-providers.yaml",
-        "scripts/arkspace.py",
-        "skills/orchestrator/SKILL.md",
-        "skills/provider-manager/SKILL.md",
-        "skills/provider-manager/scripts/arkspace_provider.py",
-        "skills/provider-manager/scripts/arkspace_runtime/exa_client.py",
-        "skills/provider-manager/scripts/arkspace_runtime/provider_config.py",
-        "skills/searxng-search/SKILL.md",
-        "skills/exa-search/SKILL.md",
-        "skills/exa-contents/SKILL.md",
-        "skills/exa-answer/SKILL.md",
-        "skills/exa-context/SKILL.md",
-        "skills/exa-similar/SKILL.md",
-        "skills/tavily-search/SKILL.md",
-        "skills/tavily-extract/SKILL.md",
+        ".codex-plugin",
+        "agents",
+        "docs",
+        "registry",
+        "roles",
+        "scripts",
+        "skills",
+        "workflows",
     ],
     "claude-code": [
-        ".claude-plugin/plugin.json",
-        ".claude-plugin/marketplace.json",
-        "README.md",
-        "registry/search-providers.yaml",
-        "registry/web-fetch-providers.yaml",
-        "registry/code-context-providers.yaml",
-        "registry/related-page-providers.yaml",
-        "scripts/arkspace.py",
-        "skills/orchestrator/SKILL.md",
-        "skills/provider-manager/SKILL.md",
-        "skills/provider-manager/scripts/arkspace_provider.py",
-        "skills/provider-manager/scripts/arkspace_runtime/exa_client.py",
-        "skills/provider-manager/scripts/arkspace_runtime/provider_config.py",
-        "skills/searxng-search/SKILL.md",
-        "skills/exa-search/SKILL.md",
-        "skills/exa-contents/SKILL.md",
-        "skills/exa-answer/SKILL.md",
-        "skills/exa-context/SKILL.md",
-        "skills/exa-similar/SKILL.md",
-        "skills/tavily-search/SKILL.md",
-        "skills/tavily-extract/SKILL.md",
+        ".claude-plugin",
+        "agents",
+        "docs",
+        "registry",
+        "roles",
+        "scripts",
+        "skills",
+        "workflows",
     ],
+}
+
+HOST_INCLUDED_FILES = {
+    "codex": ["README.md", "LICENSE", "NOTICE.md"],
+    "claude-code": ["README.md", "LICENSE", "NOTICE.md"],
 }
 
 
@@ -77,6 +57,28 @@ def newest_cache_dir(cache_root):
     return sorted(candidates, key=lambda path: (path.stat().st_mtime, path.name))[-1]
 
 
+def should_include(path):
+    rel_parts = path.parts
+    if "__pycache__" in rel_parts:
+        return False
+    if "superpowers" in rel_parts:
+        return False
+    return path.suffix not in {".pyc", ".pyo"}
+
+
+def expected_files(host):
+    source_root = HOST_SOURCE_ROOT[host]
+    files = []
+    for rel_root in HOST_INCLUDED_ROOTS[host]:
+        root = source_root / rel_root
+        if root.exists():
+            files.extend(path.relative_to(source_root) for path in root.rglob("*") if path.is_file() and should_include(path.relative_to(source_root)))
+    for rel_file in HOST_INCLUDED_FILES[host]:
+        if (source_root / rel_file).exists():
+            files.append(Path(rel_file))
+    return sorted(set(files))
+
+
 def check_installed_host(host, cache_root):
     source_root = HOST_SOURCE_ROOT[host]
     installed_root = newest_cache_dir(cache_root)
@@ -85,7 +87,7 @@ def check_installed_host(host, cache_root):
         return 1
 
     status = 0
-    for rel_path in HOST_REQUIRED_FILES[host]:
+    for rel_path in expected_files(host):
         source_path = source_root / rel_path
         installed_path = installed_root / rel_path
 

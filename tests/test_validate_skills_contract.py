@@ -39,6 +39,14 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "exa-answer",
             "exa-context",
             "exa-similar",
+            "firecrawl-search",
+            "firecrawl-scrape",
+            "firecrawl-map",
+            "firecrawl-crawl",
+            "firecrawl-agent",
+            "firecrawl-browser",
+            "firecrawl-interact",
+            "firecrawl-monitor",
             "tavily-search",
             "tavily-extract",
             "tavily-map",
@@ -62,6 +70,14 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "exa-answer",
             "exa-context",
             "exa-similar",
+            "firecrawl-search",
+            "firecrawl-scrape",
+            "firecrawl-map",
+            "firecrawl-crawl",
+            "firecrawl-agent",
+            "firecrawl-browser",
+            "firecrawl-interact",
+            "firecrawl-monitor",
             "tavily-search",
             "tavily-extract",
             "tavily-map",
@@ -75,6 +91,33 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertRegex(invocation, r"/ark-space:orchestrator\s+\S+")
 
     def test_provider_registry_capabilities_match_skill_metadata(self):
+        self.validate.validate_registry_files()
+
+    def test_agent_registry_matches_frontmatter_and_role_ownership(self):
+        agents = self.validate.parse_simple_yaml_list(ROOT / "registry" / "agents.yaml", "agents")
+        agents_by_id = {item["id"]: item for item in agents}
+
+        knowledge_skills = self.validate.split_csv(agents_by_id["arkspace-knowledge-manager"]["skills"])
+        competitive_skills = self.validate.split_csv(agents_by_id["arkspace-competitive-analyst"]["skills"])
+        doc_writer_skills = self.validate.split_csv(agents_by_id["arkspace-doc-writer"]["skills"])
+        orchestrator_skills = self.validate.split_csv(agents_by_id["arkspace-orchestrator"]["skills"])
+
+        for name in [
+            "firecrawl-search",
+            "firecrawl-scrape",
+            "firecrawl-map",
+            "firecrawl-crawl",
+            "firecrawl-agent",
+            "firecrawl-browser",
+            "firecrawl-interact",
+            "firecrawl-monitor",
+        ]:
+            with self.subTest(skill=name):
+                self.assertIn(name, knowledge_skills)
+                self.assertIn(name, competitive_skills)
+                self.assertNotIn(name, orchestrator_skills)
+
+        self.assertIn("obsidian-markdown", doc_writer_skills)
         self.validate.validate_registry_files()
 
     def test_tavily_extended_capabilities_are_provider_registered(self):
@@ -116,6 +159,25 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertEqual(exa.get("capability"), capability)
                 self.assertIn(f"--capability {capability}", exa.get("checkCommand", ""))
 
+    def test_firecrawl_capabilities_are_provider_registered(self):
+        expectations = {
+            "search-providers.yaml": ("firecrawl-search", "web_search"),
+            "web-fetch-providers.yaml": ("firecrawl-scrape", "web_fetch"),
+            "web-map-providers.yaml": ("firecrawl-map", "web_map"),
+            "web-crawl-providers.yaml": ("firecrawl-crawl", "web_crawl"),
+            "structured-extract-providers.yaml": ("firecrawl-agent", "structured_extract"),
+            "web-interact-providers.yaml": ("firecrawl-browser", "web_interact"),
+            "web-monitor-providers.yaml": ("firecrawl-monitor", "web_monitor"),
+        }
+        for registry_name, (skill, capability) in expectations.items():
+            with self.subTest(registry=registry_name):
+                providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
+                firecrawl = next(item for item in providers if item.get("id") == "firecrawl")
+                self.assertEqual(firecrawl.get("skill"), skill)
+                self.assertEqual(firecrawl.get("capability"), capability)
+                self.assertIn(f"--capability {capability}", firecrawl.get("checkCommand", ""))
+                self.assertIn("provider setup firecrawl --wizard", firecrawl.get("providerConfigCommand", ""))
+
     def test_runtime_instructions_use_installed_arkspace_path(self):
         runtime_paths = [
             ROOT / "registry" / "search-providers.yaml",
@@ -129,6 +191,14 @@ class ValidateSkillsContractTests(unittest.TestCase):
             ROOT / "skills" / "exa-answer" / "SKILL.md",
             ROOT / "skills" / "exa-context" / "SKILL.md",
             ROOT / "skills" / "exa-similar" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-search" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-scrape" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-map" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-crawl" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-agent" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-browser" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-interact" / "SKILL.md",
+            ROOT / "skills" / "firecrawl-monitor" / "SKILL.md",
             ROOT / "skills" / "tavily-search" / "SKILL.md",
             ROOT / "skills" / "tavily-extract" / "SKILL.md",
             ROOT / "skills" / "tavily-map" / "SKILL.md",
@@ -237,10 +307,12 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("Not now", text)
         self.assertIn("provider setup tavily --wizard", text)
         self.assertIn("provider setup exa --wizard", text)
+        self.assertIn("provider setup firecrawl --wizard", text)
         self.assertIn("can provide interactive secret input", text)
         self.assertIn("do not run `--wizard` through that tool", text)
         self.assertIn("provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin", text)
         self.assertIn("provider setup exa --save-secret EXA_API_KEY --secret-stdin", text)
+        self.assertIn("provider setup firecrawl --save-secret FIRECRAWL_API_KEY --secret-stdin", text)
         self.assertIn("rerun the original skill invocation", text)
 
     def test_provider_workflow_allows_fallback_only_after_setup_path(self):

@@ -62,3 +62,26 @@ providers:
     outputFields: url,raw_content,images,failed_results,request_id
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use when local extraction is insufficient, pages need JavaScript rendering, multiple URLs must be processed, or query-focused chunks are needed."
+
+  - id: firecrawl
+    skill: firecrawl-scrape
+    status: active
+    capability: web_fetch
+    providerType: cli-backed-scrape
+    priority: 85
+    privacy: api-backed-cli
+    configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
+    configRequired: true
+    recommendedEnv: FIRECRAWL_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability web_fetch
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    authModes: api_key
+    rotationSupported: true
+    input: url
+    outputFormats: markdown,html,rawHtml,links,screenshot,json
+    outputFields: markdown,html,rawHtml,links,screenshot,metadata,actions,warning
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use for JS-rendered pages, bot-protected pages, Firecrawl caching, main-content extraction, or explicit Firecrawl scrape requests."

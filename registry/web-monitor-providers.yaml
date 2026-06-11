@@ -1,0 +1,24 @@
+defaultWebMonitorPolicy: explicit-confirmation-for-recurring-jobs
+
+providers:
+  - id: firecrawl
+    skill: firecrawl-monitor
+    status: active
+    capability: web_monitor
+    providerType: cli-backed-monitor
+    priority: 90
+    privacy: api-backed-cli
+    configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
+    configRequired: true
+    recommendedEnv: FIRECRAWL_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability web_monitor
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    authModes: api_key
+    rotationSupported: true
+    input: monitor_target,schedule,goal
+    outputFields: id,status,schedule,targets,lastCheck,checks
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use for recurring scrape or crawl monitoring. Confirm schedule, target, and notification behavior before creating or mutating monitors."

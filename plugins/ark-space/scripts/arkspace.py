@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 PROVIDER_CHECK_COMMANDS = {
+    ("defuddle", "web_fetch"): ["defuddle", "--version"],
     ("searxng", "web_search"): [sys.executable, "skills/searxng-search/scripts/searxng_search.py", "--check"],
     ("tavily", "web_search"): [sys.executable, "skills/tavily-search/scripts/tavily_search.py", "--check"],
     ("tavily", "web_fetch"): [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py", "--check"],
@@ -18,16 +19,26 @@ PROVIDER_CHECK_COMMANDS = {
     ("exa", "deep_research"): [sys.executable, "skills/exa-answer/scripts/exa_answer.py", "--check"],
     ("exa", "code_context"): [sys.executable, "skills/exa-context/scripts/exa_context.py", "--check"],
     ("exa", "related_pages"): [sys.executable, "skills/exa-similar/scripts/exa_similar.py", "--check"],
+    ("firecrawl", "web_search"): [sys.executable, "skills/firecrawl-search/scripts/firecrawl_search.py", "--check"],
+    ("firecrawl", "web_fetch"): [sys.executable, "skills/firecrawl-scrape/scripts/firecrawl_scrape.py", "--check"],
+    ("firecrawl", "web_map"): [sys.executable, "skills/firecrawl-map/scripts/firecrawl_map.py", "--check"],
+    ("firecrawl", "web_crawl"): [sys.executable, "skills/firecrawl-crawl/scripts/firecrawl_crawl.py", "--check"],
+    ("firecrawl", "structured_extract"): [sys.executable, "skills/firecrawl-agent/scripts/firecrawl_agent.py", "--check"],
+    ("firecrawl", "web_interact"): [sys.executable, "skills/firecrawl-browser/scripts/firecrawl_browser.py", "--check"],
+    ("firecrawl", "web_monitor"): [sys.executable, "skills/firecrawl-monitor/scripts/firecrawl_monitor.py", "--check"],
 }
 
 WEB_SEARCH_COMMANDS = {
     "exa": [sys.executable, "skills/exa-search/scripts/exa_search.py"],
+    "firecrawl": [sys.executable, "skills/firecrawl-search/scripts/firecrawl_search.py"],
     "searxng": [sys.executable, "skills/searxng-search/scripts/searxng_search.py"],
     "tavily": [sys.executable, "skills/tavily-search/scripts/tavily_search.py"],
 }
 
 WEB_FETCH_COMMANDS = {
+    "defuddle": ["defuddle", "parse"],
     "exa": [sys.executable, "skills/exa-contents/scripts/exa_contents.py"],
+    "firecrawl": [sys.executable, "skills/firecrawl-scrape/scripts/firecrawl_scrape.py"],
     "tavily": [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py"],
 }
 
@@ -36,10 +47,12 @@ WEB_SIMILAR_COMMANDS = {
 }
 
 SITE_MAP_COMMANDS = {
+    "firecrawl": [sys.executable, "skills/firecrawl-map/scripts/firecrawl_map.py"],
     "tavily": [sys.executable, "skills/tavily-map/scripts/tavily_map.py"],
 }
 
 SITE_CRAWL_COMMANDS = {
+    "firecrawl": [sys.executable, "skills/firecrawl-crawl/scripts/firecrawl_crawl.py"],
     "tavily": [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py"],
 }
 
@@ -50,6 +63,22 @@ RESEARCH_COMMANDS = {
 
 CODE_CONTEXT_COMMANDS = {
     "exa": [sys.executable, "skills/exa-context/scripts/exa_context.py"],
+}
+
+STRUCTURED_EXTRACT_COMMANDS = {
+    "firecrawl": [sys.executable, "skills/firecrawl-agent/scripts/firecrawl_agent.py"],
+}
+
+BROWSER_COMMANDS = {
+    "firecrawl": [sys.executable, "skills/firecrawl-browser/scripts/firecrawl_browser.py"],
+}
+
+INTERACT_COMMANDS = {
+    "firecrawl": [sys.executable, "skills/firecrawl-interact/scripts/firecrawl_interact.py"],
+}
+
+MONITOR_COMMANDS = {
+    "firecrawl": [sys.executable, "skills/firecrawl-monitor/scripts/firecrawl_monitor.py"],
 }
 
 
@@ -171,6 +200,9 @@ def main():
     web_fetch.add_argument("--query")
     web_fetch.add_argument("--extract-depth")
     web_fetch.add_argument("--chunks-per-source")
+    web_fetch.add_argument("--format")
+    web_fetch.add_argument("--only-main-content", action="store_true")
+    web_fetch.add_argument("--wait-for")
     web_fetch.add_argument("--include-images", action="store_true")
     web_fetch.add_argument("--include-summary", action="store_true")
     web_fetch.add_argument("--include-highlights", action="store_true")
@@ -214,6 +246,7 @@ def main():
     site_map.add_argument("url")
     site_map.add_argument("--provider", required=True, choices=sorted(SITE_MAP_COMMANDS))
     site_map.add_argument("--instructions")
+    site_map.add_argument("--search")
     site_map.add_argument("--max-depth")
     site_map.add_argument("--max-breadth")
     site_map.add_argument("--limit")
@@ -238,6 +271,7 @@ def main():
     site_crawl.add_argument("--max-breadth")
     site_crawl.add_argument("--limit")
     site_crawl.add_argument("--select-paths")
+    site_crawl.add_argument("--include-paths")
     site_crawl.add_argument("--exclude-paths")
     site_crawl.add_argument("--select-domains")
     site_crawl.add_argument("--exclude-domains")
@@ -291,6 +325,95 @@ def main():
     code_context.add_argument("--state-path")
     code_context.add_argument("--output", choices=["json", "markdown"])
 
+    structured = sub.add_parser("structured")
+    structured_sub = structured.add_subparsers(dest="structured_command", required=True)
+    structured_extract = structured_sub.add_parser("extract")
+    structured_extract.add_argument("prompt")
+    structured_extract.add_argument("--provider", required=True, choices=sorted(STRUCTURED_EXTRACT_COMMANDS))
+    structured_extract.add_argument("--urls")
+    structured_extract.add_argument("--schema")
+    structured_extract.add_argument("--schema-file")
+    structured_extract.add_argument("--model")
+    structured_extract.add_argument("--max-credits")
+    structured_extract.add_argument("--webhook")
+    structured_extract.add_argument("--status", action="store_true")
+    structured_extract.add_argument("--cancel", action="store_true")
+    structured_extract.add_argument("--wait", action="store_true")
+    structured_extract.add_argument("--poll-interval")
+    structured_extract.add_argument("--timeout")
+    structured_extract.add_argument("--run-timeout")
+    structured_extract.add_argument("--config-path")
+    structured_extract.add_argument("--state-path")
+    structured_extract.add_argument("--output", choices=["json", "markdown"])
+
+    browser = sub.add_parser("browser")
+    browser_sub = browser.add_subparsers(dest="browser_command", required=True)
+    browser_run = browser_sub.add_parser("run")
+    browser_run.add_argument("instruction")
+    browser_run.add_argument("--provider", required=True, choices=sorted(BROWSER_COMMANDS))
+    browser_run.add_argument("--profile")
+    browser_run.add_argument("--no-save-changes", action="store_true")
+    browser_run.add_argument("--timeout")
+    browser_run.add_argument("--config-path")
+    browser_run.add_argument("--state-path")
+    browser_run.add_argument("--output", choices=["json", "markdown"])
+
+    interact = sub.add_parser("interact")
+    interact_sub = interact.add_subparsers(dest="interact_command", required=True)
+    interact_run = interact_sub.add_parser("run")
+    interact_run.add_argument("--provider", required=True, choices=sorted(INTERACT_COMMANDS))
+    interact_run.add_argument("--scrape-id")
+    interact_run.add_argument("--prompt")
+    interact_run.add_argument("--code")
+    interact_run.add_argument("--language", choices=["node", "python", "bash"])
+    interact_run.add_argument("--interaction-timeout")
+    interact_run.add_argument("--timeout")
+    interact_run.add_argument("--config-path")
+    interact_run.add_argument("--state-path")
+    interact_run.add_argument("--output", choices=["json", "markdown"])
+
+    interact_stop = interact_sub.add_parser("stop")
+    interact_stop.add_argument("--provider", required=True, choices=sorted(INTERACT_COMMANDS))
+    interact_stop.add_argument("--scrape-id")
+    interact_stop.add_argument("--timeout")
+    interact_stop.add_argument("--config-path")
+    interact_stop.add_argument("--state-path")
+    interact_stop.add_argument("--output", choices=["json", "markdown"])
+
+    monitor = sub.add_parser("monitor")
+    monitor_sub = monitor.add_subparsers(dest="monitor_command", required=True)
+    for action in ["create", "list", "get", "update", "delete", "run", "checks", "check"]:
+        monitor_action = monitor_sub.add_parser(action)
+        monitor_action.add_argument("--provider", required=True, choices=sorted(MONITOR_COMMANDS))
+        if action in {"get", "update", "delete", "run", "checks", "check"}:
+            monitor_action.add_argument("monitor_id")
+        if action == "check":
+            monitor_action.add_argument("check_id")
+        if action in {"create", "update"}:
+            monitor_action.add_argument("--file")
+        monitor_action.add_argument("--name")
+        monitor_action.add_argument("--cron")
+        monitor_action.add_argument("--schedule")
+        monitor_action.add_argument("--timezone")
+        monitor_action.add_argument("--page")
+        monitor_action.add_argument("--scrape-urls")
+        monitor_action.add_argument("--crawl-url")
+        monitor_action.add_argument("--webhook-url")
+        monitor_action.add_argument("--webhook-events")
+        monitor_action.add_argument("--email")
+        monitor_action.add_argument("--retention-days")
+        monitor_action.add_argument("--goal")
+        monitor_action.add_argument("--state")
+        monitor_action.add_argument("--limit")
+        monitor_action.add_argument("--offset")
+        monitor_action.add_argument("--skip")
+        monitor_action.add_argument("--page-status")
+        monitor_action.add_argument("--pretty", action="store_true")
+        monitor_action.add_argument("--timeout")
+        monitor_action.add_argument("--config-path")
+        monitor_action.add_argument("--state-path")
+        monitor_action.add_argument("--output", choices=["json", "markdown"])
+
     convert = sub.add_parser("convert")
     convert.add_argument("--host", choices=["codex", "claude-code", "all"], default="all")
     convert.add_argument("--check", action="store_true")
@@ -309,7 +432,8 @@ def main():
     smoke.add_argument("--routing", action="store_true")
     smoke.add_argument("--live-codex", action="store_true")
 
-    sub.add_parser("doctor")
+    doctor = sub.add_parser("doctor")
+    doctor.add_argument("--installed-host", choices=["codex", "claude-code", "all"])
 
     args = parser.parse_args()
     if args.command == "validate":
@@ -326,6 +450,14 @@ def main():
         return run_or_cli_error(research_command, args)
     if args.command == "code":
         return run_or_cli_error(code_command, args)
+    if args.command == "structured":
+        return run_or_cli_error(structured_command, args)
+    if args.command == "browser":
+        return run_or_cli_error(browser_command, args)
+    if args.command == "interact":
+        return run_or_cli_error(interact_command, args)
+    if args.command == "monitor":
+        return run_or_cli_error(monitor_command, args)
     if args.command == "convert":
         cmd = [sys.executable, "scripts/convert-agents.py", "--host", args.host]
         if args.check:
@@ -371,7 +503,15 @@ def main():
             [sys.executable, "scripts/smoke-test-callability.py", "--host", "claude-code", "--local"],
         )
         status |= run_gate("orchestrator-routing-contract: static", [sys.executable, "scripts/smoke-test-orchestrator-routing.py"])
-        print("[arkspace doctor] installed-host: unverified (run smoke-test --installed-host codex|claude-code)")
+        if args.installed_host:
+            hosts = ["codex", "claude-code"] if args.installed_host == "all" else [args.installed_host]
+            for host in hosts:
+                status |= run_gate(
+                    f"installed-host: {host}",
+                    [sys.executable, "scripts/smoke-test-installed-host.py", "--host", host],
+                )
+        else:
+            print("[arkspace doctor] installed-host: unverified (run doctor --installed-host codex|claude-code|all)")
         return status
     return 2
 
@@ -382,7 +522,9 @@ def provider_command(args):
         command = PROVIDER_CHECK_COMMANDS.get((args.provider, capability))
         if not command:
             raise CliError(f"provider {args.provider} does not have a {capability} check")
-        return append_path_flags([*command], args, include_state=args.provider in {"tavily", "exa"})
+        if args.provider in {"tavily", "exa", "firecrawl"}:
+            return append_path_flags([*command], args, include_state=True)
+        return [*command]
 
     cmd = [sys.executable, "scripts/arkspace_provider.py"]
     cmd = append_path_flags(cmd, args, include_state=True)
@@ -504,6 +646,46 @@ def web_command(args):
             if args.moderation:
                 cmd.append("--moderation")
             return cmd
+        if args.provider == "firecrawl":
+            if args.base_url:
+                raise CliError("firecrawl web search does not accept --base-url; use provider setup firecrawl --base-url <url>")
+            if (
+                args.search_depth
+                or args.topic
+                or args.time_range
+                or args.include_answer
+                or args.search_type
+                or args.freshness
+                or args.start_crawl_date
+                or args.end_crawl_date
+                or args.start_published_date
+                or args.end_published_date
+                or args.include_highlights
+                or args.include_summary
+                or args.text_max_characters
+                or args.highlight_query
+                or args.highlight_num_sentences
+                or args.highlights_per_url
+                or args.highlight_max_characters
+                or args.summary_query
+                or args.additional_queries
+                or args.user_location
+                or args.output_schema
+                or args.system_prompt
+                or args.stream
+                or args.moderation
+            ):
+                raise CliError("firecrawl web search does not support Exa/Tavily-specific search options")
+            for name in ["max_results", "category", "timeout", "config_path", "state_path", "output"]:
+                value = getattr(args, name)
+                if value:
+                    flag = "--categories" if name == "category" else f"--{name.replace('_', '-')}"
+                    cmd.extend([flag, value])
+            if args.include_domains or args.exclude_domains:
+                raise CliError("firecrawl web search does not support domain include/exclude filters through ArkSpace yet")
+            if args.include_text:
+                cmd.append("--include-text")
+            return cmd
         if args.base_url:
             raise CliError("tavily web search does not accept --base-url; use provider setup tavily --base-url <url>")
         if (
@@ -567,6 +749,69 @@ def web_command(args):
                 if getattr(args, name):
                     cmd.append(f"--{name.replace('_', '-')}")
             return cmd
+        if args.provider == "firecrawl":
+            if not args.urls:
+                raise CliError("firecrawl web fetch requires at least one URL")
+            if (
+                args.ids
+                or args.extract_depth
+                or args.chunks_per_source
+                or args.include_images
+                or args.include_summary
+                or args.include_highlights
+                or args.text_max_characters
+                or args.highlight_query
+                or args.highlight_num_sentences
+                or args.highlights_per_url
+                or args.highlight_max_characters
+                or args.summary_query
+                or args.max_age_hours
+                or args.subpages
+                or args.subpage_target
+                or args.include_links
+            ):
+                raise CliError("firecrawl web fetch does not support Exa/Tavily-specific fetch options")
+            for name in ["format", "query", "wait_for", "timeout", "config_path", "state_path", "output"]:
+                value = getattr(args, name)
+                if value:
+                    cmd.extend([f"--{name.replace('_', '-')}", value])
+            if args.only_main_content:
+                cmd.append("--only-main-content")
+            return cmd
+        if args.provider == "defuddle":
+            if len(args.urls) != 1:
+                raise CliError("defuddle web fetch requires exactly one URL")
+            if (
+                args.ids
+                or args.query
+                or args.extract_depth
+                or args.chunks_per_source
+                or args.format
+                or args.only_main_content
+                or args.wait_for
+                or args.include_images
+                or args.include_summary
+                or args.include_highlights
+                or args.text_max_characters
+                or args.highlight_query
+                or args.highlight_num_sentences
+                or args.highlights_per_url
+                or args.highlight_max_characters
+                or args.summary_query
+                or args.max_age_hours
+                or args.subpages
+                or args.subpage_target
+                or args.include_links
+                or args.timeout
+                or args.config_path
+                or args.state_path
+            ):
+                raise CliError("defuddle web fetch supports only URL plus --output json|markdown")
+            if args.output == "json":
+                cmd.append("--json")
+            else:
+                cmd.append("--md")
+            return cmd
         if not args.urls:
             raise CliError("tavily web fetch requires at least one URL")
         if (
@@ -621,6 +866,25 @@ def web_command(args):
 def site_command(args):
     if args.site_command == "map":
         cmd = [*SITE_MAP_COMMANDS[args.provider], args.url]
+        if args.provider == "firecrawl":
+            for name in ["search", "limit", "timeout", "config_path", "state_path", "output"]:
+                value = getattr(args, name)
+                if value:
+                    cmd.extend([f"--{name.replace('_', '-')}", value])
+            if (
+                args.instructions
+                or args.max_depth
+                or args.max_breadth
+                or args.select_paths
+                or args.exclude_paths
+                or args.select_domains
+                or args.exclude_domains
+                or args.allow_external
+                or args.no_external
+                or args.include_usage
+            ):
+                raise CliError("firecrawl site map does not support Tavily-specific map options")
+            return cmd
         for name in [
             "instructions",
             "max_depth",
@@ -645,6 +909,30 @@ def site_command(args):
 
     if args.site_command == "crawl":
         cmd = [*SITE_CRAWL_COMMANDS[args.provider], args.url]
+        if args.provider == "firecrawl":
+            include_paths = args.include_paths or args.select_paths
+            if include_paths:
+                cmd.extend(["--include-paths", include_paths])
+            for name in ["max_depth", "limit", "exclude_paths", "timeout", "config_path", "state_path", "output"]:
+                value = getattr(args, name)
+                if value:
+                    cmd.extend([f"--{name.replace('_', '-')}", value])
+            if (
+                args.instructions
+                or args.chunks_per_source
+                or args.max_breadth
+                or args.select_domains
+                or args.exclude_domains
+                or args.allow_external
+                or args.no_external
+                or args.include_images
+                or args.include_favicon
+                or args.extract_depth
+                or args.format
+                or args.include_usage
+            ):
+                raise CliError("firecrawl site crawl does not support Tavily-specific crawl options")
+            return cmd
         for name in [
             "instructions",
             "chunks_per_source",
@@ -728,6 +1016,106 @@ def code_command(args):
         return cmd
 
     raise ValueError(f"unknown code command {args.code_command}")
+
+
+def structured_command(args):
+    if args.structured_command == "extract":
+        cmd = [*STRUCTURED_EXTRACT_COMMANDS[args.provider], args.prompt]
+        for name in [
+            "urls",
+            "schema",
+            "schema_file",
+            "model",
+            "max_credits",
+            "webhook",
+            "poll_interval",
+            "timeout",
+            "run_timeout",
+            "config_path",
+            "state_path",
+            "output",
+        ]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        for name in ["status", "cancel", "wait"]:
+            if getattr(args, name):
+                cmd.append(f"--{name.replace('_', '-')}")
+        return cmd
+
+    raise ValueError(f"unknown structured command {args.structured_command}")
+
+
+def browser_command(args):
+    if args.browser_command == "run":
+        cmd = [*BROWSER_COMMANDS[args.provider], args.instruction]
+        for name in ["profile", "timeout", "config_path", "state_path", "output"]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        if args.no_save_changes:
+            cmd.append("--no-save-changes")
+        return cmd
+
+    raise ValueError(f"unknown browser command {args.browser_command}")
+
+
+def interact_command(args):
+    cmd = [*INTERACT_COMMANDS[args.provider]]
+    if args.interact_command == "stop":
+        cmd.append("--stop")
+    for name in [
+        "scrape_id",
+        "prompt",
+        "code",
+        "language",
+        "interaction_timeout",
+        "timeout",
+        "config_path",
+        "state_path",
+        "output",
+    ]:
+        value = getattr(args, name, None)
+        if value:
+            cmd.extend([f"--{name.replace('_', '-')}", value])
+    return cmd
+
+
+def monitor_command(args):
+    cmd = [*MONITOR_COMMANDS[args.provider], args.monitor_command]
+    for name in ["monitor_id", "check_id", "file"]:
+        value = getattr(args, name, None)
+        if value:
+            cmd.append(value)
+    for name in [
+        "name",
+        "cron",
+        "schedule",
+        "timezone",
+        "page",
+        "scrape_urls",
+        "crawl_url",
+        "webhook_url",
+        "webhook_events",
+        "email",
+        "retention_days",
+        "goal",
+        "state",
+        "limit",
+        "offset",
+        "skip",
+        "page_status",
+        "timeout",
+        "config_path",
+        "state_path",
+        "output",
+    ]:
+        value = getattr(args, name, None)
+        if value:
+            cmd.extend([f"--{name.replace('_', '-')}", value])
+    if getattr(args, "pretty", False):
+        cmd.append("--pretty")
+    return cmd
 
 
 def append_value_flags(cmd, args, names):

@@ -22,3 +22,25 @@ providers:
     outputFields: base_url,results,usage,request_id,response_time
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use when the site is known but the exact URL is not, or before crawl/extract on large sites."
+
+  - id: firecrawl
+    skill: firecrawl-map
+    status: active
+    capability: web_map
+    providerType: cli-backed-site-map
+    priority: 90
+    privacy: api-backed-cli
+    configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
+    configRequired: true
+    recommendedEnv: FIRECRAWL_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability web_map
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    authModes: api_key
+    rotationSupported: true
+    input: site_url
+    outputFields: links,url,title,description
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use when the site is known but the exact URL is not, especially before Firecrawl scrape or crawl."

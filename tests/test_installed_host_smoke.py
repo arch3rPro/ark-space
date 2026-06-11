@@ -45,6 +45,12 @@ class InstalledHostSmokeTests(unittest.TestCase):
 
         self.assertEqual(self.module.check_installed_host("codex", self.cache_root), 1)
 
+    def test_installed_host_fails_when_new_skill_file_is_missing(self):
+        installed_root = self.copy_codex_package_to_cache()
+        (installed_root / "skills" / "firecrawl-search" / "SKILL.md").unlink()
+
+        self.assertEqual(self.module.check_installed_host("codex", self.cache_root), 1)
+
     def test_installed_host_fails_when_cache_is_missing(self):
         self.assertEqual(self.module.check_installed_host("codex", self.cache_root), 1)
 

@@ -92,6 +92,43 @@ class ArkspaceCliTests(unittest.TestCase):
                     [*expected, "--config-path", "/tmp/providers.json", "--state-path", "/tmp/state.json"],
                 )
 
+    def test_provider_check_firecrawl_capabilities_delegate_to_helpers(self):
+        expectations = {
+            "web_search": [sys.executable, "skills/firecrawl-search/scripts/firecrawl_search.py", "--check"],
+            "web_fetch": [sys.executable, "skills/firecrawl-scrape/scripts/firecrawl_scrape.py", "--check"],
+            "web_map": [sys.executable, "skills/firecrawl-map/scripts/firecrawl_map.py", "--check"],
+            "web_crawl": [sys.executable, "skills/firecrawl-crawl/scripts/firecrawl_crawl.py", "--check"],
+            "structured_extract": [sys.executable, "skills/firecrawl-agent/scripts/firecrawl_agent.py", "--check"],
+            "web_interact": [sys.executable, "skills/firecrawl-browser/scripts/firecrawl_browser.py", "--check"],
+            "web_monitor": [sys.executable, "skills/firecrawl-monitor/scripts/firecrawl_monitor.py", "--check"],
+        }
+        for capability, expected in expectations.items():
+            with self.subTest(capability=capability):
+                status, calls = self.run_cli(
+                    [
+                        "provider",
+                        "check",
+                        "firecrawl",
+                        "--capability",
+                        capability,
+                        "--config-path",
+                        "/tmp/providers.json",
+                        "--state-path",
+                        "/tmp/state.json",
+                    ]
+                )
+                self.assertEqual(status, 0)
+                self.assertEqual(
+                    calls[0],
+                    [*expected, "--config-path", "/tmp/providers.json", "--state-path", "/tmp/state.json"],
+                )
+
+    def test_provider_check_defuddle_delegates_to_cli_version(self):
+        status, calls = self.run_cli(["provider", "check", "defuddle", "--capability", "web_fetch"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls[0], ["defuddle", "--version"])
+
     def test_provider_resolve_forwards_custom_config_and_state_paths(self):
         status, calls = self.run_cli(
             [
@@ -276,6 +313,13 @@ class ArkspaceCliTests(unittest.TestCase):
             ],
         )
 
+    def test_doctor_can_require_installed_host_gates(self):
+        status, calls = self.run_cli(["doctor", "--installed-host", "all"])
+
+        self.assertEqual(status, 0)
+        self.assertIn([sys.executable, "scripts/smoke-test-installed-host.py", "--host", "codex"], calls)
+        self.assertIn([sys.executable, "scripts/smoke-test-installed-host.py", "--host", "claude-code"], calls)
+
     def test_web_search_tavily_delegates_to_tavily_search_helper(self):
         status, calls = self.run_cli(
             ["web", "search", "--provider", "tavily", "--max-results", "3", "--output", "json", "agent skills"]
@@ -384,6 +428,266 @@ class ArkspaceCliTests(unittest.TestCase):
                 "--include-highlights",
                 "--include-summary",
                 "--moderation",
+            ],
+        )
+
+    def test_web_search_firecrawl_delegates_to_firecrawl_search_helper(self):
+        status, calls = self.run_cli(
+            [
+                "web",
+                "search",
+                "--provider",
+                "firecrawl",
+                "agent skills",
+                "--max-results",
+                "3",
+                "--include-text",
+                "--timeout",
+                "45",
+                "--output",
+                "json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-search/scripts/firecrawl_search.py",
+                "agent skills",
+                "--max-results",
+                "3",
+                "--timeout",
+                "45",
+                "--output",
+                "json",
+                "--include-text",
+            ],
+        )
+
+    def test_web_fetch_firecrawl_delegates_to_firecrawl_scrape_helper(self):
+        status, calls = self.run_cli(
+            [
+                "web",
+                "fetch",
+                "--provider",
+                "firecrawl",
+                "https://example.com",
+                "--only-main-content",
+                "--format",
+                "markdown,links",
+                "--output",
+                "json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-scrape/scripts/firecrawl_scrape.py",
+                "https://example.com",
+                "--format",
+                "markdown,links",
+                "--output",
+                "json",
+                "--only-main-content",
+            ],
+        )
+
+    def test_web_fetch_defuddle_delegates_to_defuddle_parse(self):
+        status, calls = self.run_cli(["web", "fetch", "--provider", "defuddle", "https://example.com"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls[0], ["defuddle", "parse", "https://example.com", "--md"])
+
+    def test_web_fetch_defuddle_supports_json_output(self):
+        status, calls = self.run_cli(["web", "fetch", "--provider", "defuddle", "https://example.com", "--output", "json"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls[0], ["defuddle", "parse", "https://example.com", "--json"])
+
+    def test_site_firecrawl_map_and_crawl_delegate_to_helpers(self):
+        map_status, map_calls = self.run_cli(
+            ["site", "map", "--provider", "firecrawl", "https://docs.example.com", "--search", "auth", "--limit", "20"]
+        )
+        crawl_status, crawl_calls = self.run_cli(
+            ["site", "crawl", "--provider", "firecrawl", "https://docs.example.com", "--include-paths", "/docs", "--limit", "10"]
+        )
+
+        self.assertEqual(map_status, 0)
+        self.assertEqual(
+            map_calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-map/scripts/firecrawl_map.py",
+                "https://docs.example.com",
+                "--search",
+                "auth",
+                "--limit",
+                "20",
+            ],
+        )
+        self.assertEqual(crawl_status, 0)
+        self.assertEqual(
+            crawl_calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-crawl/scripts/firecrawl_crawl.py",
+                "https://docs.example.com",
+                "--include-paths",
+                "/docs",
+                "--limit",
+                "10",
+            ],
+        )
+
+    def test_structured_extract_firecrawl_delegates_to_agent_helper(self):
+        status, calls = self.run_cli(
+            [
+                "structured",
+                "extract",
+                "--provider",
+                "firecrawl",
+                "extract company pricing",
+                "--urls",
+                "https://example.com/pricing",
+                "--schema",
+                '{"type":"object"}',
+                "--model",
+                "spark-1-mini",
+                "--max-credits",
+                "5",
+                "--wait",
+                "--output",
+                "json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-agent/scripts/firecrawl_agent.py",
+                "extract company pricing",
+                "--urls",
+                "https://example.com/pricing",
+                "--schema",
+                '{"type":"object"}',
+                "--model",
+                "spark-1-mini",
+                "--max-credits",
+                "5",
+                "--output",
+                "json",
+                "--wait",
+            ],
+        )
+
+    def test_browser_firecrawl_run_delegates_to_browser_helper(self):
+        status, calls = self.run_cli(
+            [
+                "browser",
+                "run",
+                "--provider",
+                "firecrawl",
+                "open https://example.com and snapshot",
+                "--profile",
+                "research",
+                "--output",
+                "json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-browser/scripts/firecrawl_browser.py",
+                "open https://example.com and snapshot",
+                "--profile",
+                "research",
+                "--output",
+                "json",
+            ],
+        )
+
+    def test_interact_firecrawl_run_delegates_to_interact_helper(self):
+        status, calls = self.run_cli(
+            [
+                "interact",
+                "run",
+                "--provider",
+                "firecrawl",
+                "--scrape-id",
+                "scrape_123",
+                "--prompt",
+                "click pricing",
+                "--interaction-timeout",
+                "45",
+                "--output",
+                "json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-interact/scripts/firecrawl_interact.py",
+                "--scrape-id",
+                "scrape_123",
+                "--prompt",
+                "click pricing",
+                "--interaction-timeout",
+                "45",
+                "--output",
+                "json",
+            ],
+        )
+
+    def test_monitor_firecrawl_create_delegates_to_monitor_helper(self):
+        status, calls = self.run_cli(
+            [
+                "monitor",
+                "create",
+                "--provider",
+                "firecrawl",
+                "--name",
+                "Blog",
+                "--schedule",
+                "every 30 minutes",
+                "--page",
+                "https://example.com/blog",
+                "--goal",
+                "Alert when a new blog post is published.",
+                "--output",
+                "json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/firecrawl-monitor/scripts/firecrawl_monitor.py",
+                "create",
+                "--name",
+                "Blog",
+                "--schedule",
+                "every 30 minutes",
+                "--page",
+                "https://example.com/blog",
+                "--goal",
+                "Alert when a new blog post is published.",
+                "--output",
+                "json",
             ],
         )
 
@@ -764,7 +1068,7 @@ class ArkspaceCliTests(unittest.TestCase):
             "[arkspace doctor] direct-invocation-contract: codex",
             "[arkspace doctor] direct-invocation-contract: claude-code",
             "[arkspace doctor] orchestrator-routing-contract: static",
-            "[arkspace doctor] installed-host: unverified (run smoke-test --installed-host codex|claude-code)",
+            "[arkspace doctor] installed-host: unverified (run doctor --installed-host codex|claude-code|all)",
         ]
         output = io.StringIO()
         calls = []

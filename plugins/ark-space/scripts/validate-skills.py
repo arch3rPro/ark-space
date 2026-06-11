@@ -4,6 +4,7 @@ import re
 import sys
 import tomllib
 import filecmp
+import importlib.util
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +18,9 @@ VALID_CAPABILITIES = {
     "web_fetch",
     "web_map",
     "web_crawl",
+    "structured_extract",
+    "web_interact",
+    "web_monitor",
     "deep_research",
     "code_context",
     "related_pages",
@@ -81,6 +85,12 @@ def split_csv(value):
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def agent_id_for_role(role_id):
+    if role_id == "orchestrator":
+        return "arkspace-orchestrator"
+    return f"arkspace-{role_id.split('/')[-1]}"
+
+
 def find_readme_included_skill_names():
     names = set()
     in_table = False
@@ -109,6 +119,9 @@ def validate_public_skill_contract(skills):
         "web_fetch",
         "web_map",
         "web_crawl",
+        "structured_extract",
+        "web_interact",
+        "web_monitor",
         "deep_research",
         "code_context",
         "related_pages",
@@ -164,6 +177,11 @@ def parse_frontmatter(path):
             continue
         if raw.startswith("  - ") and current_list:
             data[current_list].append(raw[4:].strip())
+            continue
+        if raw.endswith(":") and not raw.startswith(" "):
+            key = raw[:-1].strip()
+            data[key] = []
+            current_list = key
             continue
         if ": " in raw:
             key, value = raw.split(": ", 1)
@@ -281,6 +299,9 @@ def validate_registry_files():
         registry_dir / "web-fetch-providers.yaml",
         registry_dir / "web-map-providers.yaml",
         registry_dir / "web-crawl-providers.yaml",
+        registry_dir / "structured-extract-providers.yaml",
+        registry_dir / "web-interact-providers.yaml",
+        registry_dir / "web-monitor-providers.yaml",
         registry_dir / "deep-research-providers.yaml",
         registry_dir / "code-context-providers.yaml",
         registry_dir / "related-page-providers.yaml",
@@ -291,6 +312,7 @@ def validate_registry_files():
     skill_names = {item.get("name") for item in skills if item.get("name")}
     skills_by_name = {item.get("name"): item for item in skills if item.get("name")}
     workflow_ids = {item.get("id") for item in workflows if item.get("id")}
+    agents_by_id = {item.get("id"): item for item in agents if item.get("id")}
 
     validate_public_skill_contract(skills)
 
@@ -346,12 +368,38 @@ def validate_registry_files():
         frontmatter = parse_frontmatter(agent_path)
         if frontmatter.get("name") != agent_id:
             fail(f"agent {agent_id} id must match frontmatter name in {path_value}")
-        for skill in split_csv(item.get("skills")):
+        registry_skills = split_csv(item.get("skills"))
+        frontmatter_skills = frontmatter.get("skills", [])
+        if registry_skills != frontmatter_skills:
+            fail(f"agent {agent_id} skills in registry/agents.yaml must match {path_value} frontmatter")
+        for skill in registry_skills:
             if skill not in skill_names:
                 fail(f"agent {agent_id} references unknown skill {skill}")
-        for workflow in split_csv(item.get("workflows")):
+        registry_workflows = split_csv(item.get("workflows"))
+        frontmatter_workflows = frontmatter.get("workflows", [])
+        if registry_workflows != frontmatter_workflows:
+            fail(f"agent {agent_id} workflows in registry/agents.yaml must match {path_value} frontmatter")
+        for workflow in registry_workflows:
             if workflow not in workflow_ids:
                 fail(f"agent {agent_id} references unknown workflow {workflow}")
+
+    for item in skills:
+        if item.get("status") != "active":
+            continue
+        name = item.get("name")
+        assigned_roles = split_csv(item.get("roles"))
+        if not assigned_roles:
+            fail(f"active skill {name} must assign at least one role")
+        for role_id in assigned_roles:
+            if role_id not in role_ids:
+                fail(f"skill {name} references unknown role {role_id}")
+            agent_id = agent_id_for_role(role_id)
+            agent = agents_by_id.get(agent_id)
+            if not agent:
+                fail(f"skill {name} role {role_id} has no callable agent {agent_id}")
+            agent_skills = split_csv(agent.get("skills"))
+            if name not in agent_skills:
+                fail(f"skill {name} role {role_id} must be included in agent {agent_id} skills")
 
     required_workflows = {
         "lightweight-routing",
@@ -413,13 +461,15 @@ def validate_registry_files():
                 fail(f"{provider_kind} {provider_id} must set missingConfigBehavior when configRequired is true")
             if item.get("recommendedEnv") and not item.get("checkCommand"):
                 fail(f"{provider_kind} {provider_id} with recommendedEnv must set checkCommand")
-            if provider_id in {"tavily", "exa"}:
+            if provider_id in {"tavily", "exa", "firecrawl"}:
                 provider_config_command = item.get("providerConfigCommand", "")
                 values = " ".join(str(value) for value in item.values())
                 if f"provider setup {provider_id} --wizard" not in provider_config_command:
                     fail(f"{provider_kind} {provider_id} must use provider setup {provider_id} --wizard in providerConfigCommand")
                 if f"provider configure {provider_id}" in values or f"provider add-key {provider_id}" in values:
                     fail(f"{provider_kind} {provider_id} registry metadata must not use old configure/add-key setup")
+
+    validate_provider_dispatch(provider_registry_paths)
 
 
 def provider_registry_metadata(filename):
@@ -454,6 +504,24 @@ def provider_registry_metadata(filename):
             "policy_name": "defaultResearchPolicy",
             "policy_pattern": r"^defaultResearchPolicy:\s*.+$",
         },
+        "structured-extract-providers.yaml": {
+            "capability": "structured_extract",
+            "kind": "structured extract provider",
+            "policy_name": "defaultStructuredExtractPolicy",
+            "policy_pattern": r"^defaultStructuredExtractPolicy:\s*.+$",
+        },
+        "web-interact-providers.yaml": {
+            "capability": "web_interact",
+            "kind": "web interact provider",
+            "policy_name": "defaultWebInteractPolicy",
+            "policy_pattern": r"^defaultWebInteractPolicy:\s*.+$",
+        },
+        "web-monitor-providers.yaml": {
+            "capability": "web_monitor",
+            "kind": "web monitor provider",
+            "policy_name": "defaultWebMonitorPolicy",
+            "policy_pattern": r"^defaultWebMonitorPolicy:\s*.+$",
+        },
         "code-context-providers.yaml": {
             "capability": "code_context",
             "kind": "code context provider",
@@ -470,6 +538,47 @@ def provider_registry_metadata(filename):
     if filename not in metadata:
         fail(f"unknown provider registry {filename}")
     return metadata[filename]
+
+
+def load_arkspace_cli():
+    spec = importlib.util.spec_from_file_location("arkspace_cli_validation_module", ROOT / "scripts" / "arkspace.py")
+    module = importlib.util.module_from_spec(spec)
+    if spec.loader is None:
+        fail("unable to load scripts/arkspace.py")
+    spec.loader.exec_module(module)
+    return module
+
+
+def validate_provider_dispatch(provider_registry_paths):
+    arkspace = load_arkspace_cli()
+    capability_command_maps = {
+        "web_search": arkspace.WEB_SEARCH_COMMANDS,
+        "web_fetch": arkspace.WEB_FETCH_COMMANDS,
+        "web_map": arkspace.SITE_MAP_COMMANDS,
+        "web_crawl": arkspace.SITE_CRAWL_COMMANDS,
+        "deep_research": arkspace.RESEARCH_COMMANDS,
+        "code_context": arkspace.CODE_CONTEXT_COMMANDS,
+        "related_pages": arkspace.WEB_SIMILAR_COMMANDS,
+        "structured_extract": arkspace.STRUCTURED_EXTRACT_COMMANDS,
+        "web_interact": arkspace.BROWSER_COMMANDS,
+        "web_monitor": arkspace.MONITOR_COMMANDS,
+    }
+    for provider_path in provider_registry_paths:
+        if not provider_path.exists():
+            continue
+        expected_capability = provider_registry_metadata(provider_path.name)["capability"]
+        command_map = capability_command_maps.get(expected_capability)
+        if command_map is None:
+            fail(f"scripts/arkspace.py has no command map for capability {expected_capability}")
+        providers = parse_simple_yaml_list(provider_path, "providers")
+        for item in providers:
+            if item.get("status") != "active":
+                continue
+            provider_id = item.get("id")
+            if (provider_id, expected_capability) not in arkspace.PROVIDER_CHECK_COMMANDS:
+                fail(f"scripts/arkspace.py missing provider check dispatch for {provider_id}/{expected_capability}")
+            if provider_id not in command_map:
+                fail(f"scripts/arkspace.py missing {expected_capability} command dispatch for provider {provider_id}")
 
 
 def validate_agent_frontmatter():

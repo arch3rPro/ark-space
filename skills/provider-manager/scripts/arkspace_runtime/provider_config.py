@@ -139,13 +139,13 @@ def arkspace_command() -> str:
 
 
 def configure_hint(provider_id: str) -> str:
-    if provider_id in {"tavily", "exa"}:
+    if provider_id in {"tavily", "exa", "firecrawl"}:
         return f"`{arkspace_command()} provider setup {provider_id} --wizard`"
     return f"`{arkspace_command()} provider configure {provider_id} --base-url <url>`"
 
 
 def add_key_hint(provider_id: str) -> str:
-    if provider_id in {"tavily", "exa"}:
+    if provider_id in {"tavily", "exa", "firecrawl"}:
         return f"`{arkspace_command()} provider setup {provider_id} --wizard`"
     return f"`{arkspace_command()} provider add-key {provider_id} --env <ENV_NAME>`"
 

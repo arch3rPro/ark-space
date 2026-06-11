@@ -1,0 +1,24 @@
+defaultStructuredExtractPolicy: schema-first-provider-second
+
+providers:
+  - id: firecrawl
+    skill: firecrawl-agent
+    status: active
+    capability: structured_extract
+    providerType: cli-backed-agent
+    priority: 90
+    privacy: api-backed-cli
+    configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
+    configRequired: true
+    recommendedEnv: FIRECRAWL_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability structured_extract
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    authModes: api_key
+    rotationSupported: true
+    input: prompt,urls,schema
+    outputFields: jobId,status,data,creditsUsed,expiresAt
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use for schema-guided extraction or multi-step web data collection when a simple scrape is not enough."

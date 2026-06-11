@@ -22,3 +22,25 @@ providers:
     outputFields: base_url,results,usage,request_id,response_time
     roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
     notes: "Use for multi-page extraction from a known site section. Start with shallow depth and small limits."
+
+  - id: firecrawl
+    skill: firecrawl-crawl
+    status: active
+    capability: web_crawl
+    providerType: cli-backed-crawl
+    priority: 90
+    privacy: api-backed-cli
+    configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
+    configRequired: true
+    recommendedEnv: FIRECRAWL_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability web_crawl
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    authModes: api_key
+    rotationSupported: true
+    input: site_url
+    outputFields: id,status,total,completed,creditsUsed,data,markdown,metadata
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use for multi-page extraction from a known site section when Firecrawl CLI-backed crawling is requested or useful."

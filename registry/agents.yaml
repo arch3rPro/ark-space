@@ -26,14 +26,14 @@ agents:
   - id: arkspace-doc-writer
     path: agents/docs/doc-writer.md
     domain: docs
-    skills: orchestrator
+    skills: orchestrator,obsidian-markdown
     workflows: quality-gates
     hosts: claude-code,codex
 
   - id: arkspace-knowledge-manager
     path: agents/docs/knowledge-manager.md
     domain: docs
-    skills: orchestrator,searxng-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
+    skills: orchestrator,searxng-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,firecrawl-browser,firecrawl-interact,firecrawl-monitor,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -47,7 +47,7 @@ agents:
   - id: arkspace-competitive-analyst
     path: agents/product/competitive-analyst.md
     domain: product
-    skills: orchestrator,searxng-search,exa-search,exa-contents,exa-answer,exa-similar,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
+    skills: orchestrator,searxng-search,exa-search,exa-contents,exa-answer,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,firecrawl-browser,firecrawl-interact,firecrawl-monitor,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 

@@ -92,6 +92,21 @@ sources:
     syncPolicy: adapted
     notes: "Official Exa Find Similar API used for ArkSpace exa-similar related page discovery."
 
+  - id: firecrawl-cli
+    type: github
+    repo: firecrawl/cli
+    documentation: https://docs.firecrawl.dev/quickstarts/openclaw
+    license: MIT
+    syncPolicy: adapted
+    notes: "Official Firecrawl CLI and agent skills used as upstream structure for ArkSpace Firecrawl search, scrape, map, crawl, agent, browser, interact, and monitor skills while keeping ArkSpace provider-manager as the runtime configuration layer."
+
+  - id: openclaw-firecrawl
+    type: documentation
+    url: https://docs.openclaw.ai/tools/firecrawl
+    license: unknown
+    syncPolicy: reference-only
+    notes: "Referenced for Firecrawl as web_search and web_fetch provider, explicit search/scrape tools, base URL configuration, and target-safety concerns."
+
   - id: hermes-exa-provider
     type: github
     repo: NousResearch/hermes-agent

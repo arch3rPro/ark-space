@@ -1,0 +1,24 @@
+defaultWebInteractPolicy: browser-when-interaction-required
+
+providers:
+  - id: firecrawl
+    skill: firecrawl-browser
+    status: active
+    capability: web_interact
+    providerType: cli-backed-browser
+    priority: 90
+    privacy: api-backed-cli
+    configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
+    configRequired: true
+    recommendedEnv: FIRECRAWL_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability web_interact
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    authModes: api_key
+    rotationSupported: true
+    input: browser_instruction
+    outputFields: stdout,result,liveViewUrl,interactiveLiveViewUrl,sessionId
+    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    notes: "Use only when live browser state or page interaction is required. For scrape-bound sessions, use firecrawl-interact after Firecrawl scrape."

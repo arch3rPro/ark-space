@@ -10,9 +10,21 @@ ArkSpace uses lightweight quality gates only when risk or handoff boundaries jus
 - Verification method is named.
 - Handoff context is preserved when another agent takes over.
 
+## Risk Levels
+
+| Risk | Examples | Required Evidence |
+|---|---|---|
+| Documentation-only | README, docs, examples | File references and rendered or syntax check when available |
+| Registry-only | Skill, agent, workflow, provider metadata | `python3 scripts/validate-skills.py` |
+| Runtime wrapper | Provider scripts, CLI dispatch, config handling | Unit tests or mocked runtime tests plus validation |
+| Package/install | Plugin manifests, package mirror, generated integrations | `python3 scripts/arkspace.py doctor` and package mirror checks |
+| Installed host | Claude Code or Codex skill discovery/invocation | `python3 scripts/arkspace.py smoke-test --installed-host <host>` or direct host evidence |
+
 ## Retry Rule
 
 When validation fails, fix the specific failure and rerun the same check. After three failed attempts on the same issue, stop and report the blocker with evidence, attempted fixes, and the smallest next decision needed.
+
+If a gate fails because the environment is stale, refresh or reinstall the relevant package/cache before changing source behavior. Do not treat source validation as installed-host success.
 
 ## Evidence
 
@@ -29,3 +41,12 @@ Prefer direct evidence: command output, tests, screenshots, generated files, sou
 | Installed host | A restarted host session discovers the installed plugin and accepts the documented `/ark-space:...` invocation |
 
 Installed-host success must be validated in the host. It must not be inferred from local script success, provider checks, or packaged file comparison alone.
+
+## Readiness Labels
+
+- Source-ready: repository validation and relevant tests pass.
+- Package-ready: generated package mirrors the source tree.
+- Installed-host-ready: the target host cache contains the expected package content and accepts documented invocation.
+- Live-provider-ready: provider configuration is present and a real provider call or check succeeds.
+
+Use the most specific readiness label supported by evidence.

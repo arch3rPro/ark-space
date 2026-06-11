@@ -10,6 +10,17 @@ ArkSpace routes work by intent, artifact, and risk.
 4. For web work, select the capability, then follow `workflows/provider-capabilities.md` before execution.
 5. Ask one focused question only when a wrong route would materially change the result.
 
+## Route Shape
+
+Use the simplest route that can produce verified output.
+
+| Shape | Use When | Pattern |
+|---|---|---|
+| Single agent | One domain owns the artifact | Orchestrator -> owner agent -> evidence |
+| Sequential workflow | Work has dependent phases | Orchestrator -> planner/researcher -> implementer/writer -> reviewer/gate |
+| Parallel workflow | Independent research or review tracks can run without shared state | Orchestrator -> independent owners -> merge evidence |
+| Stop and report | Required skill, host support, provider config, or evidence is unavailable | Orchestrator -> blocker report -> smallest next action |
+
 ## Default Routes
 
 | Intent | Agent |
@@ -26,3 +37,17 @@ ArkSpace routes work by intent, artifact, and risk.
 ## Escalation
 
 Use design-first handling when the task changes shared structure, creates a new workflow, spans multiple domains, or needs explicit approval before implementation.
+
+## Workflow Templates
+
+| Template | Flow |
+|---|---|
+| PRD to implementation | `prd-planner` clarifies scope -> `code-engineer` implements -> `code-reviewer` checks risk -> `doc-writer` updates docs when needed |
+| Research to documentation | `knowledge-manager` gathers and fetches sources -> `doc-writer` writes the artifact -> quality gate verifies source/file references |
+| Competitive evidence | `competitive-analyst` discovers and fetches sources -> optional `prd-planner` converts findings into product decisions |
+| Skill adoption | `skill-manager` records source and registry metadata -> `code-engineer` implements runtime scripts when needed -> `skill-manager` validates package and installed-host evidence |
+| Provider setup | `provider-manager` checks configuration -> setup flow persists local config -> original owner retries the requested provider task |
+
+## Provider Routing Boundary
+
+The Orchestrator routes provider work; it does not need to own every provider skill directly. Provider skills should belong to the agent roles that execute the work. Keep `registry/skills.yaml`, `registry/agents.yaml`, and `agents/*.md` aligned so this boundary is enforceable.
