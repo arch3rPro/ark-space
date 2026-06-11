@@ -9,6 +9,7 @@ Use a direct skill path when the caller already knows the skill or provider to u
 ```text
 /ark-space:tavily-search search claude-code-everything
 /ark-space:searxng-search search claude-code-everything
+/ark-space:arxiv-search search diffusion transformers
 /ark-space:exa-search search Claude Code plugin docs
 /ark-space:exa-contents extract https://example.com/article
 /ark-space:exa-answer answer what changed in AI coding agents in 2025
@@ -36,6 +37,7 @@ Use the Orchestrator path when ArkSpace should choose the role, workflow, provid
 
 ```text
 /ark-space:orchestrator use Tavily to search claude-code-everything
+/ark-space:orchestrator search arXiv papers about diffusion transformers
 /ark-space:orchestrator use Exa to search Claude Code plugin docs
 /ark-space:orchestrator use Exa to find React hooks state management examples
 /ark-space:orchestrator use Firecrawl to scrape https://example.com

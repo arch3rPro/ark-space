@@ -42,6 +42,15 @@ class ArkspaceCliTests(unittest.TestCase):
             [sys.executable, "skills/tavily-search/scripts/tavily_search.py", "--check"],
         )
 
+    def test_provider_check_arxiv_delegates_to_arxiv_search_check(self):
+        status, calls = self.run_cli(["provider", "check", "arxiv"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py", "--check"],
+        )
+
     def test_provider_check_tavily_fetch_delegates_to_extract_check(self):
         status, calls = self.run_cli(["provider", "check", "tavily", "--capability", "web_fetch"])
 
@@ -366,6 +375,56 @@ class ArkspaceCliTests(unittest.TestCase):
                 "--limit",
                 "3",
             ],
+        )
+
+    def test_web_search_arxiv_delegates_to_arxiv_search_helper(self):
+        status, calls = self.run_cli(
+            [
+                "web",
+                "search",
+                "--provider",
+                "arxiv",
+                "diffusion transformers",
+                "--author",
+                "William Peebles",
+                "--category",
+                "cs.CV",
+                "--max-results",
+                "3",
+                "--sort-by",
+                "submittedDate",
+                "--output",
+                "json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/arxiv-search/scripts/arxiv_search.py",
+                "diffusion transformers",
+                "--max-results",
+                "3",
+                "--category",
+                "cs.CV",
+                "--author",
+                "William Peebles",
+                "--sort-by",
+                "submittedDate",
+                "--output",
+                "json",
+            ],
+        )
+
+    def test_web_search_arxiv_allows_id_list_without_query(self):
+        status, calls = self.run_cli(["web", "search", "--provider", "arxiv", "--id-list", "1706.03762"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py", "", "--id-list", "1706.03762"],
         )
 
     def test_web_search_exa_delegates_to_exa_search_helper(self):

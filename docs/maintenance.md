@@ -86,6 +86,7 @@ Provider setup details live in [provider-configuration.md](provider-configuratio
 
 ```bash
 python3 scripts/arkspace.py provider check searxng --capability web_search
+python3 scripts/arkspace.py provider check arxiv --capability web_search
 python3 scripts/arkspace.py provider check exa --capability web_search
 python3 scripts/arkspace.py provider check tavily --capability web_search
 python3 scripts/arkspace.py provider check firecrawl --capability web_search

@@ -58,6 +58,19 @@ skills:
     categories: research,web,search
     roles: docs/knowledge-manager,product/competitive-analyst
 
+  - name: arxiv-search
+    path: skills/arxiv-search
+    status: active
+    public: true
+    capabilities: web_search
+    providers: arxiv
+    directInvocation: "/ark-space:arxiv-search search diffusion transformers"
+    orchestratorInvocation: "/ark-space:orchestrator search arXiv papers about diffusion transformers"
+    syncMode: adapted
+    upstreamId: arxiv-api
+    categories: research,web,search,academic,papers
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+
   - name: exa-search
     path: skills/exa-search
     status: active

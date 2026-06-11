@@ -44,6 +44,21 @@ sources:
     syncPolicy: reference-only
     notes: "Referenced for the web_search versus web_fetch capability split, URL-first fetch semantics, extraction modes, timeout, fallback, caching, and network-guard concerns."
 
+  - id: arxiv-api
+    type: documentation
+    url: https://arxiv.org/
+    documentation: https://info.arxiv.org/help/api/user-manual.html
+    license: arXiv Terms of Use
+    syncPolicy: adapted
+    notes: "Official arXiv API used for arxiv-search paper discovery, fielded queries, Atom parsing, and API pacing."
+
+  - id: hermes-agent-arxiv
+    type: documentation
+    url: https://hermes-agent.nousresearch.com/docs/user-guide/skills/bundled/research/research-arxiv
+    license: MIT
+    syncPolicy: reference-only
+    notes: "Referenced for arXiv skill scope, query field examples, no-key usage, and search-first paper workflow."
+
   - id: tavily-agent-skills
     type: github
     repo: tavily-ai/skills

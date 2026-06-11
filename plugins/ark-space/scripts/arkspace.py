@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 PROVIDER_CHECK_COMMANDS = {
     ("defuddle", "web_fetch"): ["defuddle", "--version"],
+    ("arxiv", "web_search"): [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py", "--check"],
     ("searxng", "web_search"): [sys.executable, "skills/searxng-search/scripts/searxng_search.py", "--check"],
     ("tavily", "web_search"): [sys.executable, "skills/tavily-search/scripts/tavily_search.py", "--check"],
     ("tavily", "web_fetch"): [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py", "--check"],
@@ -29,6 +30,7 @@ PROVIDER_CHECK_COMMANDS = {
 }
 
 WEB_SEARCH_COMMANDS = {
+    "arxiv": [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py"],
     "exa": [sys.executable, "skills/exa-search/scripts/exa_search.py"],
     "firecrawl": [sys.executable, "skills/firecrawl-search/scripts/firecrawl_search.py"],
     "searxng": [sys.executable, "skills/searxng-search/scripts/searxng_search.py"],
@@ -156,7 +158,7 @@ def main():
     web = sub.add_parser("web")
     web_sub = web.add_subparsers(dest="web_command", required=True)
     web_search = web_sub.add_parser("search")
-    web_search.add_argument("query")
+    web_search.add_argument("query", nargs="?", default="")
     web_search.add_argument("--provider", required=True, choices=sorted(WEB_SEARCH_COMMANDS))
     web_search.add_argument("--max-results")
     web_search.add_argument("--search-depth")
@@ -167,6 +169,13 @@ def main():
     web_search.add_argument("--include-answer", action="store_true")
     web_search.add_argument("--search-type")
     web_search.add_argument("--category")
+    web_search.add_argument("--id-list")
+    web_search.add_argument("--title")
+    web_search.add_argument("--author")
+    web_search.add_argument("--abstract")
+    web_search.add_argument("--start")
+    web_search.add_argument("--sort-by")
+    web_search.add_argument("--sort-order")
     web_search.add_argument("--freshness")
     web_search.add_argument("--start-crawl-date")
     web_search.add_argument("--end-crawl-date")
@@ -571,6 +580,46 @@ def provider_command(args):
 def web_command(args):
     if args.web_command == "search":
         cmd = [*WEB_SEARCH_COMMANDS[args.provider], args.query]
+        if args.provider == "arxiv":
+            if args.base_url:
+                raise CliError("arxiv web search uses the official arXiv API and does not accept --base-url")
+            if (
+                args.search_depth
+                or args.topic
+                or args.time_range
+                or args.include_domains
+                or args.exclude_domains
+                or args.include_answer
+                or args.search_type
+                or args.freshness
+                or args.start_crawl_date
+                or args.end_crawl_date
+                or args.start_published_date
+                or args.end_published_date
+                or args.include_text
+                or args.include_highlights
+                or args.include_summary
+                or args.text_max_characters
+                or args.highlight_query
+                or args.highlight_num_sentences
+                or args.highlights_per_url
+                or args.highlight_max_characters
+                or args.summary_query
+                or args.additional_queries
+                or args.user_location
+                or args.output_schema
+                or args.system_prompt
+                or args.stream
+                or args.moderation
+                or args.config_path
+                or args.state_path
+            ):
+                raise CliError("arxiv web search supports arXiv query fields only")
+            for name in ["max_results", "category", "id_list", "title", "author", "abstract", "start", "sort_by", "sort_order", "timeout", "output"]:
+                value = getattr(args, name)
+                if value:
+                    cmd.extend([f"--{name.replace('_', '-')}", value])
+            return cmd
         if args.provider == "searxng":
             if (
                 args.search_depth
@@ -580,6 +629,13 @@ def web_command(args):
                 or args.include_answer
                 or args.search_type
                 or args.category
+                or args.id_list
+                or args.title
+                or args.author
+                or args.abstract
+                or args.start
+                or args.sort_by
+                or args.sort_order
                 or args.freshness
                 or args.start_crawl_date
                 or args.end_crawl_date
@@ -611,6 +667,8 @@ def web_command(args):
                 raise CliError("exa web search does not accept --base-url; use provider setup exa --base-url <url>")
             if args.search_depth or args.topic or args.time_range or args.include_answer:
                 raise CliError("exa web search does not support Tavily-specific search options")
+            if args.id_list or args.title or args.author or args.abstract or args.start or args.sort_by or args.sort_order:
+                raise CliError("exa web search does not support arXiv-specific search options")
             for name in [
                 "max_results",
                 "search_type",
@@ -656,6 +714,13 @@ def web_command(args):
                 or args.include_answer
                 or args.search_type
                 or args.freshness
+                or args.id_list
+                or args.title
+                or args.author
+                or args.abstract
+                or args.start
+                or args.sort_by
+                or args.sort_order
                 or args.start_crawl_date
                 or args.end_crawl_date
                 or args.start_published_date
@@ -691,6 +756,13 @@ def web_command(args):
         if (
             args.search_type
             or args.category
+            or args.id_list
+            or args.title
+            or args.author
+            or args.abstract
+            or args.start
+            or args.sort_by
+            or args.sort_order
             or args.freshness
             or args.start_crawl_date
             or args.end_crawl_date

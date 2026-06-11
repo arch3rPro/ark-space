@@ -34,6 +34,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "skill-manager",
             "provider-manager",
             "searxng-search",
+            "arxiv-search",
             "exa-search",
             "exa-contents",
             "exa-answer",
@@ -65,6 +66,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
         for name in [
             "searxng-search",
+            "arxiv-search",
             "exa-search",
             "exa-contents",
             "exa-answer",
@@ -103,6 +105,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
         orchestrator_skills = self.validate.split_csv(agents_by_id["arkspace-orchestrator"]["skills"])
 
         for name in [
+            "arxiv-search",
             "firecrawl-search",
             "firecrawl-scrape",
             "firecrawl-map",
@@ -159,6 +162,16 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertEqual(exa.get("capability"), capability)
                 self.assertIn(f"--capability {capability}", exa.get("checkCommand", ""))
 
+    def test_arxiv_capability_is_provider_registered(self):
+        providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / "search-providers.yaml", "providers")
+        arxiv = next(item for item in providers if item.get("id") == "arxiv")
+
+        self.assertEqual(arxiv.get("skill"), "arxiv-search")
+        self.assertEqual(arxiv.get("capability"), "web_search")
+        self.assertEqual(arxiv.get("configRequired"), "false")
+        self.assertIn("--capability web_search", arxiv.get("checkCommand", ""))
+        self.assertIn("docs/knowledge-manager", arxiv.get("roles", ""))
+
     def test_firecrawl_capabilities_are_provider_registered(self):
         expectations = {
             "search-providers.yaml": ("firecrawl-search", "web_search"),
@@ -185,6 +198,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
             ROOT / "registry" / "code-context-providers.yaml",
             ROOT / "registry" / "related-page-providers.yaml",
             ROOT / "skills" / "provider-manager" / "SKILL.md",
+            ROOT / "skills" / "arxiv-search" / "SKILL.md",
             ROOT / "skills" / "searxng-search" / "SKILL.md",
             ROOT / "skills" / "exa-search" / "SKILL.md",
             ROOT / "skills" / "exa-contents" / "SKILL.md",

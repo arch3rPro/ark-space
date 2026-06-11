@@ -12,6 +12,7 @@ Use ArkSpace from an AI-agent session with slash invocation.
 
 ```text
 /ark-space:orchestrator search for the claude-code-everything project
+/ark-space:arxiv-search search diffusion transformers
 /ark-space:exa-search search Claude Code plugin docs
 /ark-space:tavily-research research the AI coding agents market
 /ark-space:firecrawl-scrape scrape https://example.com
@@ -78,6 +79,7 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 | Skill | Purpose |
 |---|---|
 | `searxng-search` | Query a configured self-hosted SearXNG instance. |
+| `arxiv-search` | Search arXiv papers by keyword, author, title, category, or ID. |
 | `defuddle` | Extract clean Markdown from normal web pages through Defuddle CLI. |
 | `exa-search` | Semantic web, docs, repository, and domain-filtered discovery. |
 | `exa-contents` | Fetch URL content, summaries, highlights, and metadata through Exa. |

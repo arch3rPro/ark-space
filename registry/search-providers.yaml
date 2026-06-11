@@ -1,6 +1,24 @@
 defaultSearchPolicy: role-first-provider-second
 
 providers:
+  - id: arxiv
+    skill: arxiv-search
+    status: active
+    capability: web_search
+    providerType: academic-preprint-api
+    priority: 190
+    privacy: public-api
+    configRequired: false
+    providerConfigCommand: none
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check arxiv --capability web_search
+    missingConfigBehavior: none
+    setupHint: "No API key or setup is required. Query the official arXiv API through arxiv-search."
+    authModes: none
+    rotationSupported: false
+    outputFields: id,title,authors,published,updated,summary,primary_category,categories,abs_url,pdf_url,doi,journal_ref,comment
+    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+    notes: "Use for academic preprint discovery, arXiv IDs, author/title/category search, and literature candidate lists."
+
   - id: searxng
     skill: searxng-search
     status: active
