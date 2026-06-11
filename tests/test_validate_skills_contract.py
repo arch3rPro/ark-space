@@ -339,6 +339,59 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("registry/code-context-providers.yaml", text)
         self.assertIn("registry/related-page-providers.yaml", text)
 
+    def test_skill_description_quality_rejects_placeholders_and_generic_text(self):
+        path = ROOT / "skills" / "example" / "SKILL.md"
+
+        with self.assertRaises(SystemExit):
+            self.validate.validate_skill_description_quality(path, "Use this skill.")
+
+        with self.assertRaises(SystemExit):
+            self.validate.validate_skill_description_quality(
+                path,
+                "Use when handling this placeholder skill for a future workflow that is TODO.",
+            )
+
+        with self.assertRaises(SystemExit):
+            self.validate.validate_skill_description_quality(
+                path,
+                "This capability provides a reusable package of instructions for an assistant.",
+            )
+
+        self.validate.validate_skill_description_quality(
+            path,
+            "Use when searching technical documentation through ArkSpace routing and returning compact source evidence.",
+        )
+
+    def test_public_skill_contract_requires_capabilities_and_categories(self):
+        self.validate.find_readme_included_skill_names = lambda: {"example"}
+
+        missing_capabilities = [
+            {
+                "name": "example",
+                "status": "active",
+                "public": "true",
+                "directInvocation": "/ark-space:example run",
+                "categories": "meta",
+                "roles": "orchestrator",
+            }
+        ]
+        with self.assertRaises(SystemExit):
+            self.validate.validate_public_skill_contract(missing_capabilities)
+
+        missing_categories = [
+            {
+                "name": "example",
+                "status": "active",
+                "public": "true",
+                "directInvocation": "/ark-space:example run",
+                "capabilities": "routing",
+                "orchestratorInvocation": "/ark-space:orchestrator run example",
+                "roles": "orchestrator",
+            }
+        ]
+        with self.assertRaises(SystemExit):
+            self.validate.validate_public_skill_contract(missing_categories)
+
 
 if __name__ == "__main__":
     unittest.main()

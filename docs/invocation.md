@@ -2,6 +2,8 @@
 
 ArkSpace supports direct skill invocation and Orchestrator-routed invocation. Public skills should expose both when the skill is user-visible and routable.
 
+Invocation is part of the agent-loop contract. A public skill is not usable just because its files exist; the host must be able to discover the skill description, load the skill, and accept the documented slash path. See [Agent Loop Model](agent-loop-model.md).
+
 ## Direct Skill Path
 
 Use a direct skill path when the caller already knows the skill or provider to use:

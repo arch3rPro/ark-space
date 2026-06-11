@@ -4,6 +4,8 @@ ArkSpace is a creative workspace for orchestrating reusable agent skills, callab
 
 The canonical skill source is `skills/<skill-name>/SKILL.md`. Claude Code, Codex, and future hosts consume the same skill files through host adapters.
 
+ArkSpace assumes the host runs an agent loop that can discover skill descriptions, load full skill bodies on demand, call tools or scripts, receive results, and continue until completion. ArkSpace supplies the routing, role, workflow, provider, and validation structure for that loop. See [Agent Loop Model](agent-loop-model.md).
+
 ## Layers
 
 - `skills/`: callable skill instructions and reusable capabilities.
@@ -27,6 +29,8 @@ ArkSpace has two runtime entrypoints:
 - `agents/orchestrator.md` for hosts that activate agents or subagents.
 
 The Orchestrator uses `workflows/lightweight-routing.md` to choose the smallest useful callable agent and skill set.
+
+The Orchestrator is a routing entrypoint, not a replacement for the host agent loop. It should classify the request, choose the smallest owner role, select workflows and provider capabilities when needed, and stop with an actionable blocker when the selected path is not available.
 
 ## Callable Agents
 

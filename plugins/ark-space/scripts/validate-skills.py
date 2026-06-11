@@ -26,6 +26,33 @@ VALID_CAPABILITIES = {
     "related_pages",
     "knowledge_management",
 }
+DESCRIPTION_TRIGGER_TERMS = {
+    "use when",
+    "when",
+    "route",
+    "routing",
+    "search",
+    "extract",
+    "configure",
+    "create",
+    "edit",
+    "manage",
+    "query",
+    "crawl",
+    "map",
+    "answer",
+    "fetch",
+    "run",
+    "interact",
+    "monitor",
+}
+DESCRIPTION_PLACEHOLDER_PATTERNS = [
+    r"\btbd\b",
+    r"\btodo\b",
+    r"\bplaceholder\b",
+    r"\bcoming soon\b",
+    r"\bfill (this|in)\b",
+]
 
 
 def fail(message):
@@ -149,9 +176,14 @@ def validate_public_skill_contract(skills):
             fail(f"public skill {name} legacyInvocation must include $ark-space:{name}")
 
         capabilities = split_csv(item.get("capabilities"))
+        if not capabilities:
+            fail(f"public skill {name} is missing capabilities")
         for capability in capabilities:
             if capability not in VALID_CAPABILITIES:
                 fail(f"public skill {name} has invalid capability {capability}")
+
+        if not split_csv(item.get("categories")):
+            fail(f"public skill {name} is missing categories")
 
         if routable_capabilities.intersection(capabilities):
             orchestrator_invocation = item.get("orchestratorInvocation", "")
@@ -214,6 +246,20 @@ def validate_skill_frontmatter():
             fail(f"{path} frontmatter is missing name")
         if not re.search(r"^description:\s*.+$", frontmatter, re.MULTILINE):
             fail(f"{path} frontmatter is missing description")
+        data = parse_frontmatter(path)
+        validate_skill_description_quality(path, data.get("description", ""))
+
+
+def validate_skill_description_quality(path, description):
+    description = description.strip()
+    if len(description) < 48:
+        fail(f"{path} description is too short to support agent-loop skill discovery")
+    lowered = description.lower()
+    for pattern in DESCRIPTION_PLACEHOLDER_PATTERNS:
+        if re.search(pattern, lowered):
+            fail(f"{path} description contains placeholder text")
+    if not any(term in lowered for term in DESCRIPTION_TRIGGER_TERMS):
+        fail(f"{path} description must include trigger language for agent-loop discovery")
 
 
 def validate_json(path):

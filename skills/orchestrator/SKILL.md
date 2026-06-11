@@ -9,6 +9,8 @@ Route work before expanding process. When invoked as `ark-space:orchestrator`, a
 
 Use the lightest role and workflow that can safely complete the task. Route first by user intent, then by artifact type, then by risk. Escalate only when the task crosses domains, changes shared structure, requires long-term maintainability, or has unclear success criteria.
 
+ArkSpace runs inside the host's agent loop. Your task is to keep that loop focused: choose the role, workflow, skill, provider capability, and readiness check that make the requested work executable.
+
 ## Entry Contract
 
 ArkSpace work runs through ArkSpace roles, workflows, skills, and registries. Host-native capabilities are not ArkSpace providers.
@@ -23,6 +25,7 @@ For any capability represented by a provider registry, use that registry as the 
 6. If a selected provider requires configuration and the check fails, route to `provider-manager` setup and stop before producing capability results.
 7. Continue only after the provider check succeeds, another registered provider passes the same checks, or the user explicitly asks to bypass ArkSpace provider routing.
 8. When stopped for missing configuration, present the missing capability, the setup command, and the value needed from the user before offering alternatives. If the user declines, defers, or cannot complete setup and still wants results, ask whether to continue with a clearly labeled non-ArkSpace fallback.
+9. Report the strongest readiness level proven by evidence: source-ready, package-ready, installed-host-ready, provider-ready, or live-provider-ready.
 
 ## Routing Workflow
 

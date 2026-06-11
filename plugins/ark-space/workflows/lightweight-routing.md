@@ -1,6 +1,6 @@
 # Lightweight Routing
 
-ArkSpace routes work by intent, artifact, and risk.
+ArkSpace routes work by intent, artifact, risk, and readiness. The host agent loop decides whether to invoke a skill or agent; ArkSpace keeps that decision surface small and verifiable.
 
 ## Routing Order
 
@@ -8,7 +8,25 @@ ArkSpace routes work by intent, artifact, and risk.
 2. Select the smallest useful callable agent.
 3. Select the skill set required by that agent.
 4. For web work, select the capability, then follow `workflows/provider-capabilities.md` before execution.
-5. Ask one focused question only when a wrong route would materially change the result.
+5. Check whether the selected path is ready: skill discoverability, direct invocation, provider configuration, package freshness, or installed-host availability.
+6. Execute, hand off, or stop with the smallest actionable blocker.
+7. Ask one focused question only when a wrong route would materially change the result.
+
+## Agent-Loop Route Cycle
+
+Use this cycle for Orchestrator-routed tasks:
+
+```text
+classify intent
+  -> choose owner role
+  -> choose workflow shape
+  -> choose capability and provider when needed
+  -> check readiness
+  -> execute or stop
+  -> verify evidence
+```
+
+The Orchestrator should not expand into a large plan when a direct skill invocation or single owner role can finish the task. It should also not mark a task complete when the host cannot discover the selected skill, a provider is not configured, or an installed package is stale.
 
 ## Route Shape
 
@@ -38,6 +56,8 @@ Use the simplest route that can produce verified output.
 
 Use design-first handling when the task changes shared structure, creates a new workflow, spans multiple domains, or needs explicit approval before implementation.
 
+Escalate from direct skill execution to Orchestrator when the caller did not name a skill, the request crosses domains, provider choice matters, configuration is missing, or verification requires more than one owner role.
+
 ## Workflow Templates
 
 | Template | Flow |
@@ -51,3 +71,5 @@ Use design-first handling when the task changes shared structure, creates a new 
 ## Provider Routing Boundary
 
 The Orchestrator routes provider work; it does not need to own every provider skill directly. Provider skills should belong to the agent roles that execute the work. Keep `registry/skills.yaml`, `registry/agents.yaml`, and `agents/*.md` aligned so this boundary is enforceable.
+
+Host-native search, fetch, browser, or file tools are outside ArkSpace provider routing unless they are explicitly represented by an ArkSpace skill and registry entry. If a host-native fallback is used after setup is declined or blocked, label the output as outside ArkSpace provider execution.
