@@ -102,7 +102,8 @@ def find_readme_included_skill_names():
             continue
 
         if not stripped.startswith("|"):
-            break
+            in_table = False
+            continue
 
         columns = [column.strip() for column in stripped.strip("|").split("|")]
         if not columns or set(columns[0]) <= {"-", ":"}:
@@ -265,7 +266,7 @@ def validate_codex_package_copy(package_dir):
             fail(f"Codex package directory is missing {rel_path}")
 
     mirrored_roots = [".codex-plugin", "agents", "docs", "registry", "roles", "skills", "scripts", "workflows"]
-    mirrored_files = ["README.md", "LICENSE", "NOTICE.md"]
+    mirrored_files = ["README.md", "README.zh-CN.md", "LICENSE", "NOTICE.md"]
     for rel_root in mirrored_roots:
         source_dir = ROOT / rel_root
         package_subdir = package_dir / rel_root

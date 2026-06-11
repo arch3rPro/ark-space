@@ -258,7 +258,7 @@ python3 scripts/arkspace.py provider setup tavily \
   --prompt
 ```
 
-Use environment-managed keys instead of ArkSpace `secrets.json`:
+Use environment-managed keys as an alternative to ArkSpace `secrets.json`:
 
 ```bash
 export EXA_API_KEY_1="..."
@@ -340,7 +340,7 @@ python3 /Users/<user>/.claude/plugins/cache/ark-space/ark-space/0.1.2/scripts/ar
 python3 /Users/<user>/.codex/plugins/cache/ark-space/ark-space/0.1.2/scripts/arkspace.py provider setup exa --wizard --key-count 2
 ```
 
-If a host cannot provide interactive secret input, the agent should not fake success. It should report the limitation, provide the exact interactive command, and re-check only after setup actually completes.
+If a host cannot provide interactive secret input, the agent should report the limitation, provide the exact interactive command, and re-check after setup completes.
 
 ## Rotation Model
 

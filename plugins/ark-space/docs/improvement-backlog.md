@@ -5,7 +5,7 @@ This backlog records framework-level improvements that should make ArkSpace more
 ## P0: Usability And Correctness
 
 - Make installed-host verification a release gate. Source validation and package checks are not enough; Claude Code and Codex caches must be checked before calling a change usable.
-- Generate installed-host smoke expectations from active skills, provider registries, and runtime scripts instead of maintaining a small hard-coded file list.
+- Generate installed-host smoke expectations from active skills, provider registries, and runtime scripts.
 - Enforce consistency between `registry/skills.yaml` role ownership, `registry/agents.yaml` skill lists, `agents/*.md` frontmatter, and generated `integrations/`.
 - Decide whether `orchestrator` owns provider skills directly or only routes to agents that own them. Encode that decision in registries and validation.
 - Expand provider setup UX so missing configuration leads to a clear setup choice, persistent local configuration, verification, and retry guidance.
@@ -30,7 +30,7 @@ This backlog records framework-level improvements that should make ArkSpace more
 
 - Split quality gates by risk level: documentation-only, registry-only, runtime wrapper, package/installation, and host invocation.
 - Require automated evidence where available: validation, unit tests, smoke tests, installed-host checks, live provider dry runs, or exact host invocation output.
-- Define rollback or recovery guidance for failed gates instead of only stopping after repeated failures.
+- Define rollback or recovery guidance for failed gates.
 - Track the difference between source readiness, package readiness, installed-host readiness, and live provider readiness.
 
 ## P2: State And Observability
@@ -38,14 +38,14 @@ This backlog records framework-level improvements that should make ArkSpace more
 - Record workflow state for multi-agent tasks when the task spans multiple handoffs or generated artifacts.
 - Track which agent or skill was selected, why it was selected, what evidence completed the task, and where it failed.
 - Add lightweight session logs for routing, provider selection, configuration misses, and validation failures.
-- Add retrospective summaries for repeated failures so framework gaps become backlog items instead of one-off fixes.
+- Add retrospective summaries for repeated failures so framework gaps become durable backlog items.
 
 ## P2: Host Adapter Expansion
 
 - Keep `agents/`, `skills/`, and `workflows/` host-neutral.
 - Treat Claude Code, Codex, and future hosts as adapter targets that translate invocation syntax, generated agent format, and available provider/tool equivalents.
 - Add a host capability matrix before supporting a new host. The matrix should cover skill discovery, slash invocation, environment access, script execution, HTTP access, secret handling, and file-system access.
-- Do not assume provider behavior is portable across hosts. Map each provider capability to the host's native tools or ArkSpace runtime explicitly.
+- Map provider behavior explicitly for each host through native tools or the ArkSpace runtime.
 
 ## Evaluation Criteria
 

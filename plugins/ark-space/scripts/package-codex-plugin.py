@@ -15,6 +15,7 @@ PACKAGE_ITEMS = [
     "scripts",
     "workflows",
     "README.md",
+    "README.zh-CN.md",
     "LICENSE",
     "NOTICE.md",
 ]

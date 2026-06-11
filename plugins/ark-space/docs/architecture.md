@@ -2,7 +2,7 @@
 
 ArkSpace is a creative workspace for orchestrating reusable agent skills, callable agent roles, and workflows.
 
-The canonical skill source is `skills/<skill-name>/SKILL.md`. Claude Code, Codex, and future hosts should consume the same skill files instead of maintaining platform-specific copies.
+The canonical skill source is `skills/<skill-name>/SKILL.md`. Claude Code, Codex, and future hosts consume the same skill files through host adapters.
 
 ## Layers
 
@@ -61,12 +61,12 @@ Run:
 python3 scripts/arkspace.py convert --host all
 ```
 
-This regenerates host-native agent files under `integrations/`. Do not edit generated files directly.
+This regenerates host-native agent files under `integrations/`. Treat generated integrations as derived outputs from `agents/`.
 
 ## Process Documents
 
-Local process specs and plans may live under ignored `docs/superpowers/` while working. They are not repository content and should not be committed.
+Local process specs and plans may live under ignored `docs/superpowers/` while working. They are local-only process notes outside the public repository content.
 
 ## Existing Obsidian Skills
 
-The Obsidian skills remain active. They are classified as documentation and knowledge-management tooling rather than the identity of the whole repository.
+The Obsidian skills remain active as documentation and knowledge-management tooling inside the broader ArkSpace package.

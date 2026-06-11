@@ -11,7 +11,7 @@ Both supported hosts use:
 - workflow protocols from `workflows/`
 - governance metadata from `registry/`
 
-Host adapters must not create separate skill bodies.
+Host adapters consume the canonical skill bodies from `skills/`.
 
 ## Claude Code
 
@@ -82,4 +82,4 @@ Installed-host smoke tests compare critical cached skill, registry, and script f
 
 ## Future Hosts
 
-Future hosts should add generated output under `integrations/<host>/` and adapter documentation here. They should not require rewriting canonical skills or agents.
+Future hosts add generated output under `integrations/<host>/` and adapter documentation here while reusing canonical skills and agents.

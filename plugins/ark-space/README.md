@@ -1,390 +1,153 @@
 # ArkSpace
 
-ArkSpace is a creative workspace for orchestrating agent skills, callable roles, and workflows across Claude Code and Codex, with a standard `skills/` tree that can be reused by compatible hosts.
+[中文](README.zh-CN.md) | English
 
-This repository packages reusable skills, callable agent roles, workflow protocols, generated host integrations, and source-governance metadata for agent work across coding, documentation, product, project, and knowledge-management tasks. The default entry point is a lightweight Orchestrator that routes work to the smallest useful role and workflow instead of forcing a heavy process on every request.
+ArkSpace is an Agent Skills workspace for Claude Code, Codex, and compatible AI-agent hosts. It packages reusable skills, callable agent roles, workflow protocols, provider routing metadata, and host adapters so an AI agent can select focused, reusable context for each task.
 
-## Project Shape
+Skills are the public contract. Runtime scripts and provider CLIs support skills when a skill needs configuration, search, extraction, or validation.
+
+## How Agents Use ArkSpace
+
+Use ArkSpace from an AI-agent session with slash invocation.
 
 ```text
-.
-+-- skills/              # Canonical Agent Skills: skills/<name>/SKILL.md
-+-- agents/              # Callable role sources shared by host adapters
-+-- workflows/           # Routing, handoff, quality, and provider protocols
-+-- integrations/        # Generated host-native agent outputs
-+-- roles/               # Existing role metadata kept during migration
-+-- registry/            # Skill, agent, workflow, provider, and source governance
-+-- .agents/plugins/     # Codex marketplace catalog for GitHub marketplace add
-+-- .claude-plugin/      # Claude Code plugin metadata
-+-- .codex-plugin/       # Codex plugin metadata
-+-- docs/                # Architecture and maintenance docs
-+-- overlays/            # Public examples for private local customization
-+-- scripts/             # Validate, convert, install, doctor, provider setup
-+-- reference/           # Optional local or tracked upstream references
+/ark-space:orchestrator search for the claude-code-everything project
+/ark-space:exa-search search Claude Code plugin docs
+/ark-space:tavily-research research the AI coding agents market
+/ark-space:firecrawl-scrape scrape https://example.com
 ```
 
-The canonical skill source is always `skills/<skill-name>/SKILL.md`. Callable role sources live in `agents/`. Platform manifests and generated integrations should point to shared sources instead of maintaining Claude-specific or Codex-specific skill bodies.
+Choose the entry path by intent:
 
-## Core Concepts
-
-### Orchestrator
-
-`orchestrator` is the default skill and `agents/orchestrator.md` is the default callable role. Together they perform lightweight routing:
-
-- Identify the task domain: code, docs, product, project, skills, or knowledge management.
-- Pick the smallest useful callable agent and skill set.
-- Escalate to design-first work only when the task is cross-domain, structurally risky, or unclear.
-- Hand skill-library maintenance to `skill-manager`.
-
-### Skill Manager
-
-`skill-manager` governs the package:
-
-- Create skills under `skills/<skill-name>/SKILL.md`.
-- Record upstream provenance in `registry/sources.yaml`.
-- Assign skills to roles.
-- Keep registries and manifests valid.
-- Guide mirror, adapted, local, and reference-only update decisions.
-
-### Callable Agents
-
-Callable agents live under `agents/` and describe runtime role behavior. They compose skills and workflows without duplicating skill bodies. Existing `roles/` YAML files are retained as migration metadata.
-
-| Agent | Purpose |
+| Path | Use When |
 |---|---|
-| `agents/orchestrator.md` | Default lightweight routing entry point |
-| `agents/code/code-engineer.md` | Implementation, refactoring, testing, debugging |
-| `agents/code/code-reviewer.md` | Bug, regression, and test-gap review |
-| `agents/docs/doc-writer.md` | Documentation writing and improvement |
-| `agents/docs/knowledge-manager.md` | Obsidian, notes, search, fetch, and knowledge work |
-| `agents/product/prd-planner.md` | Requirements, scope, acceptance criteria |
-| `agents/product/competitive-analyst.md` | Competitor, product, and market evidence |
-| `agents/project/project-manager.md` | Milestones, tasks, risks, tracking |
-| `agents/skills/skill-manager.md` | Skill and agent lifecycle governance |
+| `/ark-space:orchestrator ...` | You want ArkSpace to choose the role, workflow, capability, and provider. |
+| `/ark-space:<skill-name> ...` | You already know the exact skill or provider to use. |
+| `agents/*` | The host supports callable agents/subagents and should use a role-specific behavior profile. |
 
-### Workflows
+See [docs/invocation.md](docs/invocation.md) for the full invocation contract and capability split.
 
-Workflows live under `workflows/` and define reusable protocols for routing, handoffs, quality gates, and provider capabilities. Agents reference workflows when the task needs structure beyond a single direct response.
+## Core Model
 
-Framework improvement priorities are tracked in `docs/improvement-backlog.md`.
+ArkSpace has four host-neutral layers:
 
-### Host Integrations
+| Layer | Purpose |
+|---|---|
+| `skills/` | Canonical Agent Skills. Each public skill lives at `skills/<name>/SKILL.md`. |
+| `agents/` | Callable role definitions that compose skills and workflows without duplicating skill bodies. |
+| `workflows/` | Routing, handoff, provider selection, and quality-gate protocols. |
+| `registry/` | Source governance, role ownership, skill inventory, provider metadata, and validation contracts. |
 
-Host-native agent files are generated under `integrations/`:
+Host-specific files are adapters:
 
-```bash
-python3 scripts/arkspace.py convert --host all
-python3 scripts/arkspace.py install --host codex --dry-run
-python3 scripts/arkspace.py install --host claude-code --dry-run
-python3 scripts/arkspace.py doctor
-python3 scripts/arkspace.py smoke-test --installed-host codex
-python3 scripts/arkspace.py smoke-test --installed-host claude-code
-```
+| Path | Purpose |
+|---|---|
+| `.claude-plugin/` | Claude Code plugin metadata. |
+| `.codex-plugin/` | Codex plugin metadata. |
+| `integrations/` | Generated host-native agent outputs. |
+| `plugins/ark-space/` | Packaged Codex marketplace copy generated from canonical sources. |
 
-Do not edit generated integration files by hand; update `agents/` and regenerate.
+Claude Code, Codex, and future hosts consume the same skill files through adapters.
+
+## Callable Agents
+
+| Agent | Owns |
+|---|---|
+| `arkspace-orchestrator` | Lightweight routing, provider setup routing, workflow selection. |
+| `arkspace-code-engineer` | Implementation, refactoring, tests, debugging. |
+| `arkspace-code-reviewer` | Bug, regression, risk, and test-gap review. |
+| `arkspace-doc-writer` | Project documentation and Obsidian-flavored Markdown when needed. |
+| `arkspace-knowledge-manager` | Notes, Obsidian artifacts, source discovery, fetch, crawl, extraction. |
+| `arkspace-prd-planner` | Requirements, scope, acceptance criteria, product decisions. |
+| `arkspace-competitive-analyst` | Product, competitor, market, and public-evidence analysis. |
+| `arkspace-project-manager` | Milestones, task breakdown, risks, status structures. |
+| `arkspace-skill-manager` | Skill lifecycle, upstream provenance, registries, package integrity. |
 
 ## Included Skills
 
+### Core And Governance
+
 | Skill | Purpose |
 |---|---|
-| `orchestrator` | Route work to the smallest useful role and workflow |
-| `skill-manager` | Manage skill lifecycle, registries, sources, and role ownership |
-| `provider-manager` | Configure and inspect provider URLs, key references, and readiness |
-| `defuddle` | Extract clean Markdown from web pages |
-| `searxng-search` | Query a configured self-hosted SearXNG instance |
-| `exa-search` | Query Exa for semantic search, technical docs, repositories, and domain-filtered discovery |
-| `exa-contents` | Fetch full text, summaries, highlights, and metadata from known URLs through Exa |
-| `exa-answer` | Ask Exa for concise cited answers to focused research questions |
-| `exa-context` | Get Exa Code context for API syntax, framework setup, and repository-grounded examples |
-| `exa-similar` | Find similar pages, projects, papers, products, or competitors from a known URL |
-| `firecrawl-search` | Search through Firecrawl CLI with optional result scraping |
-| `firecrawl-scrape` | Scrape pages through Firecrawl CLI |
-| `firecrawl-map` | Discover site URLs through Firecrawl CLI |
-| `firecrawl-crawl` | Crawl site sections through Firecrawl CLI |
-| `firecrawl-agent` | Run schema-guided Firecrawl Agent extraction |
-| `firecrawl-browser` | Control Firecrawl remote browser sessions |
-| `firecrawl-interact` | Interact with a Firecrawl scraped page session |
-| `firecrawl-monitor` | Manage Firecrawl recurring monitors |
-| `tavily-search` | Query Tavily through ArkSpace web search routing |
-| `tavily-extract` | Extract readable content from URLs through Tavily |
-| `tavily-map` | Discover URLs and site structure through Tavily |
-| `tavily-crawl` | Crawl a website section and extract many pages through Tavily |
-| `tavily-research` | Run Tavily deep research for cited multi-source reports |
-| `json-canvas` | Create and edit JSON Canvas files |
-| `obsidian-bases` | Create and edit Obsidian Bases |
-| `obsidian-cli` | Interact with Obsidian through the CLI |
-| `obsidian-kanban` | Create and maintain Obsidian Kanban boards |
-| `obsidian-markdown` | Create and edit Obsidian-flavored Markdown |
+| `orchestrator` | Route work to the smallest useful role, workflow, capability, and provider. |
+| `skill-manager` | Create, adapt, validate, source-track, and govern ArkSpace skills. |
+| `provider-manager` | Configure and inspect provider URLs, key references, readiness, and rotation. |
 
-The Obsidian-related skills are retained as documentation and knowledge-management tools. They no longer define the identity of the whole package.
+### Search, Fetch, And Research Providers
 
-## Invocation
-
-ArkSpace exposes public skills through two paths.
-
-Use direct skill invocation when the caller already knows the provider or skill:
-
-```text
-/ark-space:tavily-search search claude-code-everything
-/ark-space:searxng-search search claude-code-everything
-/ark-space:exa-search search Claude Code plugin docs
-/ark-space:exa-contents extract https://example.com/article
-/ark-space:exa-answer answer what changed in AI coding agents in 2025
-/ark-space:exa-context find React hooks state management examples
-/ark-space:exa-similar find pages similar to https://example.com/article
-/ark-space:firecrawl-search search OpenClaw documentation
-/ark-space:firecrawl-scrape scrape https://example.com
-/ark-space:firecrawl-map map https://docs.example.com
-/ark-space:firecrawl-crawl crawl https://docs.example.com/docs
-/ark-space:firecrawl-agent extract product pricing from https://example.com
-/ark-space:firecrawl-browser open https://example.com and snapshot
-/ark-space:firecrawl-interact interact with scrape <scrape-id>
-/ark-space:firecrawl-monitor create monitor for https://example.com/blog
-/ark-space:tavily-extract extract https://example.com
-/ark-space:tavily-map map https://docs.example.com
-/ark-space:tavily-crawl crawl https://docs.example.com/docs
-/ark-space:tavily-research research the AI coding agents market
-```
-
-Use the Orchestrator when the caller wants ArkSpace to choose the route:
-
-```text
-/ark-space:orchestrator use Tavily to search claude-code-everything
-/ark-space:orchestrator use Exa to search Claude Code plugin docs
-/ark-space:orchestrator use Exa to find React hooks state management examples
-/ark-space:orchestrator use Firecrawl to scrape https://example.com
-/ark-space:orchestrator use Firecrawl Agent to extract product pricing from https://example.com
-/ark-space:orchestrator use Firecrawl Browser to inspect https://example.com
-/ark-space:orchestrator use Firecrawl Monitor for https://example.com/blog
-/ark-space:orchestrator find pages similar to https://example.com/article
-/ark-space:orchestrator search for the claude-code-everything project
-/ark-space:orchestrator fetch and summarize https://example.com
-/ark-space:orchestrator use Tavily to research the AI coding agents market
-```
-
-`web_search` discovers candidate URLs, snippets, and source metadata from a query. `web_fetch` reads a specific URL and returns extracted page content. `related_pages` starts from a known URL and returns similar pages or comparable resources. `structured_extract` asks for schema-shaped data from web sources. `web_interact` controls live browser or scrape-bound sessions. `web_monitor` manages recurring web checks. `code_context` returns implementation-oriented code examples and API usage context. Exa provides semantic `web_search`, URL `web_fetch`, concise cited `deep_research` through Exa Answer, `code_context` through Exa Context, and `related_pages` through Exa Similar. Firecrawl provides CLI-backed `web_search`, `web_fetch`, `web_map`, `web_crawl`, `structured_extract`, `web_interact`, and `web_monitor` for JS-heavy, bot-protected, interactive, or recurring web workflows. Tavily also adds `web_map` for URL discovery on a known site, `web_crawl` for multi-page site extraction, and long-form `deep_research` for cited synthesis. Search, similar-page discovery, map, fetch, crawl, structured extraction, interaction, monitoring, research, and code context are related but separate capabilities.
-
-## Installation
-
-### Claude Code
-
-Use the plugin metadata under `.claude-plugin/`.
-
-For local development, install this repository as a Claude Code plugin according to Claude Code's local plugin workflow. The plugin uses the shared `skills/` directory.
-
-Generate and dry-run install callable agents:
-
-```bash
-python3 scripts/arkspace.py convert --host claude-code
-python3 scripts/arkspace.py install --host claude-code --dry-run
-```
-
-Personal provider configuration should live outside committed package files. The recommended ArkSpace setup is:
-
-```bash
-python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
-python3 scripts/arkspace.py provider check searxng
-python3 scripts/arkspace.py provider setup exa --wizard --key-count 2
-python3 scripts/arkspace.py provider check exa
-python3 scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
-python3 scripts/arkspace.py provider check firecrawl
-python3 scripts/arkspace.py provider setup tavily --wizard
-python3 scripts/arkspace.py provider check tavily
-```
-
-Claude Code can also pass provider variables from `.claude/settings.local.json`:
-
-```json
-{
-  "env": {
-    "SEARXNG_URL": "https://searx.example.org"
-  }
-}
-```
-
-### Codex
-
-Use `.codex-plugin/plugin.json`. The Codex manifest points to:
-
-```json
-"skills": "./skills/"
-```
-
-Generate and dry-run install callable agents:
-
-```bash
-python3 scripts/arkspace.py convert --host codex
-python3 scripts/arkspace.py install --host codex --dry-run
-```
-
-For Codex, use the same ArkSpace setup command, or export provider variables in the shell that launches Codex and make sure `shell_environment_policy` forwards them:
-
-```bash
-export SEARXNG_URL="https://searx.example.org"
-export EXA_API_KEY="exa-..."
-export FIRECRAWL_API_KEY="fc-..."
-export TAVILY_API_KEY="tvly-..."
-codex
-```
-
-For the SearXNG skill, the persistent setup uses ArkSpace provider config:
-
-```bash
-python3 scripts/arkspace.py provider configure searxng --base-url "https://searx.example.org"
-python3 scripts/arkspace.py provider resolve searxng --capability web_search
-```
-
-This writes `~/.config/ark-space/providers.json` by default. Use `ARKSPACE_PROVIDER_CONFIG` or `--config-path` for a custom location. `--base-url` and environment variables still override the saved value.
-
-For Tavily, use setup-first configuration. This stores `env:<NAME>` references in provider config, saves raw keys in ArkSpace's local private secrets file, and supports multiple keys:
-
-```bash
-python3 scripts/arkspace.py provider setup tavily --wizard --key-count 2
-python3 scripts/arkspace.py provider check tavily
-```
-
-Exa uses the same setup and rotation model:
-
-```bash
-python3 scripts/arkspace.py provider setup exa --wizard --key-count 2
-python3 scripts/arkspace.py provider check exa
-```
-
-Firecrawl uses the same setup and rotation model, plus the Firecrawl CLI must be installed or `npx` must be available:
-
-```bash
-python3 scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
-python3 scripts/arkspace.py provider check firecrawl
-```
-
-Useful Tavily runtime commands:
-
-```bash
-python3 scripts/arkspace.py web search --provider tavily "query"
-python3 scripts/arkspace.py web fetch --provider tavily "https://example.com"
-python3 scripts/arkspace.py site map --provider tavily "https://docs.example.com"
-python3 scripts/arkspace.py site crawl --provider tavily "https://docs.example.com/docs"
-python3 scripts/arkspace.py research run --provider tavily "market analysis topic"
-```
-
-Useful Exa runtime commands:
-
-```bash
-python3 scripts/arkspace.py web search --provider exa "Claude Code plugin docs"
-python3 scripts/arkspace.py web fetch --provider exa "https://example.com"
-python3 scripts/arkspace.py web similar --provider exa "https://example.com"
-python3 scripts/arkspace.py research run --provider exa "What changed in AI coding assistants in 2025?"
-python3 scripts/arkspace.py code context --provider exa "React hooks state management examples"
-```
-
-Useful Firecrawl runtime commands:
-
-```bash
-python3 scripts/arkspace.py web search --provider firecrawl "OpenClaw documentation"
-python3 scripts/arkspace.py web fetch --provider firecrawl "https://example.com" --only-main-content
-python3 scripts/arkspace.py site map --provider firecrawl "https://docs.example.com" --search "auth"
-python3 scripts/arkspace.py site crawl --provider firecrawl "https://docs.example.com" --include-paths /docs --limit 20
-python3 scripts/arkspace.py structured extract --provider firecrawl "extract product names and prices" --urls "https://example.com/pricing" --wait
-python3 scripts/arkspace.py browser run --provider firecrawl "open https://example.com and snapshot"
-python3 scripts/arkspace.py interact run --provider firecrawl --scrape-id <scrape-id> --prompt "summarize visible pricing"
-python3 scripts/arkspace.py monitor create --provider firecrawl --name "Blog" --schedule "every 30 minutes" --page "https://example.com/blog" --goal "Alert when a new blog post is published."
-```
-
-To add this repository as a Codex plugin marketplace:
-
-```bash
-codex plugin marketplace add arch3rPro/ark-space --ref main
-```
-
-Then restart Codex and install `ark-space` from the `ArkSpace` marketplace source. The Codex marketplace catalog lives at `.agents/plugins/marketplace.json`; `.codex-plugin/plugin.json` is the plugin manifest itself. The marketplace entry points at `plugins/ark-space/`, a real packaged plugin directory with `.codex-plugin/`, `skills/`, and `scripts/` copied from the canonical source.
-
-After changing canonical package files, rebuild the Codex package before validation:
-
-```bash
-python3 scripts/arkspace.py package-codex
-python3 scripts/arkspace.py doctor
-```
-
-If an older broken marketplace snapshot already exists, refresh it:
-
-```bash
-codex plugin marketplace upgrade ark-space
-codex plugin list --marketplace ark-space
-codex plugin add ark-space@ark-space
-```
-
-### Manual Skills Install
-
-For any host that supports the standard Agent Skills layout, copy or link the `skills/` directory into the host's skills directory.
-
-## Governance
-
-Registries under `registry/` are the source of truth for package metadata:
-
-- `registry/skills.yaml`: skills, paths, sync modes, categories, and role ownership.
-- `registry/agents.yaml`: callable agent paths, domains, skills, workflows, and host targets.
-- `registry/workflows.yaml`: workflow protocol paths and ownership.
-- `registry/roles.yaml`: role IDs, paths, domains, and default role.
-- `registry/sources.yaml`: upstream repositories and source policies.
-- `registry/search-providers.yaml`: search-provider selection metadata for compatible search skills.
-- `registry/web-fetch-providers.yaml`: URL fetch/extraction provider metadata for compatible fetch skills.
-- `registry/web-map-providers.yaml`: site URL discovery provider metadata.
-- `registry/web-crawl-providers.yaml`: site crawl provider metadata.
-- `registry/structured-extract-providers.yaml`: schema-guided extraction provider metadata.
-- `registry/web-interact-providers.yaml`: live browser and scrape-bound interaction provider metadata.
-- `registry/web-monitor-providers.yaml`: recurring web monitor provider metadata.
-- `registry/deep-research-providers.yaml`: deep research provider metadata.
-
-Provider registries should declare configuration metadata such as recommended environment variables, check commands, missing-configuration behavior, privacy posture, authentication modes, and key rotation support. Skills should check and explain configuration at runtime; host settings, environment variables, or ArkSpace user config store the actual values.
-
-Use `provider-manager` and `python3 scripts/arkspace.py provider ...` for guided setup. For API-backed providers, ArkSpace config stores key references such as `env:BRAVE_API_KEY_1`; actual keys stay in the host environment or ArkSpace's local private secrets file. See `docs/provider-configuration.md`.
-
-Supported source policies:
-
-| Mode | Meaning |
+| Skill | Purpose |
 |---|---|
-| `mirror` | Keep close to upstream |
-| `adapted` | Selectively merge upstream changes after local adaptation |
-| `local` | Maintain directly in this repository |
-| `reference-only` | Use as design reference, not as a published local skill |
+| `searxng-search` | Query a configured self-hosted SearXNG instance. |
+| `defuddle` | Extract clean Markdown from normal web pages through Defuddle CLI. |
+| `exa-search` | Semantic web, docs, repository, and domain-filtered discovery. |
+| `exa-contents` | Fetch URL content, summaries, highlights, and metadata through Exa. |
+| `exa-answer` | Answer focused research questions with concise cited synthesis. |
+| `exa-context` | Retrieve implementation-oriented code context and API usage examples. |
+| `exa-similar` | Find similar pages, projects, papers, products, or competitors from a known URL. |
+| `tavily-search` | Broad current web search through Tavily. |
+| `tavily-extract` | Extract readable content from URLs through Tavily. |
+| `tavily-map` | Discover URLs and site structure through Tavily. |
+| `tavily-crawl` | Crawl a website section and extract many pages through Tavily. |
+| `tavily-research` | Run long-form cited research synthesis through Tavily. |
 
-Run validation after changing skills, roles, registries, manifests, README, or agent guidance:
+### Firecrawl Web Automation
 
-```bash
-python3 scripts/arkspace.py doctor
-python3 scripts/arkspace.py smoke-test --installed-host codex
-python3 scripts/arkspace.py smoke-test --installed-host claude-code
-```
+| Skill | Purpose |
+|---|---|
+| `firecrawl-search` | Search through Firecrawl CLI with optional result scraping. |
+| `firecrawl-scrape` | Scrape rendered or hard-to-read pages through Firecrawl CLI. |
+| `firecrawl-map` | Discover site URLs through Firecrawl CLI. |
+| `firecrawl-crawl` | Crawl site sections through Firecrawl CLI. |
+| `firecrawl-agent` | Run schema-guided Firecrawl Agent extraction. |
+| `firecrawl-browser` | Control Firecrawl remote browser sessions. |
+| `firecrawl-interact` | Interact with a Firecrawl scraped page session. |
+| `firecrawl-monitor` | Manage recurring Firecrawl monitors. |
 
-`doctor` validates the repository, package mirror, generated agents, and local invocation contracts. Installed-host smoke tests validate the local Claude Code or Codex plugin cache after installation or refresh.
+### Knowledge And Obsidian Tools
 
-## Project Documents
+| Skill | Purpose |
+|---|---|
+| `json-canvas` | Create and edit JSON Canvas files. |
+| `obsidian-bases` | Create and edit Obsidian Bases. |
+| `obsidian-cli` | Interact with Obsidian through the CLI. |
+| `obsidian-kanban` | Create and maintain Obsidian Kanban boards. |
+| `obsidian-markdown` | Create and edit Obsidian-flavored Markdown. |
 
-- `CHANGELOG.md`: notable project changes.
-- `CONTRIBUTING.md`: contribution workflow and validation requirements.
-- `CODE_OF_CONDUCT.md`: participation standards.
-- `SECURITY.md`: vulnerability reporting and security scope.
-- `SUPPORT.md`: support request guidance.
-- `NOTICE.md`: upstream attribution and source notices.
+The Obsidian skills are retained as knowledge-management tools within the broader ArkSpace package.
 
-## Personal Overlays
+## Provider Configuration
 
-The public package should stay reusable. Personal workflows, private repositories, internal tools, and company-specific preferences belong in ignored overlay files:
+ArkSpace keeps private provider configuration outside the public repository. When a provider is missing a URL or API key, the skill should guide the user through setup with local configuration and private secrets.
 
-```text
-overlays/personal.yaml
-overlays/private-skills.yaml
-```
+Provider setup supports:
 
-Commit only examples and documentation under `overlays/`. See `overlays/README.md`.
+- self-hosted service URLs such as SearXNG
+- API-backed providers such as Exa, Tavily, and Firecrawl
+- multiple API keys with rotation
+- local private secret storage or environment-variable references
 
-## Development Notes
+See [docs/provider-configuration.md](docs/provider-configuration.md) for command setup, manual recovery, and agent-guided setup.
 
-- Keep skill bodies host-neutral when possible.
-- Keep callable role behavior in `agents/`.
-- Do not create separate Claude/Codex skill copies.
-- Do not edit generated `integrations/` by hand; regenerate from `agents/`.
-- Keep process specs and plans under ignored `docs/superpowers/` when needed locally; do not commit them.
-- Do not publish, tag, push releases, or run version workflows unless explicitly requested.
-- Preserve upstream attribution and license requirements when importing or adapting skills.
-- Treat `reference/` as optional design/reference material; do not rely on it for runtime behavior.
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [docs/invocation.md](docs/invocation.md) | Slash invocation, direct skills, Orchestrator routing, capability split. |
+| [docs/provider-configuration.md](docs/provider-configuration.md) | Provider URLs, API keys, multi-key rotation, setup recovery. |
+| [docs/maintenance.md](docs/maintenance.md) | Maintainer commands for validation, packaging, host cache checks, and local development. |
+| [docs/architecture.md](docs/architecture.md) | Framework layers and runtime entrypoints. |
+| [docs/adding-skills.md](docs/adding-skills.md) | How to add or adapt skills. |
+| [docs/platform-support.md](docs/platform-support.md) | Host adapter expectations and support notes. |
+| [docs/improvement-backlog.md](docs/improvement-backlog.md) | Framework improvement backlog. |
+
+## Development Contract
+
+- Keep canonical skills in `skills/<skill-name>/SKILL.md`.
+- Keep callable agent sources in `agents/`.
+- Keep orchestration protocols in `workflows/`.
+- Keep host-specific metadata in adapter directories only.
+- Keep provider and source governance in `registry/`.
+- Regenerate `integrations/` from `agents/`; generated files are derived outputs.
+- Keep private configuration out of the package.
+
+For maintainer validation and packaging commands, use [docs/maintenance.md](docs/maintenance.md).

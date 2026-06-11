@@ -65,7 +65,7 @@ Routable public skills declare `orchestratorInvocation` in `registry/skills.yaml
 | `code_context` | Coding query | Repository-grounded examples and API usage context | `registry/code-context-providers.yaml` |
 | `related_pages` | URL | Similar pages, adjacent resources, comparable projects, related sources | `registry/related-page-providers.yaml` |
 
-Use `web_search` to discover sources from a query. Use `related_pages` when the user provides a URL and wants similar pages or comparable resources. Use `web_fetch` to read a known URL or a URL selected from search/map/similar results. Use `web_map` when the site is known but the exact URL is not. Use `web_crawl` when the user needs many pages from a site section. Use `structured_extract` when the user needs schema-shaped data. Use `web_interact` when the page must be operated in a browser or an existing scrape session. Use `web_monitor` for recurring checks. Use `deep_research` when the requested output is a report or comparison rather than a list of sources. Use `code_context` when a coding task needs examples or API usage context beyond the local repository.
+Use `web_search` to discover sources from a query. Use `related_pages` when the user provides a URL and wants similar pages or comparable resources. Use `web_fetch` to read a known URL or a URL selected from search/map/similar results. Use `web_map` when the site is known but the exact URL is not. Use `web_crawl` when the user needs many pages from a site section. Use `structured_extract` when the user needs schema-shaped data. Use `web_interact` when the page must be operated in a browser or an existing scrape session. Use `web_monitor` for recurring checks. Use `deep_research` when the requested output is a report or comparison. Use `code_context` when a coding task needs examples or API usage context beyond the local repository.
 
 ## Configuration
 
@@ -90,4 +90,4 @@ python3 scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
 python3 scripts/arkspace.py provider check firecrawl
 ```
 
-Provider checks prove the local ArkSpace provider configuration resolves. They do not prove a host session discovered the installed plugin.
+Provider checks prove the local ArkSpace provider configuration resolves. Host discovery is verified separately with installed-host smoke tests.

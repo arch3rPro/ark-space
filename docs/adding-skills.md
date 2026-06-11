@@ -31,8 +31,8 @@ Record the upstream in `registry/sources.yaml`.
 
 Use `syncMode: adapted` when the skill started from another project but has been changed for this package.
 
-Review upstream updates selectively instead of applying them automatically.
+Review upstream updates selectively and merge only the changes that fit the local adaptation.
 
 ## Reference-Only Source
 
-Record reference-only projects in `registry/sources.yaml` with `syncPolicy: reference-only`. Do not add them to `registry/skills.yaml` unless they are explicitly promoted into a local skill.
+Record reference-only projects in `registry/sources.yaml` with `syncPolicy: reference-only`. Add them to `registry/skills.yaml` only after they are explicitly promoted into a local skill.

@@ -16,7 +16,7 @@ Known sources include:
 
 Preserve license notices and attribution when importing, adapting, or mirroring external skills or documentation.
 
-Reference-only sources should be recorded in `registry/sources.yaml` with `syncPolicy: reference-only` and should not be published as local skills unless explicitly promoted.
+Reference-only sources are recorded in `registry/sources.yaml` with `syncPolicy: reference-only` and published as local skills only after explicit promotion.
 
 ## License
 
