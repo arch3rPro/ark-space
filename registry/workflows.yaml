@@ -9,8 +9,8 @@ workflows:
 
   - id: quality-gates
     path: workflows/quality-gates.md
-    usedBy: arkspace-orchestrator,arkspace-code-engineer,arkspace-code-reviewer,arkspace-doc-writer,arkspace-knowledge-manager,arkspace-prd-planner,arkspace-competitive-analyst,arkspace-project-manager,arkspace-skill-manager
+    usedBy: arkspace-orchestrator,arkspace-code-engineer,arkspace-code-reviewer,arkspace-doc-writer,arkspace-web-researcher,arkspace-knowledge-manager,arkspace-prd-planner,arkspace-competitive-analyst,arkspace-project-manager,arkspace-skill-manager
 
   - id: provider-capabilities
     path: workflows/provider-capabilities.md
-    usedBy: arkspace-orchestrator,arkspace-knowledge-manager,arkspace-competitive-analyst
+    usedBy: arkspace-orchestrator,arkspace-web-researcher,arkspace-competitive-analyst

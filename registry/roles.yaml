@@ -26,6 +26,10 @@ roles:
     path: roles/docs/doc-editor.yaml
     domain: docs
 
+  - id: docs/web-researcher
+    path: roles/docs/web-researcher.yaml
+    domain: docs
+
   - id: docs/knowledge-manager
     path: roles/docs/knowledge-manager.yaml
     domain: docs

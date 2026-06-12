@@ -30,11 +30,18 @@ agents:
     workflows: quality-gates
     hosts: claude-code,codex
 
+  - id: arkspace-web-researcher
+    path: agents/docs/web-researcher.md
+    domain: docs
+    skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,firecrawl-browser,firecrawl-interact,firecrawl-monitor,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
+    workflows: provider-capabilities,quality-gates
+    hosts: claude-code,codex
+
   - id: arkspace-knowledge-manager
     path: agents/docs/knowledge-manager.md
     domain: docs
-    skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,firecrawl-browser,firecrawl-interact,firecrawl-monitor,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
-    workflows: provider-capabilities,quality-gates
+    skills: orchestrator,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
+    workflows: quality-gates
     hosts: claude-code,codex
 
   - id: arkspace-prd-planner
@@ -47,7 +54,7 @@ agents:
   - id: arkspace-competitive-analyst
     path: agents/product/competitive-analyst.md
     domain: product
-    skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,firecrawl-browser,firecrawl-interact,firecrawl-monitor,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
+    skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 

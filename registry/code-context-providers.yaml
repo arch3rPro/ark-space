@@ -20,5 +20,5 @@ providers:
     rotationSupported: true
     input: coding_query
     outputFields: response,results_count,cost_dollars,search_time,output_tokens,request_id
-    roles: code/code-engineer,code/code-reviewer,docs/knowledge-manager,orchestrator
+    roles: code/code-engineer,code/code-reviewer,docs/web-researcher,orchestrator
     notes: "Use for code examples, API syntax, framework setup, library usage, and repository-grounded implementation context."

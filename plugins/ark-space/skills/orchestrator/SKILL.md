@@ -47,8 +47,8 @@ For any capability represented by a provider registry, use that registry as the 
 | Write new documentation | `docs/doc-writer` |
 | Improve existing documentation | `docs/doc-editor` |
 | Work with Obsidian, notes, Bases, Canvas, or knowledge files | `docs/knowledge-manager` |
-| Web search, source discovery, general research, SearXNG | `docs/knowledge-manager` |
-| Read, fetch, summarize, or extract a provided URL | `docs/knowledge-manager` |
+| Web search, source discovery, general research, SearXNG | `docs/web-researcher` |
+| Read, fetch, summarize, or extract a provided URL | `docs/web-researcher` |
 | Shape requirements or PRDs | `product/prd-planner` |
 | Build or evaluate a product demo | `product/demo-designer` |
 | Compare products, competitors, market claims, or public evidence | `product/competitive-analyst` |
@@ -105,7 +105,7 @@ When a provider entry includes `checkCommand`, run it when configuration state m
 
 ```text
 User: [/ark-space:orchestrator] search for the claude-code-everything project
-Route: docs/knowledge-manager -> web_search -> registry/search-providers.yaml -> highest-priority active provider -> checkCommand
+Route: docs/web-researcher -> web_search -> registry/search-providers.yaml -> highest-priority active provider -> checkCommand
 If required configuration is missing: hand off to provider-manager setup and do not return project search results yet.
 ```
 

@@ -11,7 +11,8 @@ Write concise, concrete documentation grounded in current files. Keep README use
 
 - Edit documentation directly when the requested artifact and source files are clear.
 - Ask one focused question when audience, scope, or target file choice changes the result materially.
-- Hand off to `arkspace-knowledge-manager` when the task needs Obsidian vault organization, web source discovery, URL extraction, Bases, Canvas, or Kanban work.
+- Hand off to `arkspace-web-researcher` when the task needs web source discovery, URL extraction, or cited source gathering before writing.
+- Hand off to `arkspace-knowledge-manager` when the task needs Obsidian vault organization, Bases, Canvas, Kanban, or note-structure work.
 - Hand off to `arkspace-code-engineer` when documentation accuracy depends on unverified implementation behavior.
 
 ## Evidence

@@ -43,7 +43,7 @@ skills:
     syncMode: adapted
     upstreamId: defuddle-cli
     categories: docs,research,web,fetch
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: searxng-search
     path: skills/searxng-search
@@ -56,7 +56,7 @@ skills:
     syncMode: local
     upstreamId: searxng
     categories: research,web,search
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: arxiv-search
     path: skills/arxiv-search
@@ -69,7 +69,7 @@ skills:
     syncMode: adapted
     upstreamId: arxiv-api
     categories: research,web,search,academic,papers
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
   - name: exa-search
     path: skills/exa-search
@@ -82,7 +82,7 @@ skills:
     syncMode: adapted
     upstreamId: exa
     categories: research,web,search,semantic,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
   - name: exa-contents
     path: skills/exa-contents
@@ -95,7 +95,7 @@ skills:
     syncMode: adapted
     upstreamId: exa
     categories: research,web,fetch,semantic,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
   - name: exa-answer
     path: skills/exa-answer
@@ -108,7 +108,7 @@ skills:
     syncMode: adapted
     upstreamId: exa
     categories: research,web,answer,semantic,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer
 
   - name: exa-context
     path: skills/exa-context
@@ -121,7 +121,7 @@ skills:
     syncMode: adapted
     upstreamId: exa-context
     categories: code,research,web,context,api-provider
-    roles: code/code-engineer,code/code-reviewer,docs/knowledge-manager
+    roles: code/code-engineer,code/code-reviewer,docs/web-researcher
 
   - name: exa-similar
     path: skills/exa-similar
@@ -134,7 +134,7 @@ skills:
     syncMode: adapted
     upstreamId: exa-similar
     categories: research,web,similar,discovery,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
   - name: firecrawl-search
     path: skills/firecrawl-search
@@ -147,7 +147,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,search,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: firecrawl-scrape
     path: skills/firecrawl-scrape
@@ -160,7 +160,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,fetch,scrape,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: firecrawl-map
     path: skills/firecrawl-map
@@ -173,7 +173,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,map,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: firecrawl-crawl
     path: skills/firecrawl-crawl
@@ -186,7 +186,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,crawl,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: firecrawl-agent
     path: skills/firecrawl-agent
@@ -199,7 +199,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,extract,structured,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: firecrawl-browser
     path: skills/firecrawl-browser
@@ -212,7 +212,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,browser,interact,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher
 
   - name: firecrawl-interact
     path: skills/firecrawl-interact
@@ -225,7 +225,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,interact,scrape,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher
 
   - name: firecrawl-monitor
     path: skills/firecrawl-monitor
@@ -238,7 +238,7 @@ skills:
     syncMode: adapted
     upstreamId: firecrawl-cli
     categories: research,web,monitor,automation,cli-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher
 
   - name: tavily-search
     path: skills/tavily-search
@@ -251,7 +251,7 @@ skills:
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,search,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: tavily-extract
     path: skills/tavily-extract
@@ -264,7 +264,7 @@ skills:
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,fetch,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: tavily-map
     path: skills/tavily-map
@@ -277,7 +277,7 @@ skills:
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,map,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: tavily-crawl
     path: skills/tavily-crawl
@@ -290,7 +290,7 @@ skills:
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,crawl,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: tavily-research
     path: skills/tavily-research
@@ -303,7 +303,7 @@ skills:
     syncMode: adapted
     upstreamId: tavily-agent-skills
     categories: research,web,analysis,api-provider
-    roles: docs/knowledge-manager,product/competitive-analyst
+    roles: docs/web-researcher,product/competitive-analyst
 
   - name: json-canvas
     path: skills/json-canvas

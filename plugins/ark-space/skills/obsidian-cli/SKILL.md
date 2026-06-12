@@ -7,42 +7,36 @@ description: Interact with Obsidian vaults using the Obsidian CLI to read, creat
 
 Use the `obsidian` CLI to interact with a running Obsidian instance. Requires Obsidian to be open.
 
-## Command reference
+## Command Reference
 
-Run `obsidian help` to see all available commands. This is always up to date. Full docs: https://help.obsidian.md/cli
+Run `obsidian help` to see the current command set. Full docs: https://help.obsidian.md/cli
 
 ## Syntax
 
-**Parameters** take a value with `=`. Quote values with spaces:
+- Parameters take a value with `=`.
+- Flags are boolean switches with no value.
+- Quote values with spaces.
+- Use `\n` for multiline content and `\t` for tabs.
 
 ```bash
-obsidian create name="My Note" content="Hello world"
-```
-
-**Flags** are boolean switches with no value:
-
-```bash
+obsidian create name="My Note" content="# Hello"
 obsidian create name="My Note" silent overwrite
 ```
 
-For multiline content use `\n` for newline and `\t` for tab.
+## Targeting
 
-## File targeting
+Many commands accept `file` or `path`:
 
-Many commands accept `file` or `path` to target a file. Without either, the active file is used.
+- `file=<name>` resolves like a wikilink.
+- `path=<path>` uses an exact vault-relative path such as `folder/note.md`.
 
-- `file=<name>` — resolves like a wikilink (name only, no path or extension needed)
-- `path=<path>` — exact path from vault root, e.g. `folder/note.md`
-
-## Vault targeting
-
-Commands target the most recently focused vault by default. Use `vault=<name>` as the first parameter to target a specific vault:
+Commands target the most recently focused vault by default. Use `vault=<name>` as the first parameter to select another vault.
 
 ```bash
-obsidian vault="My Vault" search query="test"
+obsidian vault="My Vault" search query="project alpha"
 ```
 
-## Common patterns
+## Common Patterns
 
 ```bash
 obsidian read file="My Note"
@@ -57,50 +51,16 @@ obsidian tags sort=count counts
 obsidian backlinks file="My Note"
 ```
 
-Use `--copy` on any command to copy output to clipboard. Use `silent` to prevent files from opening. Use `total` on list commands to get a count.
+Use `--copy` to copy output to the clipboard. Use `silent` to prevent files from opening. Use `total` on list-style commands to get a count.
 
-## Plugin development
+## Development Work
 
-### Develop/test cycle
+When the task is plugin, theme, or UI debugging work, keep the main skill light and load the extra workflow only when needed:
 
-After making code changes to a plugin or theme, follow this workflow:
+- [Plugin and Theme Development Reference](references/DEVELOPMENT.md)
 
-1. **Reload** the plugin to pick up changes:
-   ```bash
-   obsidian plugin:reload id=my-plugin
-   ```
-2. **Check for errors** — if errors appear, fix and repeat from step 1:
-   ```bash
-   obsidian dev:errors
-   ```
-3. **Verify visually** with a screenshot or DOM inspection:
-   ```bash
-   obsidian dev:screenshot path=screenshot.png
-   obsidian dev:dom selector=".workspace-leaf" text
-   ```
-4. **Check console output** for warnings or unexpected logs:
-   ```bash
-   obsidian dev:console level=error
-   ```
+## Guidance
 
-### Additional developer commands
-
-Run JavaScript in the app context:
-
-```bash
-obsidian eval code="app.vault.getFiles().length"
-```
-
-Inspect CSS values:
-
-```bash
-obsidian dev:css selector=".workspace-leaf" prop=background-color
-```
-
-Toggle mobile emulation:
-
-```bash
-obsidian dev:mobile on
-```
-
-Run `obsidian help` to see additional developer commands including CDP and debugger controls.
+- Prefer the narrowest command that answers the request instead of reaching for `eval` first.
+- For note content changes, target an exact file or path when ambiguity would be risky.
+- For development tasks, reload the plugin or theme and check for errors before claiming success.

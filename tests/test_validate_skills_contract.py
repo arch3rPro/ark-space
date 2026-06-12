@@ -99,6 +99,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
         agents = self.validate.parse_simple_yaml_list(ROOT / "registry" / "agents.yaml", "agents")
         agents_by_id = {item["id"]: item for item in agents}
 
+        web_skills = self.validate.split_csv(agents_by_id["arkspace-web-researcher"]["skills"])
         knowledge_skills = self.validate.split_csv(agents_by_id["arkspace-knowledge-manager"]["skills"])
         competitive_skills = self.validate.split_csv(agents_by_id["arkspace-competitive-analyst"]["skills"])
         doc_writer_skills = self.validate.split_csv(agents_by_id["arkspace-doc-writer"]["skills"])
@@ -111,14 +112,21 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "firecrawl-map",
             "firecrawl-crawl",
             "firecrawl-agent",
+        ]:
+            with self.subTest(skill=name):
+                self.assertIn(name, web_skills)
+                self.assertIn(name, competitive_skills)
+                self.assertNotIn(name, knowledge_skills)
+                self.assertNotIn(name, orchestrator_skills)
+
+        for name in [
             "firecrawl-browser",
             "firecrawl-interact",
             "firecrawl-monitor",
         ]:
             with self.subTest(skill=name):
-                self.assertIn(name, knowledge_skills)
-                self.assertIn(name, competitive_skills)
-                self.assertNotIn(name, orchestrator_skills)
+                self.assertIn(name, web_skills)
+                self.assertNotIn(name, competitive_skills)
 
         self.assertIn("obsidian-markdown", doc_writer_skills)
         self.validate.validate_registry_files()
@@ -170,7 +178,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertEqual(arxiv.get("capability"), "web_search")
         self.assertEqual(arxiv.get("configRequired"), "false")
         self.assertIn("--capability web_search", arxiv.get("checkCommand", ""))
-        self.assertIn("docs/knowledge-manager", arxiv.get("roles", ""))
+        self.assertIn("docs/web-researcher", arxiv.get("roles", ""))
 
     def test_firecrawl_capabilities_are_provider_registered(self):
         expectations = {

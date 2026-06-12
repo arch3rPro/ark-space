@@ -20,7 +20,7 @@ providers:
     rotationSupported: true
     input: research_prompt
     outputFields: answer,sources,request_id
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,orchestrator
     notes: "Use for concise cited answers and focused synthesis. Use Tavily Research for long reports or broad market analysis."
 
   - id: tavily
@@ -42,5 +42,5 @@ providers:
     rotationSupported: true
     input: research_prompt
     outputFields: request_id,status,content,sources,usage,response_time
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use for cited reports, comparisons, market analysis, or multi-source synthesis rather than quick source discovery."

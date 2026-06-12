@@ -20,7 +20,7 @@ providers:
     rotationSupported: true
     input: site_url
     outputFields: base_url,results,usage,request_id,response_time
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use when the site is known but the exact URL is not, or before crawl/extract on large sites."
 
   - id: firecrawl
@@ -42,5 +42,5 @@ providers:
     rotationSupported: true
     input: site_url
     outputFields: links,url,title,description
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use when the site is known but the exact URL is not, especially before Firecrawl scrape or crawl."

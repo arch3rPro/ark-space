@@ -46,7 +46,8 @@ Use the simplest route that can produce verified output.
 | Implement, refactor, test, debug | `agents/code/code-engineer.md` |
 | Review code or assess regressions | `agents/code/code-reviewer.md` |
 | Write or improve documentation | `agents/docs/doc-writer.md` |
-| Work with notes, Obsidian, web search, URL extraction, or knowledge files | `agents/docs/knowledge-manager.md` |
+| Work with notes, Obsidian, Bases, Canvas, Kanban, or knowledge files | `agents/docs/knowledge-manager.md` |
+| Web search, source discovery, URL extraction, or general web research | `agents/docs/web-researcher.md` |
 | Shape requirements, scope, PRDs, or acceptance criteria | `agents/product/prd-planner.md` |
 | Compare products, competitors, market claims, or public evidence | `agents/product/competitive-analyst.md` |
 | Plan milestones, tasks, risks, or delivery structure | `agents/project/project-manager.md` |
@@ -63,8 +64,8 @@ Escalate from direct skill execution to Orchestrator when the caller did not nam
 | Template | Flow |
 |---|---|
 | PRD to implementation | `prd-planner` clarifies scope -> `code-engineer` implements -> `code-reviewer` checks risk -> `doc-writer` updates docs when needed |
-| Research to documentation | `knowledge-manager` gathers and fetches sources -> `doc-writer` writes the artifact -> quality gate verifies source/file references |
-| Competitive evidence | `competitive-analyst` discovers and fetches sources -> optional `prd-planner` converts findings into product decisions |
+| Research to documentation | `web-researcher` gathers and fetches sources -> `doc-writer` writes the artifact -> quality gate verifies source/file references |
+| Competitive evidence | `competitive-analyst` evaluates evidence -> optional `web-researcher` gathers hard-to-fetch sources -> optional `prd-planner` converts findings into product decisions |
 | Skill adoption | `skill-manager` records source and registry metadata -> `code-engineer` implements runtime scripts when needed -> `skill-manager` validates package and installed-host evidence |
 | Provider setup | `provider-manager` checks configuration -> setup flow persists local config -> original owner retries the requested provider task |
 

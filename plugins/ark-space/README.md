@@ -58,9 +58,10 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 | `arkspace-code-engineer` | Implementation, refactoring, tests, debugging. |
 | `arkspace-code-reviewer` | Bug, regression, risk, and test-gap review. |
 | `arkspace-doc-writer` | Project documentation and Obsidian-flavored Markdown when needed. |
-| `arkspace-knowledge-manager` | Notes, Obsidian artifacts, source discovery, fetch, crawl, extraction. |
+| `arkspace-web-researcher` | Web search, URL extraction, crawling, monitors, and source-grounded research. |
+| `arkspace-knowledge-manager` | Notes, Obsidian artifacts, Bases, Canvas, Kanban, and vault organization. |
 | `arkspace-prd-planner` | Requirements, scope, acceptance criteria, product decisions. |
-| `arkspace-competitive-analyst` | Product, competitor, market, and public-evidence analysis. |
+| `arkspace-competitive-analyst` | Product, competitor, market, and public-evidence analysis, with web operations handed to the web researcher when needed. |
 | `arkspace-project-manager` | Milestones, task breakdown, risks, status structures. |
 | `arkspace-skill-manager` | Skill lifecycle, upstream provenance, registries, package integrity. |
 

@@ -16,7 +16,7 @@ providers:
     authModes: none
     rotationSupported: false
     outputFields: id,title,authors,published,updated,summary,primary_category,categories,abs_url,pdf_url,doi,journal_ref,comment
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
     notes: "Use for academic preprint discovery, arXiv IDs, author/title/category search, and literature candidate lists."
 
   - id: searxng
@@ -37,7 +37,7 @@ providers:
     authModes: none
     rotationSupported: false
     outputFields: title,url,content,engine,parsed_url,img_src,thumbnail,author,publishedDate,score
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use for SearXNG-specific requests or self-hosted/private search."
 
   - id: exa
@@ -58,7 +58,7 @@ providers:
     authModes: api_key
     rotationSupported: true
     outputFields: title,url,snippet,score,published,author,highlights,highlight_scores,summary,entities,extras,context,structured,resolved_search_type,cost_dollars,request_id
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
     notes: "Use for semantic/neural search, coding docs, repositories, technical research, company/people/news discovery, domain/date filtered discovery, content-bearing search results, deep/deep-reasoning search modes, and structured output."
 
   - id: tavily
@@ -79,7 +79,7 @@ providers:
     authModes: api_key
     rotationSupported: true
     outputFields: title,url,snippet,score,published,answer,usage,request_id
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use for API-backed public web search, Tavily-specific depth/topic/domain controls, current news, finance, and LLM-optimized snippets."
 
   - id: firecrawl
@@ -100,5 +100,5 @@ providers:
     authModes: api_key
     rotationSupported: true
     outputFields: id,data,web,images,news,title,url,description,markdown,creditsUsed,warning
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use when search should optionally scrape full page content, when JS-heavy sources are likely, or when the user explicitly asks for Firecrawl."

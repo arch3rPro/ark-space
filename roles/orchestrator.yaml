@@ -14,6 +14,7 @@ routes:
   docs:
     - docs/doc-writer
     - docs/doc-editor
+    - docs/web-researcher
     - docs/knowledge-manager
   product:
     - product/prd-planner
@@ -25,7 +26,7 @@ routes:
   skills:
     - skills/skill-manager
   research:
-    - docs/knowledge-manager
+    - docs/web-researcher
     - product/competitive-analyst
 providerRegistries:
   search: registry/search-providers.yaml

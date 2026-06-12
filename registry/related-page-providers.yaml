@@ -20,5 +20,5 @@ providers:
     rotationSupported: true
     input: url
     outputFields: title,url,snippet,score,published,author,highlights,highlight_scores,summary,entities,extras,cost_dollars,request_id
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
     notes: "Use when a known URL should seed discovery of similar pages, papers, products, repositories, competitors, or adjacent resources."

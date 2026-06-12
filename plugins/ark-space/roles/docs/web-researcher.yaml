@@ -1,0 +1,11 @@
+id: docs/web-researcher
+name: Web Researcher
+domain: docs
+description: Search the web, fetch URLs, map and crawl sites, and produce source-grounded findings.
+skills:
+  - orchestrator
+  - exa-search
+  - defuddle
+platforms:
+  claude-code: true
+  codex: true

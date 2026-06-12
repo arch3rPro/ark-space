@@ -14,7 +14,7 @@ providers:
     input: url
     outputFormats: markdown,json,html
     outputFields: markdown,html,title,description,domain
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use after web_search returns a URL, or when the user provides a normal web page URL to read or analyze."
 
   - id: exa
@@ -37,7 +37,7 @@ providers:
     input: url
     outputFormats: markdown,text,json
     outputFields: url,title,raw_content,summary,highlights,highlight_scores,published,author,id,image,favicon,subpages,extras,statuses,context,cost_dollars,request_id
-    roles: docs/knowledge-manager,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
     notes: "Use for Exa search results, Exa result ids, URLs needing summaries/highlights, subpage discovery, content freshness control, or link extras."
 
   - id: tavily
@@ -60,7 +60,7 @@ providers:
     input: url
     outputFormats: markdown,text,json
     outputFields: url,raw_content,images,failed_results,request_id
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use when local extraction is insufficient, pages need JavaScript rendering, multiple URLs must be processed, or query-focused chunks are needed."
 
   - id: firecrawl
@@ -83,5 +83,5 @@ providers:
     input: url
     outputFormats: markdown,html,rawHtml,links,screenshot,json
     outputFields: markdown,html,rawHtml,links,screenshot,metadata,actions,warning
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use for JS-rendered pages, bot-protected pages, Firecrawl caching, main-content extraction, or explicit Firecrawl scrape requests."

@@ -209,7 +209,7 @@ def check_static():
     status |= require_regex(
         ROOT / "registry" / "workflows.yaml",
         [
-            r"id: provider-capabilities.*usedBy: arkspace-orchestrator,arkspace-knowledge-manager,arkspace-competitive-analyst",
+            r"id: provider-capabilities.*usedBy: arkspace-orchestrator,arkspace-web-researcher,arkspace-competitive-analyst",
         ],
     )
 

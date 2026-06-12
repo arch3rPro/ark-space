@@ -20,7 +20,7 @@ providers:
     rotationSupported: true
     input: site_url
     outputFields: base_url,results,usage,request_id,response_time
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use for multi-page extraction from a known site section. Start with shallow depth and small limits."
 
   - id: firecrawl
@@ -42,5 +42,5 @@ providers:
     rotationSupported: true
     input: site_url
     outputFields: id,status,total,completed,creditsUsed,data,markdown,metadata
-    roles: docs/knowledge-manager,product/competitive-analyst,orchestrator
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
     notes: "Use for multi-page extraction from a known site section when Firecrawl CLI-backed crawling is requested or useful."
