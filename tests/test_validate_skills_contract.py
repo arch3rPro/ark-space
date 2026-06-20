@@ -196,6 +196,12 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("move real projects into `Projects`", personal_agent)
         self.assertIn("turn at least one active project into a visible next action in `Next`", personal_agent)
 
+    def test_embeds_reference_includes_base_embed_example(self):
+        embeds = (ROOT / "skills" / "obsidian-markdown" / "references" / "EMBEDS.md").read_text(encoding="utf-8")
+
+        self.assertIn("## Embed Bases", embeds)
+        self.assertIn("![[Example.base]]", embeds)
+
     def test_tavily_extended_capabilities_are_provider_registered(self):
         expectations = {
             "search-providers.yaml": ("tavily-search", "web_search"),

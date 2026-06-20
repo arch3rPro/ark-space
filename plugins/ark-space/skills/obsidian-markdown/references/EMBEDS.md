@@ -38,6 +38,12 @@
 ![[document.pdf#height=400]]
 ```
 
+## Embed Bases
+
+```markdown
+![[Example.base]]
+```
+
 ## Embed Lists
 
 ```markdown
