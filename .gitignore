@@ -7,3 +7,4 @@ __pycache__/
 # Local private overlays
 overlays/personal.yaml
 overlays/private-skills.yaml
+overlays/internal-docs/

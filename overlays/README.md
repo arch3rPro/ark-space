@@ -8,3 +8,6 @@ Suggested local files:
 
 - `overlays/personal.yaml`
 - `overlays/private-skills.yaml`
+- `overlays/internal-docs/`
+
+Use `overlays/internal-docs/` for local-only roadmap notes, planning drafts, and other internal process documents that should not appear in the public source tree or packaged outputs.

@@ -8,6 +8,15 @@ import importlib.util
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+INTERNAL_PACKAGE_EXCLUDES = {
+    Path("docs/improvement-backlog.md"),
+}
+FORBIDDEN_PUBLIC_DOC_PATHS = {
+    Path("docs/improvement-backlog.md"),
+}
+FORBIDDEN_PUBLIC_DOC_PREFIXES = (
+    Path("docs/superpowers"),
+)
 VALID_SYNC_MODES = {"mirror", "adapted", "local", "reference-only"}
 VALID_PROVIDER_STATUS = {"active", "experimental", "disabled"}
 VALID_CAPABILITIES = {
@@ -62,6 +71,33 @@ def fail(message):
 
 def read_text(path):
     return path.read_text(encoding="utf-8")
+
+
+def validate_internal_docs_not_public():
+    for rel_path in FORBIDDEN_PUBLIC_DOC_PATHS:
+        if (ROOT / rel_path).exists():
+            fail(f"Internal planning doc must not live in the public docs tree: {rel_path}")
+    for rel_prefix in FORBIDDEN_PUBLIC_DOC_PREFIXES:
+        target = ROOT / rel_prefix
+        if target.exists():
+            leaked = sorted(path.relative_to(ROOT) for path in target.rglob("*") if path.is_file())
+            if leaked:
+                rendered = ", ".join(str(path) for path in leaked[:5])
+                fail(f"Internal planning docs must not live in the public docs tree: {rendered}")
+
+
+def internal_package_excludes_for_root(rel_root):
+    root_path = Path(rel_root)
+    return {
+        path.relative_to(root_path)
+        for path in INTERNAL_PACKAGE_EXCLUDES
+        if path.parts[: len(root_path.parts)] == root_path.parts
+    }
+
+
+def filter_internal_package_paths(paths, rel_root):
+    excluded = internal_package_excludes_for_root(rel_root)
+    return [path for path in paths if path not in excluded]
 
 
 def parse_simple_yaml_list(path, top_key):
@@ -318,11 +354,18 @@ def validate_codex_package_copy(package_dir):
         package_subdir = package_dir / rel_root
         source_files = [item.relative_to(source_dir) for item in iter_package_files(source_dir)]
         package_files = [item.relative_to(package_subdir) for item in iter_package_files(package_subdir)]
+        if rel_root == "docs":
+            source_files = filter_internal_package_paths(source_files, rel_root)
+            package_files = filter_internal_package_paths(package_files, rel_root)
         if source_files != package_files:
             fail(f"Codex package {rel_root}/ file list does not match repository source")
         for rel_file in source_files:
             if not filecmp.cmp(source_dir / rel_file, package_subdir / rel_file, shallow=False):
                 fail(f"Codex package file is stale: {package_subdir / rel_file}")
+
+    for rel_path in INTERNAL_PACKAGE_EXCLUDES:
+        if (package_dir / rel_path).exists():
+            fail(f"Codex package must not include internal planning doc: {package_dir / rel_path}")
 
     for rel_file in mirrored_files:
         if not filecmp.cmp(ROOT / rel_file, package_dir / rel_file, shallow=False):
@@ -699,6 +742,7 @@ def validate_platform_manifests():
 
 
 def main():
+    validate_internal_docs_not_public()
     validate_skill_frontmatter()
     validate_agent_frontmatter()
     validate_registry_files()

@@ -5,6 +5,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_DIR = ROOT / "plugins" / "ark-space"
+INTERNAL_PACKAGE_EXCLUDES = {
+    Path("docs/improvement-backlog.md"),
+}
 PACKAGE_ITEMS = [
     ".codex-plugin",
     "agents",
@@ -31,6 +34,13 @@ def copy_item(name):
         shutil.copy2(source, target)
 
 
+def remove_internal_package_paths():
+    for rel_path in INTERNAL_PACKAGE_EXCLUDES:
+        target = PACKAGE_DIR / rel_path
+        if target.exists():
+            target.unlink()
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Rebuild the Codex marketplace package under plugins/ark-space."
@@ -54,6 +64,8 @@ def main():
 
     for item in PACKAGE_ITEMS:
         copy_item(item)
+
+    remove_internal_package_paths()
 
     print(f"rebuilt Codex package: {PACKAGE_DIR.relative_to(ROOT)}")
     return 0

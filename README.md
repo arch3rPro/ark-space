@@ -149,7 +149,6 @@ See [docs/provider-configuration.md](docs/provider-configuration.md) for command
 | [docs/architecture.md](docs/architecture.md) | Framework layers and runtime entrypoints. |
 | [docs/adding-skills.md](docs/adding-skills.md) | How to add or adapt skills. |
 | [docs/platform-support.md](docs/platform-support.md) | Host adapter expectations and support notes. |
-| [docs/improvement-backlog.md](docs/improvement-backlog.md) | Framework improvement backlog. |
 
 ## Development Contract
 

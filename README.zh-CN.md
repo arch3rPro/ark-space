@@ -149,7 +149,6 @@ Provider 设置支持：
 | [docs/architecture.md](docs/architecture.md) | 框架分层和运行入口。 |
 | [docs/adding-skills.md](docs/adding-skills.md) | 如何新增或改造 Skills。 |
 | [docs/platform-support.md](docs/platform-support.md) | Host 适配要求和支持说明。 |
-| [docs/improvement-backlog.md](docs/improvement-backlog.md) | 框架优化 Backlog。 |
 
 ## 开发契约
 
