@@ -131,6 +131,71 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("obsidian-markdown", doc_writer_skills)
         self.validate.validate_registry_files()
 
+    def test_personal_assistant_registry_contract(self):
+        agents = self.validate.parse_simple_yaml_list(ROOT / "registry" / "agents.yaml", "agents")
+        roles = self.validate.parse_simple_yaml_list(ROOT / "registry" / "roles.yaml", "roles")
+        agents_by_id = {item["id"]: item for item in agents}
+        roles_by_id = {item["id"]: item for item in roles}
+
+        self.assertIn("arkspace-personal-assistant", agents_by_id)
+        self.assertIn("personal/personal-assistant", roles_by_id)
+
+        personal_agent = agents_by_id["arkspace-personal-assistant"]
+        personal_role = roles_by_id["personal/personal-assistant"]
+        personal_skills = self.validate.split_csv(personal_agent["skills"])
+
+        self.assertEqual(personal_agent["domain"], "personal")
+        self.assertEqual(personal_role["domain"], "personal")
+        self.assertIn("obsidian-kanban", personal_skills)
+        self.assertIn("obsidian-cli", personal_skills)
+        self.assertNotIn("obsidian-bases", personal_skills)
+        self.assertNotIn("json-canvas", personal_skills)
+
+        role_text = (ROOT / personal_role["path"]).read_text(encoding="utf-8")
+        self.assertIn("Kanban-first workflow", role_text)
+
+        orchestrator = (ROOT / "roles" / "orchestrator.yaml").read_text(encoding="utf-8")
+        self.assertIn("personal:", orchestrator)
+        self.assertIn("personal/personal-assistant", orchestrator)
+
+    def test_personal_assistant_boundary_is_bidirectional(self):
+        knowledge_manager = (ROOT / "agents" / "docs" / "knowledge-manager.md").read_text(encoding="utf-8")
+        project_manager = (ROOT / "agents" / "project" / "project-manager.md").read_text(encoding="utf-8")
+        doc_writer = (ROOT / "agents" / "docs" / "doc-writer.md").read_text(encoding="utf-8")
+        orchestrator = (ROOT / "agents" / "orchestrator.md").read_text(encoding="utf-8")
+
+        self.assertIn("arkspace-personal-assistant", knowledge_manager)
+        self.assertIn("arkspace-personal-assistant", project_manager)
+        self.assertIn("arkspace-personal-assistant", doc_writer)
+        self.assertIn("personal execution", orchestrator)
+
+    def test_personal_assistant_exposes_default_board_and_invocation_examples(self):
+        personal_agent = (ROOT / "agents" / "personal" / "personal-assistant.md").read_text(encoding="utf-8")
+        invocation = (ROOT / "docs" / "invocation.md").read_text(encoding="utf-8")
+
+        for column in ["Inbox", "Next", "Scheduled", "Projects", "Waiting", "Someday", "Done"]:
+            with self.subTest(column=column):
+                self.assertIn(column, personal_agent)
+
+        self.assertIn("/ark-space:orchestrator help me run my weekly planning board", invocation)
+        self.assertIn("/ark-space:orchestrator capture these personal tasks into my Obsidian Kanban", invocation)
+
+    def test_personal_assistant_includes_first_session_example(self):
+        personal_agent = (ROOT / "agents" / "personal" / "personal-assistant.md").read_text(encoding="utf-8")
+
+        self.assertIn("## First Session Example", personal_agent)
+        self.assertIn("I need to renew my passport next month", personal_agent)
+        self.assertIn("Personal website refresh", personal_agent)
+        self.assertIn("Recommended next action", personal_agent)
+
+    def test_personal_assistant_includes_weekly_planning_and_inbox_triage_guides(self):
+        personal_agent = (ROOT / "agents" / "personal" / "personal-assistant.md").read_text(encoding="utf-8")
+
+        self.assertIn("## Weekly Planning", personal_agent)
+        self.assertIn("## Inbox Triage", personal_agent)
+        self.assertIn("move real projects into `Projects`", personal_agent)
+        self.assertIn("turn at least one active project into a visible next action in `Next`", personal_agent)
+
     def test_tavily_extended_capabilities_are_provider_registered(self):
         expectations = {
             "search-providers.yaml": ("tavily-search", "web_search"),

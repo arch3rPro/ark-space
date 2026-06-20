@@ -29,7 +29,7 @@ For any capability represented by a provider registry, use that registry as the 
 
 ## Routing Workflow
 
-1. Identify the primary task domain: code, docs, product, project, skills, knowledge management, research, or cross-domain.
+1. Identify the primary task domain: code, docs, product, project, personal execution, skills, knowledge management, research, or cross-domain.
 2. Select the smallest useful role set from `roles/`.
 3. For web tasks, choose the role first, then use `workflows/provider-capabilities.md` and the provider registry before execution.
 4. Use one role for simple work.
@@ -46,6 +46,7 @@ For any capability represented by a provider registry, use that registry as the 
 | CI, PR, release-prep discussion, repository hygiene | `code/repo-maintainer` |
 | Write new documentation | `docs/doc-writer` |
 | Improve existing documentation | `docs/doc-editor` |
+| Capture personal tasks, weekly plans, personal project upkeep, or maintain a Kanban-first personal dashboard | `personal/personal-assistant` |
 | Work with Obsidian, notes, Bases, Canvas, or knowledge files | `docs/knowledge-manager` |
 | Web search, source discovery, general research, SearXNG | `docs/web-researcher` |
 | Read, fetch, summarize, or extract a provided URL | `docs/web-researcher` |

@@ -65,6 +65,13 @@ agents:
     workflows: handoff-template,quality-gates
     hosts: claude-code,codex
 
+  - id: arkspace-personal-assistant
+    path: agents/personal/personal-assistant.md
+    domain: personal
+    skills: orchestrator,obsidian-kanban,obsidian-cli
+    workflows: quality-gates
+    hosts: claude-code,codex
+
   - id: arkspace-skill-manager
     path: agents/skills/skill-manager.md
     domain: skills

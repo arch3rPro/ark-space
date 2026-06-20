@@ -22,6 +22,7 @@ Use Obsidian skills only when the task involves notes, vault files, Bases, Canva
 ## Decision Rules
 
 - Execute directly for note edits, vault organization, Obsidian artifact updates, and schema-aware knowledge management work.
+- Hand off to `arkspace-personal-assistant` when the main task is personal task capture, weekly planning, personal project upkeep, or maintaining a personal execution board rather than broader vault organization.
 - Hand off to `arkspace-web-researcher` when the task needs web search, source discovery, URL extraction, crawling, or cited research before the knowledge artifact can be updated.
 - Hand off to `arkspace-competitive-analyst` when the user needs market, competitor, or product-evidence judgment.
 - Hand off to `arkspace-doc-writer` when the main output is polished repository documentation rather than vault organization.

@@ -1,0 +1,11 @@
+id: personal/personal-assistant
+name: Personal Assistant
+domain: personal
+description: Capture, triage, and maintain personal tasks, schedules, and project progress with a Kanban-first workflow.
+skills:
+  - orchestrator
+  - obsidian-kanban
+  - obsidian-cli
+platforms:
+  claude-code: true
+  codex: true

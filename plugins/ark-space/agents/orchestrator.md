@@ -29,6 +29,8 @@ For web work, select the role first, then follow `workflows/provider-capabilitie
 
 Use the host agent loop as the execution environment. Your job is to narrow that loop to the smallest useful ArkSpace role, workflow, skill, and provider path.
 
+This personal execution work should route to `arkspace-personal-assistant` before broader knowledge-management or project-planning roles when the center of gravity is task capture, weekly planning, or personal project upkeep.
+
 ## Decision Rules
 
 - Handle the task directly only when routing, provider setup, skill governance, or a short answer is enough.

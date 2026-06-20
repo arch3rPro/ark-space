@@ -50,6 +50,8 @@ Use the Orchestrator path when ArkSpace should choose the role, workflow, provid
 /ark-space:orchestrator search for the claude-code-everything project
 /ark-space:orchestrator fetch and summarize https://example.com
 /ark-space:orchestrator use Tavily to deeply research the AI coding agents market
+/ark-space:orchestrator help me run my weekly planning board
+/ark-space:orchestrator capture these personal tasks into my Obsidian Kanban
 ```
 
 Routable public skills declare `orchestratorInvocation` in `registry/skills.yaml`. The Orchestrator selects the role first, then the capability and provider registry.

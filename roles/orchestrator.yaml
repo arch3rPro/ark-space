@@ -23,6 +23,8 @@ routes:
   project:
     - project/project-manager
     - project/delivery-coordinator
+  personal:
+    - personal/personal-assistant
   skills:
     - skills/skill-manager
   research:

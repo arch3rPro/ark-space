@@ -54,6 +54,10 @@ roles:
     path: roles/project/delivery-coordinator.yaml
     domain: project
 
+  - id: personal/personal-assistant
+    path: roles/personal/personal-assistant.yaml
+    domain: personal
+
   - id: skills/skill-manager
     path: roles/skills/skill-manager.yaml
     domain: skills

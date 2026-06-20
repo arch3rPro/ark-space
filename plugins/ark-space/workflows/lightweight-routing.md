@@ -46,6 +46,7 @@ Use the simplest route that can produce verified output.
 | Implement, refactor, test, debug | `agents/code/code-engineer.md` |
 | Review code or assess regressions | `agents/code/code-reviewer.md` |
 | Write or improve documentation | `agents/docs/doc-writer.md` |
+| Capture personal tasks, weekly plans, personal project upkeep, or maintain a Kanban-first personal dashboard | `agents/personal/personal-assistant.md` |
 | Work with notes, Obsidian, Bases, Canvas, Kanban, or knowledge files | `agents/docs/knowledge-manager.md` |
 | Web search, source discovery, URL extraction, or general web research | `agents/docs/web-researcher.md` |
 | Shape requirements, scope, PRDs, or acceptance criteria | `agents/product/prd-planner.md` |
@@ -66,6 +67,7 @@ Escalate from direct skill execution to Orchestrator when the caller did not nam
 | PRD to implementation | `prd-planner` clarifies scope -> `code-engineer` implements -> `code-reviewer` checks risk -> `doc-writer` updates docs when needed |
 | Research to documentation | `web-researcher` gathers and fetches sources -> `doc-writer` writes the artifact -> quality gate verifies source/file references |
 | Competitive evidence | `competitive-analyst` evaluates evidence -> optional `web-researcher` gathers hard-to-fetch sources -> optional `prd-planner` converts findings into product decisions |
+| Personal execution | `personal-assistant` captures and triages -> `obsidian-kanban` becomes the working surface -> optional `project-manager`, `knowledge-manager`, or `prd-planner` takes over when the center of gravity shifts |
 | Skill adoption | `skill-manager` records source and registry metadata -> `code-engineer` implements runtime scripts when needed -> `skill-manager` validates package and installed-host evidence |
 | Provider setup | `provider-manager` checks configuration -> setup flow persists local config -> original owner retries the requested provider task |
 

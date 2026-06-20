@@ -36,7 +36,7 @@ The Orchestrator is a routing entrypoint, not a replacement for the host agent l
 
 Agents are role owners. They compose skills and workflows without duplicating skill bodies.
 
-Initial agents cover code, docs, web research, product, project, knowledge management, and skill governance. Their inventory lives in `registry/agents.yaml`.
+Initial agents cover code, docs, web research, product, project, personal execution, knowledge management, and skill governance. Their inventory lives in `registry/agents.yaml`.
 
 ## Workflows
 
@@ -53,7 +53,7 @@ Web skills are selected as providers after role routing.
 
 `web_search` takes a query and returns candidate URLs, snippets, and source metadata. `web_fetch` takes a URL and returns readable content such as Markdown, text, or extraction metadata. `related_pages` takes a URL and returns similar pages or adjacent sources. `code_context` takes a coding query and returns repository-grounded examples and API usage context. Provider registries also cover `web_map`, `web_crawl`, `deep_research`, `code_context`, and `related_pages` when a provider supports those capabilities.
 
-A general source-discovery request routes to `agents/docs/web-researcher.md`. Obsidian note organization routes to `agents/docs/knowledge-manager.md`. A competitor or market-evidence request routes to `agents/product/competitive-analyst.md`. Code documentation and upstream library discovery route through code agents when local repository context is not enough. Those agents then select a configured provider skill such as `searxng-search` for private search, `exa-search` for semantic technical discovery, `exa-similar` for URL-seeded related discovery, `exa-context` for implementation examples, `tavily-search` for broad current search, or `defuddle` for local fetch.
+A personal task-capture or weekly-planning request routes to `agents/personal/personal-assistant.md`. A general source-discovery request routes to `agents/docs/web-researcher.md`. Obsidian note organization routes to `agents/docs/knowledge-manager.md`. A competitor or market-evidence request routes to `agents/product/competitive-analyst.md`. Code documentation and upstream library discovery route through code agents when local repository context is not enough. Those agents then select a configured provider skill such as `searxng-search` for private search, `exa-search` for semantic technical discovery, `exa-similar` for URL-seeded related discovery, `exa-context` for implementation examples, `tavily-search` for broad current search, or `defuddle` for local fetch.
 
 Provider configuration is metadata-driven. Registry entries declare whether configuration is required, which environment variables are recommended or compatible, how to check availability, and what to do when configuration is missing. Actual URLs, API keys, and private endpoints stay in the host environment or local ignored settings.
 

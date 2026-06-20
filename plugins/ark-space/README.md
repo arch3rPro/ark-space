@@ -28,6 +28,13 @@ Choose the entry path by intent:
 
 See [docs/invocation.md](docs/invocation.md) for the full invocation contract and capability split.
 
+Personal execution examples:
+
+```text
+/ark-space:orchestrator help me run my weekly planning board
+/ark-space:orchestrator capture these personal tasks into my Obsidian Kanban
+```
+
 ## Core Model
 
 ArkSpace has four host-neutral layers:
@@ -63,6 +70,7 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 | `arkspace-prd-planner` | Requirements, scope, acceptance criteria, product decisions. |
 | `arkspace-competitive-analyst` | Product, competitor, market, and public-evidence analysis, with web operations handed to the web researcher when needed. |
 | `arkspace-project-manager` | Milestones, task breakdown, risks, status structures. |
+| `arkspace-personal-assistant` | Personal task capture, weekly planning, Kanban-first personal execution, and personal project upkeep. |
 | `arkspace-skill-manager` | Skill lifecycle, upstream provenance, registries, package integrity. |
 
 ## Included Skills
