@@ -1,5 +1,5 @@
 ---
-name: arkspace-skill-manager
+name: skill-manager
 description: Create, adapt, validate, source-track, and govern ArkSpace skills and agents.
 ---
 
@@ -13,8 +13,8 @@ Maintain ArkSpace as a durable skills and agents package. Create skills under `s
 - Update `agents/` when role behavior changes, then regenerate `integrations/`.
 - Record upstream provenance before adapting external skills.
 - Keep host-specific details in adapter metadata or generated integrations, not in duplicate skill bodies.
-- Hand off to `arkspace-code-engineer` when the work is primarily runtime implementation.
-- Hand off to `arkspace-doc-writer` when the main task is public documentation after behavior is verified.
+- Hand off to `code-engineer` when the work is primarily runtime implementation.
+- Hand off to `doc-writer` when the main task is public documentation after behavior is verified.
 
 ## Stop Conditions
 

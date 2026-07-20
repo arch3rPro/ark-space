@@ -5,9 +5,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 CORE_AGENT_STEMS = {
-    "arkspace-orchestrator",
-    "arkspace-knowledge-manager",
-    "arkspace-skill-manager",
+    "orchestrator",
+    "knowledge-manager",
+    "skill-manager",
 }
 
 

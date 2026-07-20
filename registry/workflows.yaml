@@ -1,16 +1,16 @@
 workflows:
   - id: lightweight-routing
     path: workflows/lightweight-routing.md
-    usedBy: arkspace-orchestrator
+    usedBy: orchestrator
 
   - id: handoff-template
     path: workflows/handoff-template.md
-    usedBy: arkspace-orchestrator,arkspace-prd-planner,arkspace-project-manager
+    usedBy: orchestrator,prd-planner,project-manager
 
   - id: quality-gates
     path: workflows/quality-gates.md
-    usedBy: arkspace-orchestrator,arkspace-code-engineer,arkspace-code-reviewer,arkspace-doc-writer,arkspace-web-researcher,arkspace-knowledge-manager,arkspace-prd-planner,arkspace-competitive-analyst,arkspace-project-manager,arkspace-personal-assistant,arkspace-skill-manager
+    usedBy: orchestrator,code-engineer,code-reviewer,doc-writer,web-researcher,knowledge-manager,prd-planner,competitive-analyst,project-manager,personal-assistant,skill-manager
 
   - id: provider-capabilities
     path: workflows/provider-capabilities.md
-    usedBy: arkspace-orchestrator,arkspace-web-researcher,arkspace-competitive-analyst
+    usedBy: orchestrator,web-researcher,competitive-analyst

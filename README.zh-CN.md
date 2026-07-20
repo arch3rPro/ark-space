@@ -61,17 +61,17 @@ Claude Code、Codex 和未来 Host 通过适配层复用同一份 Skill 文件�
 
 | Agent | 职责 |
 |---|---|
-| `arkspace-orchestrator` | 轻量路由、Provider 配置路由、工作流选择。 |
-| `arkspace-code-engineer` | 实现、重构、测试、调试。 |
-| `arkspace-code-reviewer` | 缺陷、回归、风险和测试缺口审查。 |
-| `arkspace-doc-writer` | 项目文档和必要的 Obsidian Markdown。 |
-| `arkspace-web-researcher` | Web 搜索、URL 提取、爬取、监控和基于来源的研究。 |
-| `arkspace-knowledge-manager` | 笔记、Obsidian 资产、Bases、Canvas、Kanban 和 Vault 组织。 |
-| `arkspace-prd-planner` | 需求、范围、验收标准、产品决策。 |
-| `arkspace-competitive-analyst` | 产品、竞品、市场和公开证据分析；需要网页操作时交给 Web researcher。 |
-| `arkspace-project-manager` | 里程碑、任务拆解、风险和状态结构。 |
-| `arkspace-personal-assistant` | 个人任务捕获、周计划、以 Kanban 为中心的个人推进和个人项目维护。 |
-| `arkspace-skill-manager` | Skill 生命周期、上游来源、注册表和包完整性。 |
+| `orchestrator` | 轻量路由、Provider 配置路由、工作流选择。 |
+| `code-engineer` | 实现、重构、测试、调试。 |
+| `code-reviewer` | 缺陷、回归、风险和测试缺口审查。 |
+| `doc-writer` | 项目文档和必要的 Obsidian Markdown。 |
+| `web-researcher` | Web 搜索、URL 提取、爬取、监控和基于来源的研究。 |
+| `knowledge-manager` | 笔记、Obsidian 资产、Bases、Canvas、Kanban 和 Vault 组织。 |
+| `prd-planner` | 需求、范围、验收标准、产品决策。 |
+| `competitive-analyst` | 产品、竞品、市场和公开证据分析；需要网页操作时交给 Web researcher。 |
+| `project-manager` | 里程碑、任务拆解、风险和状态结构。 |
+| `personal-assistant` | 个人任务捕获、周计划、以 Kanban 为中心的个人推进和个人项目维护。 |
+| `skill-manager` | Skill 生命周期、上游来源、注册表和包完整性。 |
 
 ## Included Skills
 

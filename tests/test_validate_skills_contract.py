@@ -99,11 +99,11 @@ class ValidateSkillsContractTests(unittest.TestCase):
         agents = self.validate.parse_simple_yaml_list(ROOT / "registry" / "agents.yaml", "agents")
         agents_by_id = {item["id"]: item for item in agents}
 
-        web_skills = self.validate.split_csv(agents_by_id["arkspace-web-researcher"]["skills"])
-        knowledge_skills = self.validate.split_csv(agents_by_id["arkspace-knowledge-manager"]["skills"])
-        competitive_skills = self.validate.split_csv(agents_by_id["arkspace-competitive-analyst"]["skills"])
-        doc_writer_skills = self.validate.split_csv(agents_by_id["arkspace-doc-writer"]["skills"])
-        orchestrator_skills = self.validate.split_csv(agents_by_id["arkspace-orchestrator"]["skills"])
+        web_skills = self.validate.split_csv(agents_by_id["web-researcher"]["skills"])
+        knowledge_skills = self.validate.split_csv(agents_by_id["knowledge-manager"]["skills"])
+        competitive_skills = self.validate.split_csv(agents_by_id["competitive-analyst"]["skills"])
+        doc_writer_skills = self.validate.split_csv(agents_by_id["doc-writer"]["skills"])
+        orchestrator_skills = self.validate.split_csv(agents_by_id["orchestrator"]["skills"])
 
         for name in [
             "arxiv-search",
@@ -137,10 +137,10 @@ class ValidateSkillsContractTests(unittest.TestCase):
         agents_by_id = {item["id"]: item for item in agents}
         roles_by_id = {item["id"]: item for item in roles}
 
-        self.assertIn("arkspace-personal-assistant", agents_by_id)
+        self.assertIn("personal-assistant", agents_by_id)
         self.assertIn("personal/personal-assistant", roles_by_id)
 
-        personal_agent = agents_by_id["arkspace-personal-assistant"]
+        personal_agent = agents_by_id["personal-assistant"]
         personal_role = roles_by_id["personal/personal-assistant"]
         personal_skills = self.validate.split_csv(personal_agent["skills"])
 
@@ -164,9 +164,9 @@ class ValidateSkillsContractTests(unittest.TestCase):
         doc_writer = (ROOT / "agents" / "docs" / "doc-writer.md").read_text(encoding="utf-8")
         orchestrator = (ROOT / "agents" / "orchestrator.md").read_text(encoding="utf-8")
 
-        self.assertIn("arkspace-personal-assistant", knowledge_manager)
-        self.assertIn("arkspace-personal-assistant", project_manager)
-        self.assertIn("arkspace-personal-assistant", doc_writer)
+        self.assertIn("personal-assistant", knowledge_manager)
+        self.assertIn("personal-assistant", project_manager)
+        self.assertIn("personal-assistant", doc_writer)
         self.assertIn("personal execution", orchestrator)
 
     def test_personal_assistant_exposes_default_board_and_invocation_examples(self):

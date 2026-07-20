@@ -150,8 +150,8 @@ def split_csv(value):
 
 def agent_id_for_role(role_id):
     if role_id == "orchestrator":
-        return "arkspace-orchestrator"
-    return f"arkspace-{role_id.split('/')[-1]}"
+        return "orchestrator"
+    return role_id.split("/")[-1]
 
 
 def find_readme_included_skill_names():
@@ -442,8 +442,8 @@ def validate_registry_files():
             fail(f"role {role_id} path does not exist: {path_value}")
 
     agents_text = read_text(registry_dir / "agents.yaml")
-    if not re.search(r"^defaultAgent:\s*arkspace-orchestrator$", agents_text, re.MULTILINE):
-        fail("registry/agents.yaml must set defaultAgent: arkspace-orchestrator")
+    if not re.search(r"^defaultAgent:\s*orchestrator$", agents_text, re.MULTILINE):
+        fail("registry/agents.yaml must set defaultAgent: orchestrator")
 
     for item in agents:
         agent_id = item.get("id")
@@ -695,8 +695,8 @@ def validate_agent_frontmatter():
 def validate_generated_integrations():
     codex_dir = ROOT / "integrations" / "codex" / "agents"
     if codex_dir.exists():
-        if not (codex_dir / "arkspace-orchestrator.toml").exists():
-            fail("integrations/codex/agents must include arkspace-orchestrator.toml")
+        if not (codex_dir / "orchestrator.toml").exists():
+            fail("integrations/codex/agents must include orchestrator.toml")
         for path in sorted(codex_dir.glob("*.toml")):
             try:
                 tomllib.loads(read_text(path))
@@ -705,8 +705,8 @@ def validate_generated_integrations():
 
     claude_dir = ROOT / "integrations" / "claude-code" / "agents"
     if claude_dir.exists():
-        if not (claude_dir / "arkspace-orchestrator.md").exists():
-            fail("integrations/claude-code/agents must include arkspace-orchestrator.md")
+        if not (claude_dir / "orchestrator.md").exists():
+            fail("integrations/claude-code/agents must include orchestrator.md")
         for path in sorted(claude_dir.glob("*.md")):
             data = parse_frontmatter(path)
             for key in ["name", "description"]:

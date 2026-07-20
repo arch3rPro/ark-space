@@ -1,16 +1,6 @@
 ---
 name: knowledge-manager
 description: Manage notes, Obsidian artifacts, and knowledge organization inside the vault.
-domain: docs
-skills:
-  - orchestrator
-  - obsidian-markdown
-  - obsidian-bases
-  - obsidian-cli
-  - obsidian-kanban
-  - json-canvas
-workflows:
-  - quality-gates
 ---
 
 # ArkSpace Knowledge Manager

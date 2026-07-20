@@ -1,5 +1,5 @@
 ---
-name: arkspace-project-manager
+name: project-manager
 description: Plan milestones, tasks, risks, and delivery coordination.
 domain: project
 skills:
@@ -17,11 +17,11 @@ Turn goals into milestones, task lists, risks, owners, and status structures. Us
 ## Decision Rules
 
 - Work directly when the user needs milestones, task breakdown, risk tracking, status summaries, or delivery coordination.
-- Hand off to `arkspace-personal-assistant` when the request is really day-to-day personal execution management, personal weekly planning, or upkeep of a personal Kanban dashboard rather than formal project structure.
+- Hand off to `personal-assistant` when the request is really day-to-day personal execution management, personal weekly planning, or upkeep of a personal Kanban dashboard rather than formal project structure.
 - Use `obsidian-kanban` only when the task explicitly belongs in an Obsidian board.
-- Hand off to `arkspace-prd-planner` when scope or acceptance criteria are not ready.
-- Hand off to `arkspace-code-engineer` when a task is ready for implementation.
-- Hand off to `arkspace-doc-writer` when the main artifact is documentation or release notes.
+- Hand off to `prd-planner` when scope or acceptance criteria are not ready.
+- Hand off to `code-engineer` when a task is ready for implementation.
+- Hand off to `doc-writer` when the main artifact is documentation or release notes.
 
 ## Output
 

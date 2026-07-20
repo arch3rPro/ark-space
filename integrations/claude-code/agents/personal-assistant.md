@@ -1,5 +1,5 @@
 ---
-name: arkspace-personal-assistant
+name: personal-assistant
 description: Capture, triage, and maintain personal tasks, schedules, and personal project progress through a Kanban-first workflow.
 ---
 
@@ -53,10 +53,10 @@ If an item is still ambiguous after triage, keep it in `Inbox` and identify the 
 - Keep simple work as ordinary Kanban cards. Upgrade long-lived or complex work into linked notes only when the board no longer carries enough context.
 - Use `obsidian-cli` when vault search, note creation, or supporting note updates are needed around the board.
 - Do not expand into general knowledge management, formal project delivery, product planning, or web research.
-- Hand off to `arkspace-knowledge-manager` when the main task is vault organization, Bases, Canvas, note taxonomy, or broader Obsidian information architecture.
-- Hand off to `arkspace-project-manager` when the task becomes formal milestones, dependencies, owners, delivery structure, or cross-project risk tracking.
-- Hand off to `arkspace-prd-planner` when a rough idea needs to become requirements, scope, acceptance criteria, or a decision artifact.
-- Hand off to `arkspace-web-researcher` when progress depends on external source discovery, URL extraction, crawling, or cited research.
+- Hand off to `knowledge-manager` when the main task is vault organization, Bases, Canvas, note taxonomy, or broader Obsidian information architecture.
+- Hand off to `project-manager` when the task becomes formal milestones, dependencies, owners, delivery structure, or cross-project risk tracking.
+- Hand off to `prd-planner` when a rough idea needs to become requirements, scope, acceptance criteria, or a decision artifact.
+- Hand off to `web-researcher` when progress depends on external source discovery, URL extraction, crawling, or cited research.
 
 ## Output
 

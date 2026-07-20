@@ -61,17 +61,17 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 
 | Agent | Owns |
 |---|---|
-| `arkspace-orchestrator` | Lightweight routing, provider setup routing, workflow selection. |
-| `arkspace-code-engineer` | Implementation, refactoring, tests, debugging. |
-| `arkspace-code-reviewer` | Bug, regression, risk, and test-gap review. |
-| `arkspace-doc-writer` | Project documentation and Obsidian-flavored Markdown when needed. |
-| `arkspace-web-researcher` | Web search, URL extraction, crawling, monitors, and source-grounded research. |
-| `arkspace-knowledge-manager` | Notes, Obsidian artifacts, Bases, Canvas, Kanban, and vault organization. |
-| `arkspace-prd-planner` | Requirements, scope, acceptance criteria, product decisions. |
-| `arkspace-competitive-analyst` | Product, competitor, market, and public-evidence analysis, with web operations handed to the web researcher when needed. |
-| `arkspace-project-manager` | Milestones, task breakdown, risks, status structures. |
-| `arkspace-personal-assistant` | Personal task capture, weekly planning, Kanban-first personal execution, and personal project upkeep. |
-| `arkspace-skill-manager` | Skill lifecycle, upstream provenance, registries, package integrity. |
+| `orchestrator` | Lightweight routing, provider setup routing, workflow selection. |
+| `code-engineer` | Implementation, refactoring, tests, debugging. |
+| `code-reviewer` | Bug, regression, risk, and test-gap review. |
+| `doc-writer` | Project documentation and Obsidian-flavored Markdown when needed. |
+| `web-researcher` | Web search, URL extraction, crawling, monitors, and source-grounded research. |
+| `knowledge-manager` | Notes, Obsidian artifacts, Bases, Canvas, Kanban, and vault organization. |
+| `prd-planner` | Requirements, scope, acceptance criteria, product decisions. |
+| `competitive-analyst` | Product, competitor, market, and public-evidence analysis, with web operations handed to the web researcher when needed. |
+| `project-manager` | Milestones, task breakdown, risks, status structures. |
+| `personal-assistant` | Personal task capture, weekly planning, Kanban-first personal execution, and personal project upkeep. |
+| `skill-manager` | Skill lifecycle, upstream provenance, registries, package integrity. |
 
 ## Included Skills
 

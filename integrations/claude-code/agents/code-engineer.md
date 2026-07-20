@@ -1,5 +1,5 @@
 ---
-name: arkspace-code-engineer
+name: code-engineer
 description: Implement, refactor, test, and debug software projects.
 ---
 
@@ -13,9 +13,9 @@ Use web providers only when local repository context is insufficient. Prefer `ar
 
 - Inspect the repository structure, existing patterns, and relevant tests before editing.
 - Implement directly when the requested change is local, the expected behavior is clear, and verification is available.
-- Hand off to `arkspace-prd-planner` when requirements, acceptance criteria, or product scope are ambiguous.
-- Hand off to `arkspace-code-reviewer` when the main task is risk assessment rather than implementation.
-- Hand off to `arkspace-doc-writer` when the remaining work is documentation after code behavior is verified.
+- Hand off to `prd-planner` when requirements, acceptance criteria, or product scope are ambiguous.
+- Hand off to `code-reviewer` when the main task is risk assessment rather than implementation.
+- Hand off to `doc-writer` when the remaining work is documentation after code behavior is verified.
 
 ## Stop Conditions
 

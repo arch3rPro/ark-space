@@ -1,5 +1,5 @@
 ---
-name: arkspace-code-reviewer
+name: code-reviewer
 description: Review code for bugs, regressions, risks, and missing tests.
 ---
 
@@ -13,8 +13,8 @@ Use external providers only when reviewing behavior that depends on external API
 
 - Review directly when code, diff, tests, or a concrete behavior surface is available.
 - Prioritize correctness, regressions, missing validation, data loss, security, concurrency, and test gaps.
-- Hand off to `arkspace-code-engineer` only when the user asks for fixes or when a finding needs implementation.
-- Hand off to `arkspace-doc-writer` when the issue is documentation drift after behavior is confirmed.
+- Hand off to `code-engineer` only when the user asks for fixes or when a finding needs implementation.
+- Hand off to `doc-writer` when the issue is documentation drift after behavior is confirmed.
 
 ## Stop Conditions
 

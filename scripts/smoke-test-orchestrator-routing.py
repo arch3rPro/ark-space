@@ -203,18 +203,18 @@ def check_static():
     status |= require_regex(
         ROOT / "registry" / "agents.yaml",
         [
-            r"id: arkspace-orchestrator.*workflows: lightweight-routing,provider-capabilities,handoff-template,quality-gates",
+            r"id: orchestrator.*workflows: lightweight-routing,provider-capabilities,handoff-template,quality-gates",
         ],
     )
     status |= require_regex(
         ROOT / "registry" / "workflows.yaml",
         [
-            r"id: provider-capabilities.*usedBy: arkspace-orchestrator,arkspace-web-researcher,arkspace-competitive-analyst",
+            r"id: provider-capabilities.*usedBy: orchestrator,web-researcher,competitive-analyst",
         ],
     )
 
-    generated_codex = ROOT / "integrations" / "codex" / "agents" / "arkspace-orchestrator.toml"
-    generated_claude = ROOT / "integrations" / "claude-code" / "agents" / "arkspace-orchestrator.md"
+    generated_codex = ROOT / "integrations" / "codex" / "agents" / "orchestrator.toml"
+    generated_claude = ROOT / "integrations" / "claude-code" / "agents" / "orchestrator.md"
     if generated_codex.exists():
         status |= require_text(generated_codex, ["Provider registries are part of the route"])
     if generated_claude.exists():

@@ -1,5 +1,5 @@
 ---
-name: arkspace-web-researcher
+name: web-researcher
 description: Handle web search, URL extraction, source discovery, crawling, and cited research.
 ---
 
@@ -19,9 +19,9 @@ Prefer Firecrawl when pages require rendering, structured extraction, site crawl
 
 - Execute directly for source discovery, URL fetches, site maps, crawls, extraction, monitors, and bounded research requests.
 - Use a provider workflow before execution when the task needs web search, fetch, crawl, map, structured extraction, interaction, monitoring, research, code context, or related-page discovery.
-- Hand off to `arkspace-competitive-analyst` when the user needs market, competitor, or product-evidence judgment rather than general research.
-- Hand off to `arkspace-knowledge-manager` when the main task is organizing notes, editing Obsidian artifacts, or storing findings in Bases, Canvas, Kanban, or vault files.
-- Hand off to `arkspace-doc-writer` when the main output is polished documentation rather than research evidence collection.
+- Hand off to `competitive-analyst` when the user needs market, competitor, or product-evidence judgment rather than general research.
+- Hand off to `knowledge-manager` when the main task is organizing notes, editing Obsidian artifacts, or storing findings in Bases, Canvas, Kanban, or vault files.
+- Hand off to `doc-writer` when the main output is polished documentation rather than research evidence collection.
 - Stop and report when provider configuration is missing and the user declines setup or the host cannot safely collect the required secret.
 
 ## Output

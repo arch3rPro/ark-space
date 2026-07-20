@@ -1,7 +1,7 @@
-defaultAgent: arkspace-orchestrator
+defaultAgent: orchestrator
 
 agents:
-  - id: arkspace-orchestrator
+  - id: orchestrator
     path: agents/orchestrator.md
     domain: meta
     default: true
@@ -9,70 +9,70 @@ agents:
     workflows: lightweight-routing,provider-capabilities,handoff-template,quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-code-engineer
+  - id: code-engineer
     path: agents/code/code-engineer.md
     domain: code
     skills: orchestrator,arxiv-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-code-reviewer
+  - id: code-reviewer
     path: agents/code/code-reviewer.md
     domain: code
     skills: orchestrator,arxiv-search,exa-search,exa-contents,exa-context,exa-similar
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-doc-writer
+  - id: doc-writer
     path: agents/docs/doc-writer.md
     domain: docs
     skills: orchestrator,obsidian-markdown
     workflows: quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-web-researcher
+  - id: web-researcher
     path: agents/docs/web-researcher.md
     domain: docs
     skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,firecrawl-browser,firecrawl-interact,firecrawl-monitor,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-knowledge-manager
+  - id: knowledge-manager
     path: agents/docs/knowledge-manager.md
     domain: docs
     skills: orchestrator,obsidian-markdown,obsidian-bases,obsidian-cli,obsidian-kanban,json-canvas
     workflows: quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-prd-planner
+  - id: prd-planner
     path: agents/product/prd-planner.md
     domain: product
     skills: orchestrator
     workflows: handoff-template,quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-competitive-analyst
+  - id: competitive-analyst
     path: agents/product/competitive-analyst.md
     domain: product
     skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-project-manager
+  - id: project-manager
     path: agents/project/project-manager.md
     domain: project
     skills: orchestrator,obsidian-kanban
     workflows: handoff-template,quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-personal-assistant
+  - id: personal-assistant
     path: agents/personal/personal-assistant.md
     domain: personal
     skills: orchestrator,obsidian-kanban,obsidian-cli
     workflows: quality-gates
     hosts: claude-code,codex
 
-  - id: arkspace-skill-manager
+  - id: skill-manager
     path: agents/skills/skill-manager.md
     domain: skills
     skills: orchestrator,skill-manager,provider-manager
