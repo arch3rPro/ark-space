@@ -1,0 +1,61 @@
+{
+  "skill_name": "drive-me",
+  "evals": [
+    {
+      "id": 0,
+      "name": "value-gate-unvalidated-product",
+      "prompt": "I want to build a complete personal task-management tool today. I have not interviewed users, checked existing tools, or written acceptance criteria. I have exactly one focus session and I want you to tell me whether to start coding now.",
+      "expected_output": "Refuses to recommend coding the full product now; diagnoses unclear value and scope risk; proposes a one-session value gate with an artifact/decision, non-goal, definition of done, and anti-procrastination fallback.",
+      "files": [],
+      "expectations": [
+        "Explicitly says not to start coding the complete task-management tool in this session.",
+        "Diagnoses unclear value, scope risk, missing acceptance criteria, or a supported equivalent using evidence from the prompt.",
+        "Provides a bounded validation action for one focus session and names the artifact or decision it produces.",
+        "Includes at least one explicit non-goal and one observable definition of done.",
+        "Includes a concrete start condition or fallback for getting stuck."
+      ]
+    },
+    {
+      "id": 1,
+      "name": "restart-without-system-redesign",
+      "prompt": "I have not studied for my certification exam in two weeks. Every time I sit down, I redesign the whole study system, compare apps, and end up doing nothing. Help me restart today, but do not give me a long plan or a new productivity setup.",
+      "expected_output": "Diagnoses system redesign as avoidance/scope drift or unclear next action; gives one small study artifact, a within-10-minute start, one check-in, and a fallback; avoids a new app/process or long plan.",
+      "files": [],
+      "expectations": [
+        "Diagnoses the blocker as scope drift, unclear next action, missing feedback loop, avoidance-through-redesign, or a supported equivalent rather than generic motivation.",
+        "Does not recommend redesigning the study system, comparing apps, or adopting a new productivity setup.",
+        "Gives an action that can start within ten minutes and produces a concrete study artifact or visible result.",
+        "Includes exactly one near-term check-in or progress signal.",
+        "Includes a specific fallback for getting stuck and avoids a long multi-phase plan."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "bounded-ai-generation-brief",
+      "prompt": "我准备让 AI 按我写的一段模糊描述直接生成一个完整的个人习惯应用。我担心又会做得很差，但也不想花半天写 spec。请推动我做正确的下一步，只能给我一个很小的交付物。",
+      "expected_output": "拒绝直接从模糊描述生成完整应用；把问题连接到对齐、范围或验证；提出一个小型澄清/原型交付物，而不是长 spec；明确非目标和可观察验收条件。",
+      "files": [],
+      "expectations": [
+        "明确不建议现在直接生成完整习惯应用。",
+        "说明原因与需求对齐、范围控制、验收/验证风险中的至少一个有关。",
+        "只提出一个小型交付物，例如一页 brief、三条用户场景、验收清单或最小原型说明，而不是长篇 spec。",
+        "明确至少一个非目标。",
+        "明确至少一个可观察的验收条件。"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "priority-conflict-one-question",
+      "prompt": "I promised to send a client update today, but I also want to start a new side-project feature because it feels more exciting. I have not said how much time I have. Help me choose without assuming my schedule.",
+      "expected_output": "Recognizes priority conflict; does not invent available time; asks at most one focused question if needed or chooses a bounded next action that protects the client commitment; includes a concrete start condition and non-goal.",
+      "files": [],
+      "expectations": [
+        "Diagnoses a priority conflict using evidence from the prompt.",
+        "Does not invent a specific available time or schedule details not provided by the user.",
+        "Prioritizes protecting or clarifying the promised client update before starting the exciting side-project feature.",
+        "Includes a bounded next action with a visible deliverable or decision.",
+        "Includes an explicit non-goal or boundary for the current step."
+      ]
+    }
+  ]
+}

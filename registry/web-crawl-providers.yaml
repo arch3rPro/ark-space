@@ -2,7 +2,7 @@ defaultCrawlPolicy: conservative-site-crawl
 
 providers:
   - id: tavily
-    skill: tavily-crawl
+    skill: web-site
     status: active
     capability: web_crawl
     providerType: crawl-api
@@ -24,7 +24,7 @@ providers:
     notes: "Use for multi-page extraction from a known site section. Start with shallow depth and small limits."
 
   - id: firecrawl
-    skill: firecrawl-crawl
+    skill: web-site
     status: active
     capability: web_crawl
     providerType: cli-backed-crawl

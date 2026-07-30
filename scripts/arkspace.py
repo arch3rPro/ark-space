@@ -10,77 +10,77 @@ PROVIDER_CHECK_COMMANDS = {
     ("defuddle", "web_fetch"): ["defuddle", "--version"],
     ("arxiv", "web_search"): [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py", "--check"],
     ("searxng", "web_search"): [sys.executable, "skills/searxng-search/scripts/searxng_search.py", "--check"],
-    ("tavily", "web_search"): [sys.executable, "skills/tavily-search/scripts/tavily_search.py", "--check"],
-    ("tavily", "web_fetch"): [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py", "--check"],
-    ("tavily", "web_map"): [sys.executable, "skills/tavily-map/scripts/tavily_map.py", "--check"],
-    ("tavily", "web_crawl"): [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py", "--check"],
-    ("tavily", "deep_research"): [sys.executable, "skills/tavily-research/scripts/tavily_research.py", "--check"],
-    ("exa", "web_search"): [sys.executable, "skills/exa-search/scripts/exa_search.py", "--check"],
-    ("exa", "web_fetch"): [sys.executable, "skills/exa-contents/scripts/exa_contents.py", "--check"],
-    ("exa", "deep_research"): [sys.executable, "skills/exa-answer/scripts/exa_answer.py", "--check"],
-    ("exa", "code_context"): [sys.executable, "skills/exa-context/scripts/exa_context.py", "--check"],
-    ("exa", "related_pages"): [sys.executable, "skills/exa-similar/scripts/exa_similar.py", "--check"],
-    ("firecrawl", "web_search"): [sys.executable, "skills/firecrawl-search/scripts/firecrawl_search.py", "--check"],
-    ("firecrawl", "web_fetch"): [sys.executable, "skills/firecrawl-scrape/scripts/firecrawl_scrape.py", "--check"],
-    ("firecrawl", "web_map"): [sys.executable, "skills/firecrawl-map/scripts/firecrawl_map.py", "--check"],
-    ("firecrawl", "web_crawl"): [sys.executable, "skills/firecrawl-crawl/scripts/firecrawl_crawl.py", "--check"],
-    ("firecrawl", "structured_extract"): [sys.executable, "skills/firecrawl-agent/scripts/firecrawl_agent.py", "--check"],
-    ("firecrawl", "web_interact"): [sys.executable, "skills/firecrawl-browser/scripts/firecrawl_browser.py", "--check"],
-    ("firecrawl", "web_monitor"): [sys.executable, "skills/firecrawl-monitor/scripts/firecrawl_monitor.py", "--check"],
+    ("tavily", "web_search"): [sys.executable, "skills/web-discover/scripts/tavily_search.py", "--check"],
+    ("tavily", "web_fetch"): [sys.executable, "skills/web-fetch/scripts/tavily_extract.py", "--check"],
+    ("tavily", "web_map"): [sys.executable, "skills/web-site/scripts/tavily_map.py", "--check"],
+    ("tavily", "web_crawl"): [sys.executable, "skills/web-site/scripts/tavily_crawl.py", "--check"],
+    ("tavily", "deep_research"): [sys.executable, "skills/web-research/scripts/tavily_research.py", "--check"],
+    ("exa", "web_search"): [sys.executable, "skills/web-discover/scripts/exa_search.py", "--check"],
+    ("exa", "web_fetch"): [sys.executable, "skills/web-fetch/scripts/exa_contents.py", "--check"],
+    ("exa", "deep_research"): [sys.executable, "skills/web-research/scripts/exa_answer.py", "--check"],
+    ("exa", "code_context"): [sys.executable, "skills/code-context/scripts/exa_context.py", "--check"],
+    ("exa", "related_pages"): [sys.executable, "skills/web-discover/scripts/exa_similar.py", "--check"],
+    ("firecrawl", "web_search"): [sys.executable, "skills/web-discover/scripts/firecrawl_search.py", "--check"],
+    ("firecrawl", "web_fetch"): [sys.executable, "skills/web-fetch/scripts/firecrawl_scrape.py", "--check"],
+    ("firecrawl", "web_map"): [sys.executable, "skills/web-site/scripts/firecrawl_map.py", "--check"],
+    ("firecrawl", "web_crawl"): [sys.executable, "skills/web-site/scripts/firecrawl_crawl.py", "--check"],
+    ("firecrawl", "structured_extract"): [sys.executable, "skills/web-extract/scripts/firecrawl_agent.py", "--check"],
+    ("firecrawl", "web_interact"): [sys.executable, "skills/web-automation/scripts/firecrawl_browser.py", "--check"],
+    ("firecrawl", "web_monitor"): [sys.executable, "skills/web-automation/scripts/firecrawl_monitor.py", "--check"],
 }
 
 WEB_SEARCH_COMMANDS = {
     "arxiv": [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py"],
-    "exa": [sys.executable, "skills/exa-search/scripts/exa_search.py"],
-    "firecrawl": [sys.executable, "skills/firecrawl-search/scripts/firecrawl_search.py"],
+    "exa": [sys.executable, "skills/web-discover/scripts/exa_search.py"],
+    "firecrawl": [sys.executable, "skills/web-discover/scripts/firecrawl_search.py"],
     "searxng": [sys.executable, "skills/searxng-search/scripts/searxng_search.py"],
-    "tavily": [sys.executable, "skills/tavily-search/scripts/tavily_search.py"],
+    "tavily": [sys.executable, "skills/web-discover/scripts/tavily_search.py"],
 }
 
 WEB_FETCH_COMMANDS = {
     "defuddle": ["defuddle", "parse"],
-    "exa": [sys.executable, "skills/exa-contents/scripts/exa_contents.py"],
-    "firecrawl": [sys.executable, "skills/firecrawl-scrape/scripts/firecrawl_scrape.py"],
-    "tavily": [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py"],
+    "exa": [sys.executable, "skills/web-fetch/scripts/exa_contents.py"],
+    "firecrawl": [sys.executable, "skills/web-fetch/scripts/firecrawl_scrape.py"],
+    "tavily": [sys.executable, "skills/web-fetch/scripts/tavily_extract.py"],
 }
 
 WEB_SIMILAR_COMMANDS = {
-    "exa": [sys.executable, "skills/exa-similar/scripts/exa_similar.py"],
+    "exa": [sys.executable, "skills/web-discover/scripts/exa_similar.py"],
 }
 
 SITE_MAP_COMMANDS = {
-    "firecrawl": [sys.executable, "skills/firecrawl-map/scripts/firecrawl_map.py"],
-    "tavily": [sys.executable, "skills/tavily-map/scripts/tavily_map.py"],
+    "firecrawl": [sys.executable, "skills/web-site/scripts/firecrawl_map.py"],
+    "tavily": [sys.executable, "skills/web-site/scripts/tavily_map.py"],
 }
 
 SITE_CRAWL_COMMANDS = {
-    "firecrawl": [sys.executable, "skills/firecrawl-crawl/scripts/firecrawl_crawl.py"],
-    "tavily": [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py"],
+    "firecrawl": [sys.executable, "skills/web-site/scripts/firecrawl_crawl.py"],
+    "tavily": [sys.executable, "skills/web-site/scripts/tavily_crawl.py"],
 }
 
 RESEARCH_COMMANDS = {
-    "exa": [sys.executable, "skills/exa-answer/scripts/exa_answer.py"],
-    "tavily": [sys.executable, "skills/tavily-research/scripts/tavily_research.py"],
+    "exa": [sys.executable, "skills/web-research/scripts/exa_answer.py"],
+    "tavily": [sys.executable, "skills/web-research/scripts/tavily_research.py"],
 }
 
 CODE_CONTEXT_COMMANDS = {
-    "exa": [sys.executable, "skills/exa-context/scripts/exa_context.py"],
+    "exa": [sys.executable, "skills/code-context/scripts/exa_context.py"],
 }
 
 STRUCTURED_EXTRACT_COMMANDS = {
-    "firecrawl": [sys.executable, "skills/firecrawl-agent/scripts/firecrawl_agent.py"],
+    "firecrawl": [sys.executable, "skills/web-extract/scripts/firecrawl_agent.py"],
 }
 
 BROWSER_COMMANDS = {
-    "firecrawl": [sys.executable, "skills/firecrawl-browser/scripts/firecrawl_browser.py"],
+    "firecrawl": [sys.executable, "skills/web-automation/scripts/firecrawl_browser.py"],
 }
 
 INTERACT_COMMANDS = {
-    "firecrawl": [sys.executable, "skills/firecrawl-interact/scripts/firecrawl_interact.py"],
+    "firecrawl": [sys.executable, "skills/web-automation/scripts/firecrawl_interact.py"],
 }
 
 MONITOR_COMMANDS = {
-    "firecrawl": [sys.executable, "skills/firecrawl-monitor/scripts/firecrawl_monitor.py"],
+    "firecrawl": [sys.executable, "skills/web-automation/scripts/firecrawl_monitor.py"],
 }
 
 

@@ -18,7 +18,7 @@ providers:
     notes: "Use after web_search returns a URL, or when the user provides a normal web page URL to read or analyze."
 
   - id: exa
-    skill: exa-contents
+    skill: web-fetch
     status: active
     capability: web_fetch
     providerType: contents-api
@@ -41,7 +41,7 @@ providers:
     notes: "Use for Exa search results, Exa result ids, URLs needing summaries/highlights, subpage discovery, content freshness control, or link extras."
 
   - id: tavily
-    skill: tavily-extract
+    skill: web-fetch
     status: active
     capability: web_fetch
     providerType: extraction-api
@@ -64,7 +64,7 @@ providers:
     notes: "Use when local extraction is insufficient, pages need JavaScript rendering, multiple URLs must be processed, or query-focused chunks are needed."
 
   - id: firecrawl
-    skill: firecrawl-scrape
+    skill: web-fetch
     status: active
     capability: web_fetch
     providerType: cli-backed-scrape

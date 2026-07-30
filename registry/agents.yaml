@@ -12,14 +12,14 @@ agents:
   - id: code-engineer
     path: agents/code/code-engineer.md
     domain: code
-    skills: orchestrator,arxiv-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar
+    skills: orchestrator,arxiv-search,web-discover,web-fetch,web-research,code-context
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
   - id: code-reviewer
     path: agents/code/code-reviewer.md
     domain: code
-    skills: orchestrator,arxiv-search,exa-search,exa-contents,exa-context,exa-similar
+    skills: orchestrator,arxiv-search,web-discover,web-fetch,code-context
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -33,7 +33,7 @@ agents:
   - id: web-researcher
     path: agents/docs/web-researcher.md
     domain: docs
-    skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-context,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,firecrawl-browser,firecrawl-interact,firecrawl-monitor,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
+    skills: orchestrator,searxng-search,arxiv-search,web-discover,web-fetch,web-site,web-research,web-extract,web-automation,code-context,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -47,14 +47,14 @@ agents:
   - id: prd-planner
     path: agents/product/prd-planner.md
     domain: product
-    skills: orchestrator
+    skills: orchestrator,prd-create
     workflows: handoff-template,quality-gates
     hosts: claude-code,codex
 
   - id: competitive-analyst
     path: agents/product/competitive-analyst.md
     domain: product
-    skills: orchestrator,searxng-search,arxiv-search,exa-search,exa-contents,exa-answer,exa-similar,firecrawl-search,firecrawl-scrape,firecrawl-map,firecrawl-crawl,firecrawl-agent,tavily-search,tavily-extract,tavily-map,tavily-crawl,tavily-research,defuddle
+    skills: orchestrator,searxng-search,arxiv-search,web-discover,web-fetch,web-site,web-research,web-extract,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -68,7 +68,7 @@ agents:
   - id: personal-assistant
     path: agents/personal/personal-assistant.md
     domain: personal
-    skills: orchestrator,obsidian-kanban,obsidian-cli
+    skills: orchestrator,drive-me,obsidian-kanban,obsidian-cli
     workflows: quality-gates
     hosts: claude-code,codex
 

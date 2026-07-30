@@ -41,7 +41,7 @@ providers:
     notes: "Use for SearXNG-specific requests or self-hosted/private search."
 
   - id: exa
-    skill: exa-search
+    skill: web-discover
     status: active
     capability: web_search
     providerType: semantic-search-api
@@ -62,7 +62,7 @@ providers:
     notes: "Use for semantic/neural search, coding docs, repositories, technical research, company/people/news discovery, domain/date filtered discovery, content-bearing search results, deep/deep-reasoning search modes, and structured output."
 
   - id: tavily
-    skill: tavily-search
+    skill: web-discover
     status: active
     capability: web_search
     providerType: search-api
@@ -83,7 +83,7 @@ providers:
     notes: "Use for API-backed public web search, Tavily-specific depth/topic/domain controls, current news, finance, and LLM-optimized snippets."
 
   - id: firecrawl
-    skill: firecrawl-search
+    skill: web-discover
     status: active
     capability: web_search
     providerType: cli-backed-search-scrape

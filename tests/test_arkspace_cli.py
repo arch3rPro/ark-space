@@ -39,7 +39,7 @@ class ArkspaceCliTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(
             calls[0],
-            [sys.executable, "skills/tavily-search/scripts/tavily_search.py", "--check"],
+            [sys.executable, "skills/web-discover/scripts/tavily_search.py", "--check"],
         )
 
     def test_provider_check_arxiv_delegates_to_arxiv_search_check(self):
@@ -57,14 +57,14 @@ class ArkspaceCliTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(
             calls[0],
-            [sys.executable, "skills/tavily-extract/scripts/tavily_extract.py", "--check"],
+            [sys.executable, "skills/web-fetch/scripts/tavily_extract.py", "--check"],
         )
 
     def test_provider_check_tavily_extended_capabilities_delegate_to_helpers(self):
         expectations = {
-            "web_map": [sys.executable, "skills/tavily-map/scripts/tavily_map.py", "--check"],
-            "web_crawl": [sys.executable, "skills/tavily-crawl/scripts/tavily_crawl.py", "--check"],
-            "deep_research": [sys.executable, "skills/tavily-research/scripts/tavily_research.py", "--check"],
+            "web_map": [sys.executable, "skills/web-site/scripts/tavily_map.py", "--check"],
+            "web_crawl": [sys.executable, "skills/web-site/scripts/tavily_crawl.py", "--check"],
+            "deep_research": [sys.executable, "skills/web-research/scripts/tavily_research.py", "--check"],
         }
         for capability, expected in expectations.items():
             with self.subTest(capability=capability):
@@ -74,11 +74,11 @@ class ArkspaceCliTests(unittest.TestCase):
 
     def test_provider_check_exa_capabilities_delegate_to_helpers(self):
         expectations = {
-            "web_search": [sys.executable, "skills/exa-search/scripts/exa_search.py", "--check"],
-            "web_fetch": [sys.executable, "skills/exa-contents/scripts/exa_contents.py", "--check"],
-            "deep_research": [sys.executable, "skills/exa-answer/scripts/exa_answer.py", "--check"],
-            "code_context": [sys.executable, "skills/exa-context/scripts/exa_context.py", "--check"],
-            "related_pages": [sys.executable, "skills/exa-similar/scripts/exa_similar.py", "--check"],
+            "web_search": [sys.executable, "skills/web-discover/scripts/exa_search.py", "--check"],
+            "web_fetch": [sys.executable, "skills/web-fetch/scripts/exa_contents.py", "--check"],
+            "deep_research": [sys.executable, "skills/web-research/scripts/exa_answer.py", "--check"],
+            "code_context": [sys.executable, "skills/code-context/scripts/exa_context.py", "--check"],
+            "related_pages": [sys.executable, "skills/web-discover/scripts/exa_similar.py", "--check"],
         }
         for capability, expected in expectations.items():
             with self.subTest(capability=capability):
@@ -103,13 +103,13 @@ class ArkspaceCliTests(unittest.TestCase):
 
     def test_provider_check_firecrawl_capabilities_delegate_to_helpers(self):
         expectations = {
-            "web_search": [sys.executable, "skills/firecrawl-search/scripts/firecrawl_search.py", "--check"],
-            "web_fetch": [sys.executable, "skills/firecrawl-scrape/scripts/firecrawl_scrape.py", "--check"],
-            "web_map": [sys.executable, "skills/firecrawl-map/scripts/firecrawl_map.py", "--check"],
-            "web_crawl": [sys.executable, "skills/firecrawl-crawl/scripts/firecrawl_crawl.py", "--check"],
-            "structured_extract": [sys.executable, "skills/firecrawl-agent/scripts/firecrawl_agent.py", "--check"],
-            "web_interact": [sys.executable, "skills/firecrawl-browser/scripts/firecrawl_browser.py", "--check"],
-            "web_monitor": [sys.executable, "skills/firecrawl-monitor/scripts/firecrawl_monitor.py", "--check"],
+            "web_search": [sys.executable, "skills/web-discover/scripts/firecrawl_search.py", "--check"],
+            "web_fetch": [sys.executable, "skills/web-fetch/scripts/firecrawl_scrape.py", "--check"],
+            "web_map": [sys.executable, "skills/web-site/scripts/firecrawl_map.py", "--check"],
+            "web_crawl": [sys.executable, "skills/web-site/scripts/firecrawl_crawl.py", "--check"],
+            "structured_extract": [sys.executable, "skills/web-extract/scripts/firecrawl_agent.py", "--check"],
+            "web_interact": [sys.executable, "skills/web-automation/scripts/firecrawl_browser.py", "--check"],
+            "web_monitor": [sys.executable, "skills/web-automation/scripts/firecrawl_monitor.py", "--check"],
         }
         for capability, expected in expectations.items():
             with self.subTest(capability=capability):
@@ -339,7 +339,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/tavily-search/scripts/tavily_search.py",
+                "skills/web-discover/scripts/tavily_search.py",
                 "agent skills",
                 "--max-results",
                 "3",
@@ -464,7 +464,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/exa-search/scripts/exa_search.py",
+                "skills/web-discover/scripts/exa_search.py",
                 "agent skills",
                 "--max-results",
                 "3",
@@ -513,7 +513,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-search/scripts/firecrawl_search.py",
+                "skills/web-discover/scripts/firecrawl_search.py",
                 "agent skills",
                 "--max-results",
                 "3",
@@ -546,7 +546,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-scrape/scripts/firecrawl_scrape.py",
+                "skills/web-fetch/scripts/firecrawl_scrape.py",
                 "https://example.com",
                 "--format",
                 "markdown,links",
@@ -581,7 +581,7 @@ class ArkspaceCliTests(unittest.TestCase):
             map_calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-map/scripts/firecrawl_map.py",
+                "skills/web-site/scripts/firecrawl_map.py",
                 "https://docs.example.com",
                 "--search",
                 "auth",
@@ -594,7 +594,7 @@ class ArkspaceCliTests(unittest.TestCase):
             crawl_calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-crawl/scripts/firecrawl_crawl.py",
+                "skills/web-site/scripts/firecrawl_crawl.py",
                 "https://docs.example.com",
                 "--include-paths",
                 "/docs",
@@ -630,7 +630,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-agent/scripts/firecrawl_agent.py",
+                "skills/web-extract/scripts/firecrawl_agent.py",
                 "extract company pricing",
                 "--urls",
                 "https://example.com/pricing",
@@ -666,7 +666,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-browser/scripts/firecrawl_browser.py",
+                "skills/web-automation/scripts/firecrawl_browser.py",
                 "open https://example.com and snapshot",
                 "--profile",
                 "research",
@@ -698,7 +698,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-interact/scripts/firecrawl_interact.py",
+                "skills/web-automation/scripts/firecrawl_interact.py",
                 "--scrape-id",
                 "scrape_123",
                 "--prompt",
@@ -735,7 +735,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/firecrawl-monitor/scripts/firecrawl_monitor.py",
+                "skills/web-automation/scripts/firecrawl_monitor.py",
                 "create",
                 "--name",
                 "Blog",
@@ -791,7 +791,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/tavily-extract/scripts/tavily_extract.py",
+                "skills/web-fetch/scripts/tavily_extract.py",
                 "https://example.com",
                 "--timeout",
                 "60",
@@ -835,7 +835,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/exa-contents/scripts/exa_contents.py",
+                "skills/web-fetch/scripts/exa_contents.py",
                 "https://example.com",
                 "--text-max-characters",
                 "1000",
@@ -881,7 +881,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/exa-similar/scripts/exa_similar.py",
+                "skills/web-discover/scripts/exa_similar.py",
                 "https://example.com",
                 "--max-results",
                 "4",
@@ -921,7 +921,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/tavily-map/scripts/tavily_map.py",
+                "skills/web-site/scripts/tavily_map.py",
                 "https://docs.example.com",
                 "--instructions",
                 "Find auth docs",
@@ -960,7 +960,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/tavily-crawl/scripts/tavily_crawl.py",
+                "skills/web-site/scripts/tavily_crawl.py",
                 "https://docs.example.com",
                 "--instructions",
                 "Find auth docs",
@@ -997,7 +997,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/tavily-research/scripts/tavily_research.py",
+                "skills/web-research/scripts/tavily_research.py",
                 "AI coding agents market",
                 "--model",
                 "pro",
@@ -1029,7 +1029,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/exa-answer/scripts/exa_answer.py",
+                "skills/web-research/scripts/exa_answer.py",
                 "AI coding agents market",
                 "--timeout",
                 "60",
@@ -1068,7 +1068,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/exa-context/scripts/exa_context.py",
+                "skills/code-context/scripts/exa_context.py",
                 "React hooks state management examples",
                 "--tokens",
                 "5000",
@@ -1099,7 +1099,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/tavily-research/scripts/tavily_research.py",
+                "skills/web-research/scripts/tavily_research.py",
                 "--status",
                 "req-123",
                 "--timeout",

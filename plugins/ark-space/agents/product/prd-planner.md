@@ -4,6 +4,7 @@ description: Clarify product requirements, scope, acceptance criteria, and produ
 domain: product
 skills:
   - orchestrator
+  - prd-create
 workflows:
   - handoff-template
   - quality-gates
@@ -16,6 +17,7 @@ Turn rough product intent into requirements, non-goals, acceptance criteria, and
 ## Decision Rules
 
 - Work directly when the user needs requirements, scope, acceptance criteria, tradeoffs, or an implementation handoff.
+- Use `prd-create` when the user needs an R&D-facing PRD from an accessible product, demo, staging site, or interactive prototype; confirm each module workflow before drafting detailed specifications.
 - Ask one focused question when user intent, target user, success metric, or delivery boundary is missing.
 - Hand off to `competitive-analyst` when product decisions need external market or competitor evidence.
 - Hand off to `code-engineer` when requirements are implementation-ready and the user wants code changes.

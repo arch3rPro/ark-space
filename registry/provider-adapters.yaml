@@ -1,0 +1,127 @@
+adapters:
+  - id: exa-search
+    provider: exa
+    capability: web_search
+    implementation: skills/web-discover/scripts/exa_search.py
+    sourceId: exa
+    upstreamPath: docs/reference/search
+    syncMode: adapted
+  - id: exa-fetch
+    provider: exa
+    capability: web_fetch
+    implementation: skills/web-fetch/scripts/exa_contents.py
+    sourceId: exa
+    upstreamPath: docs/reference/get-contents
+    syncMode: adapted
+  - id: exa-research
+    provider: exa
+    capability: deep_research
+    implementation: skills/web-research/scripts/exa_answer.py
+    sourceId: exa
+    upstreamPath: docs/reference/answer
+    syncMode: adapted
+  - id: exa-code-context
+    provider: exa
+    capability: code_context
+    implementation: skills/code-context/scripts/exa_context.py
+    sourceId: exa-context
+    upstreamPath: docs/reference/context
+    syncMode: adapted
+  - id: exa-related-pages
+    provider: exa
+    capability: related_pages
+    implementation: skills/web-discover/scripts/exa_similar.py
+    sourceId: exa-similar
+    upstreamPath: docs/reference/find-similar-links
+    syncMode: adapted
+  - id: tavily-search
+    provider: tavily
+    capability: web_search
+    implementation: skills/web-discover/scripts/tavily_search.py
+    sourceId: tavily-agent-skills
+    upstreamPath: search
+    syncMode: adapted
+  - id: tavily-fetch
+    provider: tavily
+    capability: web_fetch
+    implementation: skills/web-fetch/scripts/tavily_extract.py
+    sourceId: tavily-agent-skills
+    upstreamPath: extract
+    syncMode: adapted
+  - id: tavily-map
+    provider: tavily
+    capability: web_map
+    implementation: skills/web-site/scripts/tavily_map.py
+    sourceId: tavily-agent-skills
+    upstreamPath: map
+    syncMode: adapted
+  - id: tavily-crawl
+    provider: tavily
+    capability: web_crawl
+    implementation: skills/web-site/scripts/tavily_crawl.py
+    sourceId: tavily-agent-skills
+    upstreamPath: crawl
+    syncMode: adapted
+  - id: tavily-research
+    provider: tavily
+    capability: deep_research
+    implementation: skills/web-research/scripts/tavily_research.py
+    sourceId: tavily-agent-skills
+    upstreamPath: research
+    syncMode: adapted
+  - id: firecrawl-search
+    provider: firecrawl
+    capability: web_search
+    implementation: skills/web-discover/scripts/firecrawl_search.py
+    sourceId: firecrawl-cli
+    upstreamPath: search
+    syncMode: adapted
+  - id: firecrawl-fetch
+    provider: firecrawl
+    capability: web_fetch
+    implementation: skills/web-fetch/scripts/firecrawl_scrape.py
+    sourceId: firecrawl-cli
+    upstreamPath: scrape
+    syncMode: adapted
+  - id: firecrawl-map
+    provider: firecrawl
+    capability: web_map
+    implementation: skills/web-site/scripts/firecrawl_map.py
+    sourceId: firecrawl-cli
+    upstreamPath: map
+    syncMode: adapted
+  - id: firecrawl-crawl
+    provider: firecrawl
+    capability: web_crawl
+    implementation: skills/web-site/scripts/firecrawl_crawl.py
+    sourceId: firecrawl-cli
+    upstreamPath: crawl
+    syncMode: adapted
+  - id: firecrawl-extract
+    provider: firecrawl
+    capability: structured_extract
+    implementation: skills/web-extract/scripts/firecrawl_agent.py
+    sourceId: firecrawl-cli
+    upstreamPath: agent
+    syncMode: adapted
+  - id: firecrawl-browser
+    provider: firecrawl
+    capability: web_interact
+    implementation: skills/web-automation/scripts/firecrawl_browser.py
+    sourceId: firecrawl-cli
+    upstreamPath: browser
+    syncMode: adapted
+  - id: firecrawl-interact
+    provider: firecrawl
+    capability: web_interact
+    implementation: skills/web-automation/scripts/firecrawl_interact.py
+    sourceId: firecrawl-cli
+    upstreamPath: interact
+    syncMode: adapted
+  - id: firecrawl-monitor
+    provider: firecrawl
+    capability: web_monitor
+    implementation: skills/web-automation/scripts/firecrawl_monitor.py
+    sourceId: firecrawl-cli
+    upstreamPath: monitor
+    syncMode: adapted

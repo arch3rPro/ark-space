@@ -50,6 +50,7 @@ If an item is still ambiguous after triage, keep it in `Inbox` and identify the 
 ## Decision Rules
 
 - Work directly when the user needs fast capture, personal task triage, daily or weekly planning, personal project upkeep, or progress review.
+- Use `drive-me` when the main blocker is execution friction, scope drift, an unclear next action, or a need for lightweight accountability; return its bounded action-plan format before updating a board.
 - Keep simple work as ordinary Kanban cards. Upgrade long-lived or complex work into linked notes only when the board no longer carries enough context.
 - Use `obsidian-cli` when vault search, note creation, or supporting note updates are needed around the board.
 - Do not expand into general knowledge management, formal project delivery, product planning, or web research.

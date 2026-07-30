@@ -26,23 +26,23 @@ class ExaHelperTests(unittest.TestCase):
         os.environ["ARKSPACE_PROVIDER_SECRETS"] = self.secrets_path
         self.addCleanup(os.environ.pop, "ARKSPACE_PROVIDER_SECRETS", None)
         self.search = load_module(
-            ROOT / "skills" / "exa-search" / "scripts" / "exa_search.py",
+            ROOT / "skills" / "web-discover" / "scripts" / "exa_search.py",
             "exa_search_test_module",
         )
         self.contents = load_module(
-            ROOT / "skills" / "exa-contents" / "scripts" / "exa_contents.py",
+            ROOT / "skills" / "web-fetch" / "scripts" / "exa_contents.py",
             "exa_contents_test_module",
         )
         self.answer = load_module(
-            ROOT / "skills" / "exa-answer" / "scripts" / "exa_answer.py",
+            ROOT / "skills" / "web-research" / "scripts" / "exa_answer.py",
             "exa_answer_test_module",
         )
         self.context = load_module(
-            ROOT / "skills" / "exa-context" / "scripts" / "exa_context.py",
+            ROOT / "skills" / "code-context" / "scripts" / "exa_context.py",
             "exa_context_test_module",
         )
         self.similar = load_module(
-            ROOT / "skills" / "exa-similar" / "scripts" / "exa_similar.py",
+            ROOT / "skills" / "web-discover" / "scripts" / "exa_similar.py",
             "exa_similar_test_module",
         )
 

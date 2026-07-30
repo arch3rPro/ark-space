@@ -2,7 +2,7 @@ defaultMapPolicy: site-first-provider-second
 
 providers:
   - id: tavily
-    skill: tavily-map
+    skill: web-site
     status: active
     capability: web_map
     providerType: site-map-api
@@ -24,7 +24,7 @@ providers:
     notes: "Use when the site is known but the exact URL is not, or before crawl/extract on large sites."
 
   - id: firecrawl
-    skill: firecrawl-map
+    skill: web-site
     status: active
     capability: web_map
     providerType: cli-backed-site-map

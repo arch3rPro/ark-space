@@ -138,3 +138,17 @@ sources:
     syncPolicy: reference-only
     localPath: reference/superpowers
     notes: "Reference for multi-platform plugin structure and agent workflow skills."
+
+  - id: selfguard-drive-me
+    type: local
+    localPath: ../SelfGuard/skills/drive-me
+    license: unknown
+    syncPolicy: adapted
+    notes: "Migrated from the local SelfGuard workspace; its bounded personal-execution guidance is adapted for ArkSpace routing and package governance."
+
+  - id: ai-native-prd-create
+    type: local
+    localPath: ../../WorkStation/AI-Native/docs/product/prd-create-skill-dist-20260724-100249.zip
+    license: unknown
+    syncPolicy: adapted
+    notes: "Migrated from the local AI-Native PRD Create skill archive; adapted to ArkSpace role routing and source governance."

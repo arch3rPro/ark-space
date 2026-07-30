@@ -2,7 +2,7 @@ defaultResearchPolicy: report-first-provider-second
 
 providers:
   - id: exa
-    skill: exa-answer
+    skill: web-research
     status: active
     capability: deep_research
     providerType: answer-api
@@ -24,7 +24,7 @@ providers:
     notes: "Use for concise cited answers and focused synthesis. Use Tavily Research for long reports or broad market analysis."
 
   - id: tavily
-    skill: tavily-research
+    skill: web-research
     status: active
     capability: deep_research
     providerType: research-api

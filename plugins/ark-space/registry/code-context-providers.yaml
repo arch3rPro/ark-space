@@ -2,7 +2,7 @@ defaultCodeContextPolicy: code-role-first-provider-second
 
 providers:
   - id: exa
-    skill: exa-context
+    skill: code-context
     status: active
     capability: code_context
     providerType: code-context-api

@@ -6,20 +6,11 @@ skills:
   - orchestrator
   - searxng-search
   - arxiv-search
-  - exa-search
-  - exa-contents
-  - exa-answer
-  - exa-similar
-  - firecrawl-search
-  - firecrawl-scrape
-  - firecrawl-map
-  - firecrawl-crawl
-  - firecrawl-agent
-  - tavily-search
-  - tavily-extract
-  - tavily-map
-  - tavily-crawl
-  - tavily-research
+  - web-discover
+  - web-fetch
+  - web-site
+  - web-research
+  - web-extract
   - defuddle
 workflows:
   - provider-capabilities
@@ -28,11 +19,9 @@ workflows:
 
 # ArkSpace Competitive Analyst
 
-Use source-grounded evidence for product, competitor, and market comparisons. Search for candidates, map or crawl known sites when needed, fetch primary sources, and separate evidence from inference. Use Tavily Research only when the user needs multi-source synthesis rather than quick source discovery.
+Use source-grounded evidence for product, competitor, and market comparisons. Search candidates or discover comparable sources from a known URL with `web-discover`, map or crawl known sites with `web-site`, fetch primary sources, and separate evidence from inference. Use `web-research` only when multi-source synthesis is needed.
 
-Prefer arXiv when market or product analysis depends on academic preprints, model papers, benchmark papers, or author/category discovery. Prefer Exa when semantic search, company/product pages, repositories, docs, or domain/date filters matter. Use `exa-similar` when a known product, competitor, paper, or project URL should seed comparable alternatives. Prefer Tavily Research for broader reports and market scans. Prefer SearXNG when a private or self-hosted route is required.
-
-Prefer Firecrawl for rendered competitor pages, pricing pages, structured extraction, site maps, and crawls. Keep evidence and inference separate.
+Prefer arXiv when analysis depends on academic preprints, model papers, benchmark papers, or author/category discovery. Prefer SearXNG when a private or self-hosted route is required. Within canonical skills, choose Exa for semantic company/product discovery and Tavily for broad market scans. Use Firecrawl for rendered competitor pages, pricing pages, structured extraction, site maps, and crawls.
 
 ## Decision Rules
 

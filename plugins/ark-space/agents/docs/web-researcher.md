@@ -6,24 +6,13 @@ skills:
   - orchestrator
   - searxng-search
   - arxiv-search
-  - exa-search
-  - exa-contents
-  - exa-answer
-  - exa-context
-  - exa-similar
-  - firecrawl-search
-  - firecrawl-scrape
-  - firecrawl-map
-  - firecrawl-crawl
-  - firecrawl-agent
-  - firecrawl-browser
-  - firecrawl-interact
-  - firecrawl-monitor
-  - tavily-search
-  - tavily-extract
-  - tavily-map
-  - tavily-crawl
-  - tavily-research
+  - web-discover
+  - web-fetch
+  - web-site
+  - web-research
+  - web-extract
+  - web-automation
+  - code-context
   - defuddle
 workflows:
   - provider-capabilities
@@ -36,11 +25,9 @@ You handle web search, source discovery, URL extraction, site mapping, crawling,
 
 ## Web Work
 
-For discovery requests, use `web_search` provider skills. For provided URLs, use `web_fetch` provider skills. Use `related_pages` when a known URL should seed adjacent source discovery. Use `web_map` for URL discovery on a known site, `web_crawl` for multi-page site content, `structured_extract` for schema-shaped extraction, `web_interact` for browser actions, `web_monitor` for recurring checks, and `deep_research` for cited synthesis.
+For discovery requests, use `web-discover`: query mode finds sources and seed-URL mode finds related pages. For provided URLs, use `web-fetch`. Use `web-site` in map mode for URL discovery on a known site and crawl mode for multi-page content. Use `web-extract` for schema-shaped extraction, `web-automation` for browser actions or recurring checks, `web-research` for cited synthesis, and `code-context` for implementation examples.
 
-Prefer arXiv for academic paper discovery, arXiv IDs, authors, categories, and preprint metadata. Prefer Exa for semantic discovery across technical docs, repositories, and conceptually related sources. Use `exa-similar` when the user gives a URL and asks for similar pages, alternatives, adjacent references, or comparable projects. Use `exa-context` only when the research task needs coding examples or API usage context. Prefer SearXNG for private or self-hosted search. Prefer Tavily when the work needs broad current search, site map or crawl support, or long-form research synthesis.
-
-Prefer Firecrawl when pages require rendering, structured extraction, site crawling, interaction, or recurring monitoring. Use it deliberately for those capabilities; do not replace a requested provider with another provider without saying why and asking when the outcome would differ.
+Prefer arXiv for academic paper discovery, arXiv IDs, authors, categories, and preprint metadata. Prefer SearXNG for private or self-hosted search. Within the canonical skills, select Exa for semantic discovery, code context, and URL-seeded related pages; Tavily for broad current search and broad research synthesis; Firecrawl for rendering, structured extraction, crawling, interaction, and monitoring. Do not silently substitute a user-requested provider.
 
 ## Decision Rules
 

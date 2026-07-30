@@ -6,55 +6,45 @@ Invocation is part of the agent-loop contract. A public skill is not usable just
 
 ## Direct Skill Path
 
-Use a direct skill path when the caller already knows the skill or provider to use:
+Use a direct skill path when the caller knows the task capability. Provider selection is optional and only needed for an explicit provider request or provider-specific control:
 
 ```text
-/ark-space:tavily-search search claude-code-everything
+/ark-space:web-discover search claude-code-everything
+/ark-space:web-discover find pages related to https://example.com/article
 /ark-space:searxng-search search claude-code-everything
 /ark-space:arxiv-search search diffusion transformers
-/ark-space:exa-search search Claude Code plugin docs
-/ark-space:exa-contents extract https://example.com/article
-/ark-space:exa-answer answer what changed in AI coding agents in 2025
-/ark-space:exa-context find React hooks state management examples
-/ark-space:exa-similar find pages similar to https://example.com/article
-/ark-space:firecrawl-search search OpenClaw documentation
-/ark-space:firecrawl-scrape scrape https://example.com
-/ark-space:firecrawl-map map https://docs.example.com
-/ark-space:firecrawl-crawl crawl https://docs.example.com/docs
-/ark-space:firecrawl-agent extract product pricing from https://example.com
-/ark-space:firecrawl-browser open https://example.com and snapshot
-/ark-space:firecrawl-interact interact with scrape <scrape-id>
-/ark-space:firecrawl-monitor create monitor for https://example.com/blog
-/ark-space:tavily-extract extract https://example.com
-/ark-space:tavily-map map https://docs.example.com
-/ark-space:tavily-crawl crawl https://docs.example.com/docs
-/ark-space:tavily-research research the AI coding agents market
+/ark-space:web-fetch extract https://example.com/article
+/ark-space:web-site map https://docs.example.com
+/ark-space:web-site crawl https://docs.example.com/docs
+/ark-space:web-research research what changed in AI coding agents in 2025
+/ark-space:web-extract extract product pricing from https://example.com
+/ark-space:web-automation open https://example.com and snapshot
+/ark-space:web-automation monitor https://example.com/blog
+/ark-space:code-context find React hooks state management examples
 ```
 
 Direct invocation is declared in `registry/skills.yaml` with `directInvocation` and must include `/ark-space:<skill-name>`. Slash invocation is the public contract for user-facing examples and host smoke tests.
 
 ## Orchestrator Path
 
-Use the Orchestrator path when ArkSpace should choose the role, workflow, provider capability, or provider:
+Use the Orchestrator path when ArkSpace should choose the role, workflow, or capability; specify a provider only when its outcome would materially differ:
 
 ```text
-/ark-space:orchestrator use Tavily to search claude-code-everything
+/ark-space:orchestrator search current AI coding agent news
 /ark-space:orchestrator search arXiv papers about diffusion transformers
-/ark-space:orchestrator use Exa to search Claude Code plugin docs
-/ark-space:orchestrator use Exa to find React hooks state management examples
-/ark-space:orchestrator use Firecrawl to scrape https://example.com
-/ark-space:orchestrator use Firecrawl Agent to extract product pricing from https://example.com
-/ark-space:orchestrator use Firecrawl Browser to inspect https://example.com
-/ark-space:orchestrator use Firecrawl Monitor for https://example.com/blog
+/ark-space:orchestrator extract and summarize https://example.com
+/ark-space:orchestrator map https://docs.example.com
+/ark-space:orchestrator crawl https://docs.example.com/docs
+/ark-space:orchestrator extract product pricing from https://example.com
+/ark-space:orchestrator inspect https://example.com in a browser
+/ark-space:orchestrator monitor https://example.com/blog
 /ark-space:orchestrator find pages similar to https://example.com/article
-/ark-space:orchestrator search for the claude-code-everything project
-/ark-space:orchestrator fetch and summarize https://example.com
-/ark-space:orchestrator use Tavily to deeply research the AI coding agents market
+/ark-space:orchestrator research the AI coding agents market
 /ark-space:orchestrator help me run my weekly planning board
 /ark-space:orchestrator capture these personal tasks into my Obsidian Kanban
 ```
 
-Routable public skills declare `orchestratorInvocation` in `registry/skills.yaml`. The Orchestrator selects the role first, then the capability and provider registry.
+Routable public skills declare `orchestratorInvocation` in `registry/skills.yaml`. The Orchestrator selects the role, capability, then provider policy. It must not silently replace a user-requested provider.
 
 ## Capability Split
 

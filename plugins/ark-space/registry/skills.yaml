@@ -71,239 +71,89 @@ skills:
     categories: research,web,search,academic,papers
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
-  - name: exa-search
-    path: skills/exa-search
+  - name: web-discover
+    path: skills/web-discover
     status: active
     public: true
-    capabilities: web_search
-    providers: exa
-    directInvocation: "/ark-space:exa-search search Claude Code plugin docs"
-    orchestratorInvocation: "/ark-space:orchestrator use Exa to search Claude Code plugin docs"
-    syncMode: adapted
-    upstreamId: exa
-    categories: research,web,search,semantic,api-provider
+    capabilities: web_search,related_pages
+    providers: exa,tavily,firecrawl
+    directInvocation: "/ark-space:web-discover search Claude Code plugin docs"
+    orchestratorInvocation: "/ark-space:orchestrator discover public sources"
+    syncMode: local
+    categories: research,web,discovery
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
-  - name: exa-contents
-    path: skills/exa-contents
+  - name: web-fetch
+    path: skills/web-fetch
     status: active
     public: true
     capabilities: web_fetch
-    providers: exa
-    directInvocation: "/ark-space:exa-contents extract https://example.com"
-    orchestratorInvocation: "/ark-space:orchestrator use Exa to extract https://example.com"
-    syncMode: adapted
-    upstreamId: exa
-    categories: research,web,fetch,semantic,api-provider
+    providers: exa,tavily,firecrawl
+    directInvocation: "/ark-space:web-fetch extract https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator extract public URL content"
+    syncMode: local
+    categories: research,web,fetch
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
-  - name: exa-answer
-    path: skills/exa-answer
+  - name: web-site
+    path: skills/web-site
+    status: active
+    public: true
+    capabilities: web_map,web_crawl
+    providers: tavily,firecrawl
+    directInvocation: "/ark-space:web-site map https://docs.example.com"
+    orchestratorInvocation: "/ark-space:orchestrator inspect a public site"
+    syncMode: local
+    categories: research,web,site
+    roles: docs/web-researcher,product/competitive-analyst
+
+  - name: web-research
+    path: skills/web-research
     status: active
     public: true
     capabilities: deep_research
-    providers: exa
-    directInvocation: "/ark-space:exa-answer answer what changed in AI coding assistants in 2025"
-    orchestratorInvocation: "/ark-space:orchestrator use Exa to answer what changed in AI coding assistants in 2025"
-    syncMode: adapted
-    upstreamId: exa
-    categories: research,web,answer,semantic,api-provider
+    providers: exa,tavily
+    directInvocation: "/ark-space:web-research research the AI coding agents market"
+    orchestratorInvocation: "/ark-space:orchestrator research public sources"
+    syncMode: local
+    categories: research,web,analysis
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer
 
-  - name: exa-context
-    path: skills/exa-context
-    status: active
-    public: true
-    capabilities: code_context
-    providers: exa
-    directInvocation: "/ark-space:exa-context find React hooks state management examples"
-    orchestratorInvocation: "/ark-space:orchestrator use Exa to find React hooks state management examples"
-    syncMode: adapted
-    upstreamId: exa-context
-    categories: code,research,web,context,api-provider
-    roles: code/code-engineer,code/code-reviewer,docs/web-researcher
-
-  - name: exa-similar
-    path: skills/exa-similar
-    status: active
-    public: true
-    capabilities: related_pages
-    providers: exa
-    directInvocation: "/ark-space:exa-similar find pages similar to https://example.com"
-    orchestratorInvocation: "/ark-space:orchestrator find pages similar to https://example.com"
-    syncMode: adapted
-    upstreamId: exa-similar
-    categories: research,web,similar,discovery,api-provider
-    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
-
-  - name: firecrawl-search
-    path: skills/firecrawl-search
-    status: active
-    public: true
-    capabilities: web_search
-    providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-search search OpenClaw documentation"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to search OpenClaw documentation"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,search,cli-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: firecrawl-scrape
-    path: skills/firecrawl-scrape
-    status: active
-    public: true
-    capabilities: web_fetch
-    providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-scrape scrape https://example.com"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to scrape https://example.com"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,fetch,scrape,cli-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: firecrawl-map
-    path: skills/firecrawl-map
-    status: active
-    public: true
-    capabilities: web_map
-    providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-map map https://docs.example.com"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to map https://docs.example.com"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,map,cli-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: firecrawl-crawl
-    path: skills/firecrawl-crawl
-    status: active
-    public: true
-    capabilities: web_crawl
-    providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-crawl crawl https://docs.example.com/docs"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl to crawl https://docs.example.com/docs"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,crawl,cli-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: firecrawl-agent
-    path: skills/firecrawl-agent
+  - name: web-extract
+    path: skills/web-extract
     status: active
     public: true
     capabilities: structured_extract
     providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-agent extract product pricing from https://example.com"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Agent to extract product pricing from https://example.com"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,extract,structured,cli-provider
+    directInvocation: "/ark-space:web-extract extract product pricing from https://example.com"
+    orchestratorInvocation: "/ark-space:orchestrator extract structured public data"
+    syncMode: local
+    categories: research,web,extract,structured
     roles: docs/web-researcher,product/competitive-analyst
 
-  - name: firecrawl-browser
-    path: skills/firecrawl-browser
+  - name: web-automation
+    path: skills/web-automation
     status: active
     public: true
-    capabilities: web_interact
+    capabilities: web_interact,web_monitor
     providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-browser open https://example.com and snapshot"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Browser to inspect https://example.com"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,browser,interact,cli-provider
+    directInvocation: "/ark-space:web-automation open https://example.com and snapshot"
+    orchestratorInvocation: "/ark-space:orchestrator automate a public web target"
+    syncMode: local
+    categories: research,web,automation
     roles: docs/web-researcher
 
-  - name: firecrawl-interact
-    path: skills/firecrawl-interact
+  - name: code-context
+    path: skills/code-context
     status: active
     public: true
-    capabilities: web_interact
-    providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-interact interact with scrape <scrape-id>"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Interact with scrape <scrape-id>"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,interact,scrape,cli-provider
-    roles: docs/web-researcher
-
-  - name: firecrawl-monitor
-    path: skills/firecrawl-monitor
-    status: active
-    public: true
-    capabilities: web_monitor
-    providers: firecrawl
-    directInvocation: "/ark-space:firecrawl-monitor create monitor for https://example.com/blog"
-    orchestratorInvocation: "/ark-space:orchestrator use Firecrawl Monitor for https://example.com/blog"
-    syncMode: adapted
-    upstreamId: firecrawl-cli
-    categories: research,web,monitor,automation,cli-provider
-    roles: docs/web-researcher
-
-  - name: tavily-search
-    path: skills/tavily-search
-    status: active
-    public: true
-    capabilities: web_search
-    providers: tavily
-    directInvocation: "/ark-space:tavily-search search claude-code-everything"
-    orchestratorInvocation: "/ark-space:orchestrator use Tavily to search claude-code-everything"
-    syncMode: adapted
-    upstreamId: tavily-agent-skills
-    categories: research,web,search,api-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: tavily-extract
-    path: skills/tavily-extract
-    status: active
-    public: true
-    capabilities: web_fetch
-    providers: tavily
-    directInvocation: "/ark-space:tavily-extract extract https://example.com"
-    orchestratorInvocation: "/ark-space:orchestrator use Tavily to extract https://example.com"
-    syncMode: adapted
-    upstreamId: tavily-agent-skills
-    categories: research,web,fetch,api-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: tavily-map
-    path: skills/tavily-map
-    status: active
-    public: true
-    capabilities: web_map
-    providers: tavily
-    directInvocation: "/ark-space:tavily-map map https://docs.example.com"
-    orchestratorInvocation: "/ark-space:orchestrator use Tavily to map https://docs.example.com"
-    syncMode: adapted
-    upstreamId: tavily-agent-skills
-    categories: research,web,map,api-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: tavily-crawl
-    path: skills/tavily-crawl
-    status: active
-    public: true
-    capabilities: web_crawl
-    providers: tavily
-    directInvocation: "/ark-space:tavily-crawl crawl https://docs.example.com"
-    orchestratorInvocation: "/ark-space:orchestrator use Tavily to crawl https://docs.example.com/docs"
-    syncMode: adapted
-    upstreamId: tavily-agent-skills
-    categories: research,web,crawl,api-provider
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: tavily-research
-    path: skills/tavily-research
-    status: active
-    public: true
-    capabilities: deep_research
-    providers: tavily
-    directInvocation: "/ark-space:tavily-research research the AI coding agents market"
-    orchestratorInvocation: "/ark-space:orchestrator use Tavily to deeply research the AI coding agents market"
-    syncMode: adapted
-    upstreamId: tavily-agent-skills
-    categories: research,web,analysis,api-provider
-    roles: docs/web-researcher,product/competitive-analyst
+    capabilities: code_context
+    providers: exa
+    directInvocation: "/ark-space:code-context find React hooks state management examples"
+    orchestratorInvocation: "/ark-space:orchestrator find implementation context"
+    syncMode: local
+    categories: code,research,web,context
+    roles: code/code-engineer,code/code-reviewer,docs/web-researcher
 
   - name: json-canvas
     path: skills/json-canvas
@@ -364,3 +214,27 @@ skills:
     upstreamId: obsidian-skills
     categories: docs,knowledge,obsidian
     roles: docs/knowledge-manager,docs/doc-writer
+
+  - name: drive-me
+    path: skills/drive-me
+    status: active
+    public: true
+    capabilities: personal_execution
+    directInvocation: "/ark-space:drive-me help me restart my stalled project"
+    orchestratorInvocation: "/ark-space:orchestrator help me restart my stalled project"
+    syncMode: adapted
+    upstreamId: selfguard-drive-me
+    categories: personal,execution,coaching,scope
+    roles: personal/personal-assistant
+
+  - name: prd-create
+    path: skills/prd-create
+    status: active
+    public: true
+    capabilities: product_requirements
+    directInvocation: "/ark-space:prd-create write an R&D-ready PRD from this prototype"
+    orchestratorInvocation: "/ark-space:orchestrator write an R&D-ready PRD from this prototype"
+    syncMode: adapted
+    upstreamId: ai-native-prd-create
+    categories: product,prd,requirements,rnd
+    roles: product/prd-planner

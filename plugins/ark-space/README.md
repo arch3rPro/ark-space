@@ -13,9 +13,9 @@ Use ArkSpace from an AI-agent session with slash invocation.
 ```text
 /ark-space:orchestrator search for the claude-code-everything project
 /ark-space:arxiv-search search diffusion transformers
-/ark-space:exa-search search Claude Code plugin docs
-/ark-space:tavily-research research the AI coding agents market
-/ark-space:firecrawl-scrape scrape https://example.com
+/ark-space:web-discover search Claude Code plugin docs
+/ark-space:web-research research the AI coding agents market
+/ark-space:web-fetch extract https://example.com
 ```
 
 Choose the entry path by intent:
@@ -23,7 +23,7 @@ Choose the entry path by intent:
 | Path | Use When |
 |---|---|
 | `/ark-space:orchestrator ...` | You want ArkSpace to choose the role, workflow, capability, and provider. |
-| `/ark-space:<skill-name> ...` | You already know the exact skill or provider to use. |
+| `/ark-space:<skill-name> ...` | You know the task capability; select a provider only when its distinctive behavior matters. |
 | `agents/*` | The host supports callable agents/subagents and should use a role-specific behavior profile. |
 
 See [docs/invocation.md](docs/invocation.md) for the full invocation contract and capability split.
@@ -83,36 +83,34 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 | `skill-manager` | Create, adapt, validate, source-track, and govern ArkSpace skills. |
 | `provider-manager` | Configure and inspect provider URLs, key references, readiness, and rotation. |
 
-### Search, Fetch, And Research Providers
+### Personal Execution
+
+| Skill | Purpose |
+|---|---|
+| `drive-me` | Turn personal execution friction, scope drift, or stalled work into one bounded next-action plan. |
+
+### Product Requirements
+
+| Skill | Purpose |
+|---|---|
+| `prd-create` | Write R&D-ready PRDs from accessible products or prototypes, confirmed workflows, and review decisions. |
+
+### Search, Fetch, And Research
 
 | Skill | Purpose |
 |---|---|
 | `searxng-search` | Query a configured self-hosted SearXNG instance. |
 | `arxiv-search` | Search arXiv papers by keyword, author, title, category, or ID. |
 | `defuddle` | Extract clean Markdown from normal web pages through Defuddle CLI. |
-| `exa-search` | Semantic web, docs, repository, and domain-filtered discovery. |
-| `exa-contents` | Fetch URL content, summaries, highlights, and metadata through Exa. |
-| `exa-answer` | Answer focused research questions with concise cited synthesis. |
-| `exa-context` | Retrieve implementation-oriented code context and API usage examples. |
-| `exa-similar` | Find similar pages, projects, papers, products, or competitors from a known URL. |
-| `tavily-search` | Broad current web search through Tavily. |
-| `tavily-extract` | Extract readable content from URLs through Tavily. |
-| `tavily-map` | Discover URLs and site structure through Tavily. |
-| `tavily-crawl` | Crawl a website section and extract many pages through Tavily. |
-| `tavily-research` | Run long-form cited research synthesis through Tavily. |
+| `web-discover` | Search public sources or find pages related to a known URL. |
+| `web-fetch` | Extract URL content through Exa, Tavily, or Firecrawl. |
+| `web-site` | Map a site or crawl a requested site section. |
+| `web-research` | Produce cited research through Exa or Tavily. |
+| `web-extract` | Extract schema-shaped public data through Firecrawl. |
+| `web-automation` | Interact with live pages or manage recurring monitors. |
+| `code-context` | Retrieve implementation-oriented examples and API usage context through Exa. |
 
-### Firecrawl Web Automation
-
-| Skill | Purpose |
-|---|---|
-| `firecrawl-search` | Search through Firecrawl CLI with optional result scraping. |
-| `firecrawl-scrape` | Scrape rendered or hard-to-read pages through Firecrawl CLI. |
-| `firecrawl-map` | Discover site URLs through Firecrawl CLI. |
-| `firecrawl-crawl` | Crawl site sections through Firecrawl CLI. |
-| `firecrawl-agent` | Run schema-guided Firecrawl Agent extraction. |
-| `firecrawl-browser` | Control Firecrawl remote browser sessions. |
-| `firecrawl-interact` | Interact with a Firecrawl scraped page session. |
-| `firecrawl-monitor` | Manage recurring Firecrawl monitors. |
+Provider-specific implementations are internal adapters. Public skills remain capability-based; select an explicit mode and pass a provider only when a user requests it or its distinctive controls are required.
 
 ### Knowledge And Obsidian Tools
 
@@ -145,6 +143,7 @@ See [docs/provider-configuration.md](docs/provider-configuration.md) for command
 |---|---|
 | [docs/invocation.md](docs/invocation.md) | Slash invocation, direct skills, Orchestrator routing, capability split. |
 | [docs/provider-configuration.md](docs/provider-configuration.md) | Provider URLs, API keys, multi-key rotation, setup recovery. |
+| [docs/roadmap.md](docs/roadmap.md) | Project roadmap, development workstreams, and release readiness checks. |
 | [docs/maintenance.md](docs/maintenance.md) | Maintainer commands for validation, packaging, host cache checks, and local development. |
 | [docs/architecture.md](docs/architecture.md) | Framework layers and runtime entrypoints. |
 | [docs/adding-skills.md](docs/adding-skills.md) | How to add or adapt skills. |

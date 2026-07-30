@@ -27,23 +27,23 @@ class TavilyHelperTests(unittest.TestCase):
         os.environ["ARKSPACE_PROVIDER_SECRETS"] = self.secrets_path
         self.addCleanup(os.environ.pop, "ARKSPACE_PROVIDER_SECRETS", None)
         self.search = load_module(
-            ROOT / "skills" / "tavily-search" / "scripts" / "tavily_search.py",
+            ROOT / "skills" / "web-discover" / "scripts" / "tavily_search.py",
             "tavily_search_test_module",
         )
         self.extract = load_module(
-            ROOT / "skills" / "tavily-extract" / "scripts" / "tavily_extract.py",
+            ROOT / "skills" / "web-fetch" / "scripts" / "tavily_extract.py",
             "tavily_extract_test_module",
         )
         self.map = load_module(
-            ROOT / "skills" / "tavily-map" / "scripts" / "tavily_map.py",
+            ROOT / "skills" / "web-site" / "scripts" / "tavily_map.py",
             "tavily_map_test_module",
         )
         self.crawl = load_module(
-            ROOT / "skills" / "tavily-crawl" / "scripts" / "tavily_crawl.py",
+            ROOT / "skills" / "web-site" / "scripts" / "tavily_crawl.py",
             "tavily_crawl_test_module",
         )
         self.research = load_module(
-            ROOT / "skills" / "tavily-research" / "scripts" / "tavily_research.py",
+            ROOT / "skills" / "web-research" / "scripts" / "tavily_research.py",
             "tavily_research_test_module",
         )
 

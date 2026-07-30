@@ -34,6 +34,8 @@ VALID_CAPABILITIES = {
     "code_context",
     "related_pages",
     "knowledge_management",
+    "personal_execution",
+    "product_requirements",
 }
 DESCRIPTION_TRIGGER_TERMS = {
     "use when",
@@ -374,7 +376,7 @@ def validate_codex_package_copy(package_dir):
 
 def validate_registry_files():
     registry_dir = ROOT / "registry"
-    for filename in ["sources.yaml", "skills.yaml", "roles.yaml", "agents.yaml", "workflows.yaml"]:
+    for filename in ["sources.yaml", "skills.yaml", "roles.yaml", "agents.yaml", "workflows.yaml", "provider-adapters.yaml"]:
         path = registry_dir / filename
         if not path.exists():
             fail(f"missing {path}")
@@ -384,6 +386,7 @@ def validate_registry_files():
     sources = parse_simple_yaml_list(registry_dir / "sources.yaml", "sources")
     agents = parse_simple_yaml_list(registry_dir / "agents.yaml", "agents")
     workflows = parse_simple_yaml_list(registry_dir / "workflows.yaml", "workflows")
+    adapters = parse_simple_yaml_list(registry_dir / "provider-adapters.yaml", "adapters")
     provider_registry_paths = [
         registry_dir / "search-providers.yaml",
         registry_dir / "web-fetch-providers.yaml",
@@ -398,6 +401,29 @@ def validate_registry_files():
     ]
 
     source_ids = {item.get("id") for item in sources if item.get("id")}
+    adapter_ids = set()
+    adapter_pairs = set()
+    for adapter in adapters:
+        adapter_id = adapter.get("id")
+        provider_id = adapter.get("provider")
+        capability = adapter.get("capability")
+        implementation = adapter.get("implementation")
+        source_id = adapter.get("sourceId")
+        sync_mode = adapter.get("syncMode")
+        if not adapter_id or adapter_id in adapter_ids:
+            fail(f"provider adapter has missing or duplicate id: {adapter_id}")
+        if not provider_id:
+            fail(f"provider adapter {adapter_id} is missing provider")
+        if capability not in VALID_CAPABILITIES:
+            fail(f"provider adapter {adapter_id} has invalid capability {capability}")
+        if not implementation or not (ROOT / implementation).is_file():
+            fail(f"provider adapter {adapter_id} implementation does not exist: {implementation}")
+        if source_id not in source_ids:
+            fail(f"provider adapter {adapter_id} references unknown sourceId {source_id}")
+        if sync_mode not in VALID_SYNC_MODES:
+            fail(f"provider adapter {adapter_id} has invalid syncMode {sync_mode}")
+        adapter_ids.add(adapter_id)
+        adapter_pairs.add((provider_id, capability))
     role_ids = {item.get("id") for item in roles if item.get("id")}
     skill_names = {item.get("name") for item in skills if item.get("name")}
     skills_by_name = {item.get("name"): item for item in skills if item.get("name")}
@@ -558,6 +584,8 @@ def validate_registry_files():
                     fail(f"{provider_kind} {provider_id} must use provider setup {provider_id} --wizard in providerConfigCommand")
                 if f"provider configure {provider_id}" in values or f"provider add-key {provider_id}" in values:
                     fail(f"{provider_kind} {provider_id} registry metadata must not use old configure/add-key setup")
+            if status == "active" and provider_id in {"tavily", "exa", "firecrawl"} and (provider_id, capability) not in adapter_pairs:
+                fail(f"active provider {provider_id}/{capability} is missing a provider adapter")
 
     validate_provider_dispatch(provider_registry_paths)
 

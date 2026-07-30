@@ -2,7 +2,7 @@ defaultStructuredExtractPolicy: schema-first-provider-second
 
 providers:
   - id: firecrawl
-    skill: firecrawl-agent
+    skill: web-extract
     status: active
     capability: structured_extract
     providerType: cli-backed-agent

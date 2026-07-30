@@ -2,7 +2,7 @@ defaultWebInteractPolicy: browser-when-interaction-required
 
 providers:
   - id: firecrawl
-    skill: firecrawl-browser
+    skill: web-automation
     status: active
     capability: web_interact
     providerType: cli-backed-browser

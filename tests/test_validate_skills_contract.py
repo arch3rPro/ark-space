@@ -35,24 +35,13 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "provider-manager",
             "searxng-search",
             "arxiv-search",
-            "exa-search",
-            "exa-contents",
-            "exa-answer",
-            "exa-context",
-            "exa-similar",
-            "firecrawl-search",
-            "firecrawl-scrape",
-            "firecrawl-map",
-            "firecrawl-crawl",
-            "firecrawl-agent",
-            "firecrawl-browser",
-            "firecrawl-interact",
-            "firecrawl-monitor",
-            "tavily-search",
-            "tavily-extract",
-            "tavily-map",
-            "tavily-crawl",
-            "tavily-research",
+            "web-discover",
+            "web-fetch",
+            "web-site",
+            "web-research",
+            "web-extract",
+            "web-automation",
+            "code-context",
             "defuddle",
         ]:
             with self.subTest(name=name):
@@ -67,24 +56,13 @@ class ValidateSkillsContractTests(unittest.TestCase):
         for name in [
             "searxng-search",
             "arxiv-search",
-            "exa-search",
-            "exa-contents",
-            "exa-answer",
-            "exa-context",
-            "exa-similar",
-            "firecrawl-search",
-            "firecrawl-scrape",
-            "firecrawl-map",
-            "firecrawl-crawl",
-            "firecrawl-agent",
-            "firecrawl-browser",
-            "firecrawl-interact",
-            "firecrawl-monitor",
-            "tavily-search",
-            "tavily-extract",
-            "tavily-map",
-            "tavily-crawl",
-            "tavily-research",
+            "web-discover",
+            "web-fetch",
+            "web-site",
+            "web-research",
+            "web-extract",
+            "web-automation",
+            "code-context",
             "defuddle",
         ]:
             with self.subTest(name=name):
@@ -107,11 +85,10 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
         for name in [
             "arxiv-search",
-            "firecrawl-search",
-            "firecrawl-scrape",
-            "firecrawl-map",
-            "firecrawl-crawl",
-            "firecrawl-agent",
+            "web-discover",
+            "web-fetch",
+            "web-site",
+            "web-extract",
         ]:
             with self.subTest(skill=name):
                 self.assertIn(name, web_skills)
@@ -119,14 +96,8 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertNotIn(name, knowledge_skills)
                 self.assertNotIn(name, orchestrator_skills)
 
-        for name in [
-            "firecrawl-browser",
-            "firecrawl-interact",
-            "firecrawl-monitor",
-        ]:
-            with self.subTest(skill=name):
-                self.assertIn(name, web_skills)
-                self.assertNotIn(name, competitive_skills)
+        self.assertIn("web-automation", web_skills)
+        self.assertNotIn("web-automation", competitive_skills)
 
         self.assertIn("obsidian-markdown", doc_writer_skills)
         self.validate.validate_registry_files()
@@ -204,11 +175,11 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
     def test_tavily_extended_capabilities_are_provider_registered(self):
         expectations = {
-            "search-providers.yaml": ("tavily-search", "web_search"),
-            "web-fetch-providers.yaml": ("tavily-extract", "web_fetch"),
-            "web-map-providers.yaml": ("tavily-map", "web_map"),
-            "web-crawl-providers.yaml": ("tavily-crawl", "web_crawl"),
-            "deep-research-providers.yaml": ("tavily-research", "deep_research"),
+            "search-providers.yaml": ("web-discover", "web_search"),
+            "web-fetch-providers.yaml": ("web-fetch", "web_fetch"),
+            "web-map-providers.yaml": ("web-site", "web_map"),
+            "web-crawl-providers.yaml": ("web-site", "web_crawl"),
+            "deep-research-providers.yaml": ("web-research", "deep_research"),
         }
         for registry_name, (skill, capability) in expectations.items():
             with self.subTest(registry=registry_name):
@@ -227,11 +198,11 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
     def test_exa_capabilities_are_provider_registered(self):
         expectations = {
-            "search-providers.yaml": ("exa-search", "web_search"),
-            "web-fetch-providers.yaml": ("exa-contents", "web_fetch"),
-            "deep-research-providers.yaml": ("exa-answer", "deep_research"),
-            "code-context-providers.yaml": ("exa-context", "code_context"),
-            "related-page-providers.yaml": ("exa-similar", "related_pages"),
+            "search-providers.yaml": ("web-discover", "web_search"),
+            "web-fetch-providers.yaml": ("web-fetch", "web_fetch"),
+            "deep-research-providers.yaml": ("web-research", "deep_research"),
+            "code-context-providers.yaml": ("code-context", "code_context"),
+            "related-page-providers.yaml": ("web-discover", "related_pages"),
         }
         for registry_name, (skill, capability) in expectations.items():
             with self.subTest(registry=registry_name):
@@ -253,13 +224,13 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
     def test_firecrawl_capabilities_are_provider_registered(self):
         expectations = {
-            "search-providers.yaml": ("firecrawl-search", "web_search"),
-            "web-fetch-providers.yaml": ("firecrawl-scrape", "web_fetch"),
-            "web-map-providers.yaml": ("firecrawl-map", "web_map"),
-            "web-crawl-providers.yaml": ("firecrawl-crawl", "web_crawl"),
-            "structured-extract-providers.yaml": ("firecrawl-agent", "structured_extract"),
-            "web-interact-providers.yaml": ("firecrawl-browser", "web_interact"),
-            "web-monitor-providers.yaml": ("firecrawl-monitor", "web_monitor"),
+            "search-providers.yaml": ("web-discover", "web_search"),
+            "web-fetch-providers.yaml": ("web-fetch", "web_fetch"),
+            "web-map-providers.yaml": ("web-site", "web_map"),
+            "web-crawl-providers.yaml": ("web-site", "web_crawl"),
+            "structured-extract-providers.yaml": ("web-extract", "structured_extract"),
+            "web-interact-providers.yaml": ("web-automation", "web_interact"),
+            "web-monitor-providers.yaml": ("web-automation", "web_monitor"),
         }
         for registry_name, (skill, capability) in expectations.items():
             with self.subTest(registry=registry_name):
@@ -279,24 +250,13 @@ class ValidateSkillsContractTests(unittest.TestCase):
             ROOT / "skills" / "provider-manager" / "SKILL.md",
             ROOT / "skills" / "arxiv-search" / "SKILL.md",
             ROOT / "skills" / "searxng-search" / "SKILL.md",
-            ROOT / "skills" / "exa-search" / "SKILL.md",
-            ROOT / "skills" / "exa-contents" / "SKILL.md",
-            ROOT / "skills" / "exa-answer" / "SKILL.md",
-            ROOT / "skills" / "exa-context" / "SKILL.md",
-            ROOT / "skills" / "exa-similar" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-search" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-scrape" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-map" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-crawl" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-agent" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-browser" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-interact" / "SKILL.md",
-            ROOT / "skills" / "firecrawl-monitor" / "SKILL.md",
-            ROOT / "skills" / "tavily-search" / "SKILL.md",
-            ROOT / "skills" / "tavily-extract" / "SKILL.md",
-            ROOT / "skills" / "tavily-map" / "SKILL.md",
-            ROOT / "skills" / "tavily-crawl" / "SKILL.md",
-            ROOT / "skills" / "tavily-research" / "SKILL.md",
+            ROOT / "skills" / "web-discover" / "SKILL.md",
+            ROOT / "skills" / "web-fetch" / "SKILL.md",
+            ROOT / "skills" / "web-site" / "SKILL.md",
+            ROOT / "skills" / "web-research" / "SKILL.md",
+            ROOT / "skills" / "web-extract" / "SKILL.md",
+            ROOT / "skills" / "web-automation" / "SKILL.md",
+            ROOT / "skills" / "code-context" / "SKILL.md",
         ]
         for path in runtime_paths:
             with self.subTest(path=path.relative_to(ROOT)):
@@ -337,59 +297,20 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertNotIn("provider configure exa", joined)
                 self.assertNotIn("provider add-key exa", joined)
 
-    def test_tavily_direct_skills_handle_missing_config_before_fallback(self):
-        expectations = {
-            "skills/tavily-search/SKILL.md": "/ark-space:tavily-search <query>",
-            "skills/tavily-extract/SKILL.md": "/ark-space:tavily-extract <url>",
-        }
-        for skill_path, invocation in expectations.items():
-            with self.subTest(skill=skill_path):
-                text = (ROOT / skill_path).read_text(encoding="utf-8")
-                self.assertIn("Missing Configuration Recovery", text)
-                self.assertIn("Should I start the ArkSpace setup wizard now?", text)
-                self.assertIn("Present exactly two choices", text)
-                self.assertIn("Start setup wizard", text)
-                self.assertIn("Not now", text)
-                self.assertIn("provider setup tavily --wizard", text)
-                self.assertIn("host shell can provide interactive secret input", text)
-                self.assertIn("do not run `--wizard` through that tool", text)
-                self.assertIn("provider setup tavily --save-secret TAVILY_API_KEY --secret-stdin", text)
-                self.assertIn(invocation, text)
-                self.assertIn("Do not return Tavily", text)
-                self.assertIn("declines, defers, or cannot complete setup", text)
-                self.assertIn("clearly labeled non-ArkSpace fallback", text)
-
-    def test_new_tavily_skills_use_setup_first_recovery(self):
-        expectations = {
-            "skills/tavily-map/SKILL.md": "provider check tavily --capability web_map",
-            "skills/tavily-crawl/SKILL.md": "provider check tavily --capability web_crawl",
-            "skills/tavily-research/SKILL.md": "provider check tavily --capability deep_research",
-        }
-        for skill_path, check_command in expectations.items():
-            with self.subTest(skill=skill_path):
-                text = (ROOT / skill_path).read_text(encoding="utf-8")
-                self.assertIn("Missing Configuration Recovery", text)
-                self.assertIn("Start setup wizard", text)
-                self.assertIn("Not now", text)
-                self.assertIn("provider setup tavily --wizard", text)
-                self.assertIn(check_command, text)
-
-    def test_exa_direct_skills_use_setup_first_recovery(self):
-        expectations = {
-            "skills/exa-search/SKILL.md": "provider check exa --capability web_search",
-            "skills/exa-contents/SKILL.md": "provider check exa --capability web_fetch",
-            "skills/exa-answer/SKILL.md": "provider check exa --capability deep_research",
-            "skills/exa-context/SKILL.md": "provider check exa --capability code_context",
-            "skills/exa-similar/SKILL.md": "provider check exa --capability related_pages",
-        }
-        for skill_path, check_command in expectations.items():
-            with self.subTest(skill=skill_path):
-                text = (ROOT / skill_path).read_text(encoding="utf-8")
-                self.assertIn("Missing Configuration Recovery", text)
-                self.assertIn("Start setup wizard", text)
-                self.assertIn("Not now", text)
-                self.assertIn("provider setup exa --wizard", text)
-                self.assertIn(check_command, text)
+    def test_canonical_provider_skills_delegate_setup_to_provider_manager(self):
+        for skill_name in [
+            "web-discover",
+            "web-fetch",
+            "web-site",
+            "web-research",
+            "web-extract",
+            "web-automation",
+            "code-context",
+        ]:
+            with self.subTest(skill=skill_name):
+                text = (ROOT / "skills" / skill_name / "SKILL.md").read_text(encoding="utf-8")
+                self.assertIn("provider-manager", text)
+                self.assertIn("<installed-arkspace-path>", text)
 
     def test_provider_manager_guides_interactive_setup_before_manual_commands(self):
         text = (ROOT / "skills" / "provider-manager" / "SKILL.md").read_text(encoding="utf-8")

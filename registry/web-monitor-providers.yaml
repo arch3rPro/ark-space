@@ -2,7 +2,7 @@ defaultWebMonitorPolicy: explicit-confirmation-for-recurring-jobs
 
 providers:
   - id: firecrawl
-    skill: firecrawl-monitor
+    skill: web-automation
     status: active
     capability: web_monitor
     providerType: cli-backed-monitor

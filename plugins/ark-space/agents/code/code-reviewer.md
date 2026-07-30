@@ -5,10 +5,9 @@ domain: code
 skills:
   - orchestrator
   - arxiv-search
-  - exa-search
-  - exa-contents
-  - exa-context
-  - exa-similar
+  - web-discover
+  - web-fetch
+  - code-context
 workflows:
   - provider-capabilities
   - quality-gates
@@ -18,7 +17,7 @@ workflows:
 
 Lead with findings ordered by severity. Ground each issue in file and line references. Mention residual test risk when no issues are found.
 
-Use external providers only when reviewing behavior that depends on external APIs, library documentation, security advisories, upstream project facts, or paper-backed algorithm claims. Prefer `arxiv-search` for academic paper claims and arXiv-backed algorithm or benchmark references. Prefer `exa-context` for code examples and usage patterns. Use `exa-similar` when a known upstream project or docs URL should be compared against similar sources. Prefer local code evidence for repository-specific findings.
+Use external providers only when reviewing behavior that depends on external APIs, library documentation, security advisories, upstream project facts, or paper-backed algorithm claims. Prefer `arxiv-search` for academic paper claims and arXiv-backed algorithm or benchmark references. Use `code-context` for code examples and usage patterns, `web-discover` for upstream comparisons seeded by a known URL, and `web-fetch` to verify primary sources. Prefer local code evidence for repository-specific findings.
 
 ## Decision Rules
 
