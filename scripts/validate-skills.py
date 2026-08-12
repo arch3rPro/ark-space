@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import re
+import shlex
 import sys
 import tomllib
 import filecmp
@@ -109,6 +110,7 @@ def parse_simple_yaml_list(path, top_key):
         start = next(index for index, line in enumerate(lines) if line.strip() == f"{top_key}:")
     except StopIteration:
         fail(f"{path} must contain '{top_key}:'")
+        raise RuntimeError("unreachable")
 
     items = []
     current = None
@@ -240,6 +242,7 @@ def parse_frontmatter(path):
         _, frontmatter, _ = text.split("---", 2)
     except ValueError:
         fail(f"{path} has unterminated YAML frontmatter")
+        raise RuntimeError("unreachable")
 
     data = {}
     current_list = None
@@ -337,7 +340,7 @@ def validate_codex_package_copy(package_dir):
         "roles/orchestrator.yaml",
         "skills/orchestrator/SKILL.md",
         "skills/provider-manager/SKILL.md",
-        "skills/searxng-search/SKILL.md",
+        "skills/web-search/SKILL.md",
         "scripts/arkspace_provider.py",
         "workflows/provider-capabilities.md",
         "docs/invocation.md",
@@ -511,8 +514,9 @@ def validate_registry_files():
                 fail(f"skill {name} references unknown role {role_id}")
             agent_id = agent_id_for_role(role_id)
             agent = agents_by_id.get(agent_id)
-            if not agent:
+            if agent is None:
                 fail(f"skill {name} role {role_id} has no callable agent {agent_id}")
+                raise RuntimeError("unreachable")
             agent_skills = split_csv(agent.get("skills"))
             if name not in agent_skills:
                 fail(f"skill {name} role {role_id} must be included in agent {agent_id} skills")
@@ -660,11 +664,77 @@ def provider_registry_metadata(filename):
 
 def load_arkspace_cli():
     spec = importlib.util.spec_from_file_location("arkspace_cli_validation_module", ROOT / "scripts" / "arkspace.py")
-    module = importlib.util.module_from_spec(spec)
-    if spec.loader is None:
+    if spec is None or spec.loader is None:
         fail("unable to load scripts/arkspace.py")
+        raise RuntimeError("unreachable")
+    module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+# Canonical skill docs that are allowed to show ``python3 .../arkspace.py``
+# commands. Their documented commands must parse with the real ``build_parser``
+# (no subprocesses are executed) so the documented CLI surface stays in sync.
+DOC_CONTRACT_SKILL_FILES = [
+    ROOT / "skills" / "web-search" / "SKILL.md",
+    ROOT / "skills" / "web-fetch" / "SKILL.md",
+    ROOT / "skills" / "web-site" / "SKILL.md",
+    ROOT / "skills" / "web-research" / "SKILL.md",
+    ROOT / "skills" / "web-extract" / "SKILL.md",
+    ROOT / "skills" / "web-automation" / "SKILL.md",
+    ROOT / "skills" / "provider-manager" / "SKILL.md",
+]
+
+
+def _doc_command_argv(cmd):
+    """Normalize one documented command line into argv for the real parser.
+
+    Strips the leading ``python3 <installed-arkspace-path>/scripts/arkspace.py``
+    prefix (argparse only drops the program name on the no-arg parse path) and
+    any trailing shell output redirection.
+    """
+    for marker in ("2>&1", "> /dev/null"):
+        if marker in cmd:
+            cmd = cmd.split(marker)[0].rstrip()
+    argv = shlex.split(cmd)
+    if len(argv) >= 2 and argv[0] == "python3" and argv[1].endswith("arkspace.py"):
+        return argv[2:]
+    return argv
+
+
+def validate_doc_commands():
+    """Parse every canonical ``arkspace.py`` command in public skill docs.
+
+    Narrow by design: only canonical ArkSpace command blocks inside the listed
+    skill files are inspected, and each command is run through the real argument
+    parser without executing anything. A documented example that no longer
+    parses fails loudly instead of silently drifting.
+    """
+    arkspace = load_arkspace_cli()
+    parser = arkspace.build_parser()
+    inspected = 0
+    for path in DOC_CONTRACT_SKILL_FILES:
+        if not path.exists():
+            continue
+        text = read_text(path)
+        in_block = False
+        for line in text.splitlines():
+            if line.strip() == "```bash":
+                in_block = True
+                continue
+            if line.strip() == "```":
+                in_block = False
+                continue
+            if not in_block or "scripts/arkspace.py" not in line:
+                continue
+            cmd = line.strip().replace("<installed-arkspace-path>", str(ROOT))
+            try:
+                parser.parse_args(_doc_command_argv(cmd))
+            except SystemExit:
+                fail(f"documented command in {path.relative_to(ROOT)} does not parse: {cmd.strip()}")
+            inspected += 1
+    if not inspected:
+        fail("no canonical arkspace.py commands found in skill docs")
 
 
 def validate_provider_dispatch(provider_registry_paths):
@@ -748,17 +818,23 @@ def validate_platform_manifests():
     validate_json(ROOT / ".codex-plugin" / "plugin.json")
     validate_json(ROOT / ".agents" / "plugins" / "marketplace.json")
 
-    codex = json.loads(read_text(ROOT / ".codex-plugin" / "plugin.json"))
-    if codex.get("skills") != "./skills/":
+    try:
+        codex = json.loads(read_text(ROOT / ".codex-plugin" / "plugin.json"))
+        marketplace = json.loads(read_text(ROOT / ".agents" / "plugins" / "marketplace.json"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"unable to read platform manifest: {exc}")
+        raise RuntimeError("unreachable")
+    if not isinstance(codex, dict) or codex.get("skills") != "./skills/":
         fail(".codex-plugin/plugin.json must set skills to ./skills/")
 
-    marketplace = json.loads(read_text(ROOT / ".agents" / "plugins" / "marketplace.json"))
-    plugins = marketplace.get("plugins")
+    plugins = marketplace.get("plugins") if isinstance(marketplace, dict) else None
     if not isinstance(plugins, list) or not plugins:
         fail(".agents/plugins/marketplace.json must define plugins[]")
-    ark_space = next((item for item in plugins if item.get("name") == "ark-space"), None)
-    if not ark_space:
+        raise RuntimeError("unreachable")
+    ark_space = next((item for item in plugins if isinstance(item, dict) and item.get("name") == "ark-space"), None)
+    if not isinstance(ark_space, dict):
         fail(".agents/plugins/marketplace.json must include ark-space")
+        raise RuntimeError("unreachable")
     source = ark_space.get("source")
     if not isinstance(source, dict) or source.get("path") != "./plugins/ark-space":
         fail(".agents/plugins/marketplace.json ark-space source.path must be ./plugins/ark-space")
@@ -774,6 +850,7 @@ def main():
     validate_skill_frontmatter()
     validate_agent_frontmatter()
     validate_registry_files()
+    validate_doc_commands()
     validate_generated_integrations()
     validate_platform_manifests()
     print("skills package validation passed")

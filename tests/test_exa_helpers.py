@@ -1,8 +1,13 @@
+import contextlib
 import importlib.util
+import io
+import json
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,8 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def load_module(path: Path, name: str):
     spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"could not load module {path}")
     module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
 
@@ -26,7 +32,7 @@ class ExaHelperTests(unittest.TestCase):
         os.environ["ARKSPACE_PROVIDER_SECRETS"] = self.secrets_path
         self.addCleanup(os.environ.pop, "ARKSPACE_PROVIDER_SECRETS", None)
         self.search = load_module(
-            ROOT / "skills" / "web-discover" / "scripts" / "exa_search.py",
+            ROOT / "skills" / "web-search" / "scripts" / "exa_search.py",
             "exa_search_test_module",
         )
         self.contents = load_module(
@@ -42,7 +48,7 @@ class ExaHelperTests(unittest.TestCase):
             "exa_context_test_module",
         )
         self.similar = load_module(
-            ROOT / "skills" / "web-discover" / "scripts" / "exa_similar.py",
+            ROOT / "skills" / "web-search" / "scripts" / "exa_similar.py",
             "exa_similar_test_module",
         )
 
@@ -340,6 +346,114 @@ class ExaHelperTests(unittest.TestCase):
             require_secret=True,
         )
         self.assertEqual(resolved["auth"]["key_ref"], "env:EXA_API_KEY_SECOND")
+
+
+    def _run_main(self, argv):
+        old_argv = sys.argv
+        sys.argv = ["prog"] + argv
+        try:
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                rc = self.search.main()
+            return rc, stdout.getvalue(), stderr.getvalue()
+        finally:
+            sys.argv = old_argv
+
+    def _error_file(self):
+        path = str(Path(self.tmpdir.name) / "err.json")
+        os.environ["ARKSPACE_ERROR_FILE"] = path
+        self.addCleanup(os.environ.pop, "ARKSPACE_ERROR_FILE", None)
+        return path
+
+    def test_main_success_json_shape_unchanged(self):
+        self.configure_exa()
+        errfile = self._error_file()
+
+        def ok_post(url, headers, payload, timeout, **kwargs):
+            return {"results": [{"title": "R", "url": "https://e.com", "text": "snip", "score": 0.9}], "requestId": "req"}
+
+        with patch.object(self.search.exa_client, "post_json", ok_post):
+            rc, out, err = self._run_main(
+                ["agent skills", "--output", "json", "--config-path", self.config_path, "--state-path", self.state_path]
+            )
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(err, "")
+        data = json.loads(out)
+        self.assertEqual(data["provider"], "exa")
+        self.assertEqual(data["capability"], "web_search")
+        self.assertNotIn("ok", data)  # results are not wrapped in an envelope
+        self.assertFalse(os.path.exists(errfile))  # success writes no error record
+
+    def test_main_config_failure_writes_config_error_record(self):
+        errfile = self._error_file()
+        rc, _out, err = self._run_main(["agent skills", "--config-path", self.config_path])
+
+        self.assertEqual(rc, 2)
+        self.assertIn("not configured", err)
+        record = json.loads(Path(errfile).read_text(encoding="utf-8"))
+        self.assertEqual(record["version"], 1)
+        self.assertEqual(record["provider"], "exa")
+        self.assertEqual(record["capability"], "web_search")
+        self.assertEqual(record["kind"], "config")
+
+    def test_main_http_429_writes_quota_error_record(self):
+        self.configure_exa()
+        errfile = self._error_file()
+
+        def fail(url, headers, payload, timeout, **kwargs):
+            raise self.search.exa_client.ProviderRequestError("HTTP 429 rate limited", status=429)
+
+        with patch.object(self.search.exa_client, "post_json", fail):
+            rc, _out, err = self._run_main(["agent skills", "--config-path", self.config_path, "--state-path", self.state_path])
+
+        self.assertEqual(rc, 2)
+        record = json.loads(Path(errfile).read_text(encoding="utf-8"))
+        self.assertEqual(record["kind"], "quota")
+        self.assertEqual(record["status"], 429)
+
+    def test_main_connection_failure_writes_network_error_record(self):
+        self.configure_exa()
+        errfile = self._error_file()
+
+        def fail(url, headers, payload, timeout, **kwargs):
+            raise self.search.exa_client.ProviderRequestError("connection timed out")
+
+        with patch.object(self.search.exa_client, "post_json", fail):
+            rc, _out, err = self._run_main(["agent skills", "--config-path", self.config_path, "--state-path", self.state_path])
+
+        self.assertEqual(rc, 2)
+        record = json.loads(Path(errfile).read_text(encoding="utf-8"))
+        self.assertEqual(record["kind"], "network")
+        self.assertNotIn("status", record)
+
+    def test_main_malformed_body_writes_invalid_response_error_record(self):
+        self.configure_exa()
+        errfile = self._error_file()
+
+        def fail(url, headers, payload, timeout, **kwargs):
+            raise self.search.exa_client.ProviderRequestError("Exa Search returned invalid JSON: Expecting value")
+
+        with patch.object(self.search.exa_client, "post_json", fail):
+            rc, _out, err = self._run_main(["agent skills", "--config-path", self.config_path, "--state-path", self.state_path])
+
+        self.assertEqual(rc, 2)
+        record = json.loads(Path(errfile).read_text(encoding="utf-8"))
+        self.assertEqual(record["kind"], "invalid-response")
+
+    def test_main_without_error_file_preserves_stderr_and_exit(self):
+        self.configure_exa()
+        os.environ.pop("ARKSPACE_ERROR_FILE", None)
+
+        def fail(url, headers, payload, timeout, **kwargs):
+            raise self.search.exa_client.ProviderRequestError("HTTP 429 rate limited", status=429)
+
+        with patch.object(self.search.exa_client, "post_json", fail):
+            rc, _out, err = self._run_main(["agent skills", "--config-path", self.config_path, "--state-path", self.state_path])
+
+        self.assertEqual(rc, 2)
+        self.assertIn("rate limited", err)
 
 
 if __name__ == "__main__":

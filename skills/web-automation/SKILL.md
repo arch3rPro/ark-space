@@ -16,7 +16,7 @@ Never upgrade an interaction into a monitor implicitly. Before creating or mutat
 
 ```bash
 python3 <installed-arkspace-path>/scripts/arkspace.py browser run --provider firecrawl "open https://example.com and snapshot" --output json
-python3 <installed-arkspace-path>/scripts/arkspace.py monitor create --provider firecrawl --url https://example.com/blog --output json
+python3 <installed-arkspace-path>/scripts/arkspace.py monitor create --provider firecrawl --scrape-urls https://example.com/blog --output json
 ```
 
 For setup or a failed provider check, use `provider-manager`.

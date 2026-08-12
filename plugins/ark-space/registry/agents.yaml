@@ -12,14 +12,14 @@ agents:
   - id: code-engineer
     path: agents/code/code-engineer.md
     domain: code
-    skills: orchestrator,arxiv-search,web-discover,web-fetch,web-research,code-context
+    skills: orchestrator,web-search,web-fetch,web-research,code-context
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
   - id: code-reviewer
     path: agents/code/code-reviewer.md
     domain: code
-    skills: orchestrator,arxiv-search,web-discover,web-fetch,code-context
+    skills: orchestrator,web-search,web-fetch,code-context
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -33,7 +33,7 @@ agents:
   - id: web-researcher
     path: agents/docs/web-researcher.md
     domain: docs
-    skills: orchestrator,searxng-search,arxiv-search,web-discover,web-fetch,web-site,web-research,web-extract,web-automation,code-context,defuddle
+    skills: orchestrator,web-search,web-fetch,web-site,web-research,web-extract,web-automation,code-context,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 
@@ -54,7 +54,7 @@ agents:
   - id: competitive-analyst
     path: agents/product/competitive-analyst.md
     domain: product
-    skills: orchestrator,searxng-search,arxiv-search,web-discover,web-fetch,web-site,web-research,web-extract,defuddle
+    skills: orchestrator,web-search,web-fetch,web-site,web-research,web-extract,defuddle
     workflows: provider-capabilities,quality-gates
     hosts: claude-code,codex
 

@@ -12,8 +12,8 @@ Skills 是公开契约。运行时脚本和 Provider CLI 用于在 Skill 需要�
 
 ```text
 /ark-space:orchestrator search for the claude-code-everything project
-/ark-space:arxiv-search search diffusion transformers
-/ark-space:web-discover search Claude Code plugin docs
+/ark-space:web-search search diffusion transformers
+/ark-space:web-search search Claude Code plugin docs
 /ark-space:web-research research the AI coding agents market
 /ark-space:web-fetch extract https://example.com
 ```
@@ -21,7 +21,7 @@ Skills 是公开契约。运行时脚本和 Provider CLI 用于在 Skill 需要�
 按意图选择入口：
 
 | 路径 | 使用场景 |
-|---|---|
+| --- | --- |
 | `/ark-space:orchestrator ...` | 希望 ArkSpace 自动选择角色、工作流、能力和 Provider。 |
 | `/ark-space:<skill-name> ...` | 已经知道任务能力；只有需要 Provider 特有行为时才选择 Provider。 |
 | `agents/*` | Host 支持 callable agents/subagents，需要使用角色行为配置。 |
@@ -40,7 +40,7 @@ Skills 是公开契约。运行时脚本和 Provider CLI 用于在 Skill 需要�
 ArkSpace 有四个 Host 无关的核心层：
 
 | 层 | 作用 |
-|---|---|
+| --- | --- |
 | `skills/` | 标准 Agent Skills。每个公开 Skill 位于 `skills/<name>/SKILL.md`。 |
 | `agents/` | 可调用角色定义，组合 Skills 和 Workflows，不复制 Skill 内容。 |
 | `workflows/` | 路由、交接、Provider 选择和质量门协议。 |
@@ -49,7 +49,7 @@ ArkSpace 有四个 Host 无关的核心层：
 Host 相关内容只是适配层：
 
 | 路径 | 作用 |
-|---|---|
+| --- | --- |
 | `.claude-plugin/` | Claude Code 插件元数据。 |
 | `.codex-plugin/` | Codex 插件元数据。 |
 | `integrations/` | 从 `agents/` 生成的 Host 原生 Agent 输出。 |
@@ -60,7 +60,7 @@ Claude Code、Codex 和未来 Host 通过适配层复用同一份 Skill 文件�
 ## 可调用 Agents
 
 | Agent | 职责 |
-|---|---|
+| --- | --- |
 | `orchestrator` | 轻量路由、Provider 配置路由、工作流选择。 |
 | `code-engineer` | 实现、重构、测试、调试。 |
 | `code-reviewer` | 缺陷、回归、风险和测试缺口审查。 |
@@ -78,7 +78,7 @@ Claude Code、Codex 和未来 Host 通过适配层复用同一份 Skill 文件�
 ### 核心与治理
 
 | Skill | 作用 |
-|---|---|
+| --- | --- |
 | `orchestrator` | 将任务路由到最小可用角色、工作流、能力和 Provider。 |
 | `skill-manager` | 创建、改造、验证、来源追踪和治理 ArkSpace Skills。 |
 | `provider-manager` | 配置和检查 Provider URL、Key 引用、可用性和轮询。 |
@@ -98,11 +98,9 @@ Claude Code、Codex 和未来 Host 通过适配层复用同一份 Skill 文件�
 ### 搜索、抓取与研究
 
 | Skill | 作用 |
-|---|---|
-| `searxng-search` | 查询已配置的自托管 SearXNG 实例。 |
-| `arxiv-search` | 按关键词、作者、标题、分类或 ID 搜索 arXiv 论文。 |
+| --- | --- |
+| `web-search` | 搜索公开来源、论文或自托管元搜索；或查找与已知 URL 相关的页面。零配置默认使用 Exa MCP；也支持 Exa、Tavily、Firecrawl、Jina、DuckDuckGo、Brave、SearXNG 和 arXiv。 |
 | `defuddle` | 通过 Defuddle CLI 将普通网页提取为干净 Markdown。 |
-| `web-discover` | 搜索公开来源或查找与已知 URL 相关的页面。 |
 | `web-fetch` | 通过 Exa、Tavily 或 Firecrawl 提取 URL 内容。 |
 | `web-site` | 映射站点，或爬取指定站点区域。 |
 | `web-research` | 通过 Exa 或 Tavily 生成带引用研究。 |
@@ -115,7 +113,7 @@ Provider 专属实现是内部 adapter。公开 Skill 按能力建模；选择�
 ### 知识管理与 Obsidian 工具
 
 | Skill | 作用 |
-|---|---|
+| --- | --- |
 | `json-canvas` | 创建和编辑 JSON Canvas 文件。 |
 | `obsidian-bases` | 创建和编辑 Obsidian Bases。 |
 | `obsidian-cli` | 通过 CLI 操作 Obsidian。 |
@@ -131,7 +129,8 @@ ArkSpace 将私有 Provider 配置保存在公开仓库之外。当 Provider 缺
 Provider 设置支持：
 
 - SearXNG 这类自托管服务地址
-- Exa、Tavily、Firecrawl 这类 API Provider
+- Exa、Tavily、Firecrawl、Brave 这类 API Provider
+- Exa MCP、Jina、DuckDuckGo 这类零配置免密钥 Provider（无需设置）
 - 多个 API Key 轮询
 - 本地私有密钥存储或环境变量引用
 
@@ -140,7 +139,7 @@ Provider 设置支持：
 ## 文档
 
 | 文档 | 作用 |
-|---|---|
+| --- | --- |
 | [docs/invocation.md](docs/invocation.md) | Slash 调用、直接 Skill、Orchestrator 路由、能力拆分。 |
 | [docs/provider-configuration.md](docs/provider-configuration.md) | Provider URL、API Key、多 Key 轮询和配置恢复。 |
 | [docs/roadmap.zh-CN.md](docs/roadmap.zh-CN.md) | 项目路线图、开发工作流和发布就绪检查。 |

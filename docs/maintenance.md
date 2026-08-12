@@ -90,6 +90,15 @@ python3 scripts/arkspace.py provider check arxiv --capability web_search
 python3 scripts/arkspace.py provider check exa --capability web_search
 python3 scripts/arkspace.py provider check tavily --capability web_search
 python3 scripts/arkspace.py provider check firecrawl --capability web_search
+python3 scripts/arkspace.py provider check exa-mcp --capability web_search
+python3 scripts/arkspace.py provider check jina --capability web_search
+python3 scripts/arkspace.py provider check duckduckgo --capability web_search
+python3 scripts/arkspace.py provider check brave --capability web_search
 ```
+
+The keyless providers `exa-mcp`, `jina`, and `duckduckgo` need no configuration;
+their checks verify registration and keyless status without any network call.
+`brave` is keyed: its check verifies that a `BRAVE_API_KEY` resolves locally and
+fails with a setup hint when it is missing.
 
 Provider checks prove local configuration resolution. Host discovery is verified separately with installed-host smoke tests.

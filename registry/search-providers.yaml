@@ -2,7 +2,7 @@ defaultSearchPolicy: role-first-provider-second
 
 providers:
   - id: arxiv
-    skill: arxiv-search
+    skill: web-search
     status: active
     capability: web_search
     providerType: academic-preprint-api
@@ -12,7 +12,7 @@ providers:
     providerConfigCommand: none
     checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check arxiv --capability web_search
     missingConfigBehavior: none
-    setupHint: "No API key or setup is required. Query the official arXiv API through arxiv-search."
+    setupHint: "No API key or setup is required. Query the official arXiv API through the web-search skill."
     authModes: none
     rotationSupported: false
     outputFields: id,title,authors,published,updated,summary,primary_category,categories,abs_url,pdf_url,doi,journal_ref,comment
@@ -20,7 +20,7 @@ providers:
     notes: "Use for academic preprint discovery, arXiv IDs, author/title/category search, and literature candidate lists."
 
   - id: searxng
-    skill: searxng-search
+    skill: web-search
     status: active
     capability: web_search
     providerType: metasearch
@@ -41,7 +41,7 @@ providers:
     notes: "Use for SearXNG-specific requests or self-hosted/private search."
 
   - id: exa
-    skill: web-discover
+    skill: web-search
     status: active
     capability: web_search
     providerType: semantic-search-api
@@ -62,7 +62,7 @@ providers:
     notes: "Use for semantic/neural search, coding docs, repositories, technical research, company/people/news discovery, domain/date filtered discovery, content-bearing search results, deep/deep-reasoning search modes, and structured output."
 
   - id: tavily
-    skill: web-discover
+    skill: web-search
     status: active
     capability: web_search
     providerType: search-api
@@ -83,22 +83,101 @@ providers:
     notes: "Use for API-backed public web search, Tavily-specific depth/topic/domain controls, current news, finance, and LLM-optimized snippets."
 
   - id: firecrawl
-    skill: web-discover
+    skill: web-search
     status: active
     capability: web_search
     providerType: cli-backed-search-scrape
     priority: 140
     privacy: api-backed-cli
     configEnv: FIRECRAWL_API_KEY,FIRECRAWL_API_URL
-    configRequired: true
+    configRequired: false
     recommendedEnv: FIRECRAWL_API_KEY_1
     providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard
     keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard --key-count 2
     checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check firecrawl --capability web_search
     missingConfigBehavior: guide-user-through-provider-manager-configuration
-    setupHint: "Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard. Use --key-count for multiple API keys. Install Firecrawl CLI or make npx available."
+    setupHint: "Web search is keyless. Optionally run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup firecrawl --wizard to enable keyed capabilities (scrape, map, crawl, extract). Install Firecrawl CLI or make npx available."
     authModes: api_key
     rotationSupported: true
     outputFields: id,data,web,images,news,title,url,description,markdown,creditsUsed,warning
     roles: docs/web-researcher,product/competitive-analyst,orchestrator
-    notes: "Use when search should optionally scrape full page content, when JS-heavy sources are likely, or when the user explicitly asks for Firecrawl."
+    notes: "Firecrawl web_search is keyless. Use when search should optionally scrape full page content, when JS-heavy sources are likely, or when the user explicitly asks for Firecrawl."
+
+  - id: exa-mcp
+    skill: web-search
+    status: active
+    capability: web_search
+    providerType: mcp-zero-config
+    priority: 230
+    privacy: api-backed-mcp
+    configRequired: false
+    providerConfigCommand: none
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check exa-mcp --capability web_search
+    missingConfigBehavior: none
+    setupHint: "Zero-config Exa MCP provider; no API key or setup is required. This is the default provider for general web search."
+    authModes: none
+    rotationSupported: false
+    explicitOnly: false
+    outputFields: title,url,snippet,score,highlights,summary
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    notes: "Zero-config Exa MCP default provider. Keyless and used by default and in explicit chains; accepts only the common chain arguments (query, --max-results, --timeout, --output)."
+
+  - id: jina
+    skill: web-search
+    status: active
+    capability: web_search
+    providerType: reader-api
+    priority: 220
+    privacy: api-backed
+    configRequired: false
+    providerConfigCommand: none
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check jina --capability web_search
+    missingConfigBehavior: none
+    setupHint: "Zero-config Jina Reader; no API key is required. A JINA_API_KEY is sent only when configured."
+    authModes: none
+    rotationSupported: false
+    explicitOnly: false
+    outputFields: title,url,description,content
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
+    notes: "Keyless Jina Reader web search. Accepts only the common chain arguments (query, --max-results, --timeout, --output)."
+
+  - id: duckduckgo
+    skill: web-search
+    status: active
+    capability: web_search
+    providerType: html-metasearch
+    priority: 210
+    privacy: public
+    configRequired: false
+    providerConfigCommand: none
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check duckduckgo --capability web_search
+    missingConfigBehavior: none
+    setupHint: "Zero-config DuckDuckGo; no API key or setup is required. Explicit-only: used when the caller names it, never auto-selected by priority."
+    authModes: none
+    rotationSupported: false
+    explicitOnly: true
+    outputFields: title,url,snippet
+    roles: docs/web-researcher,product/competitive-analyst,orchestrator
+    notes: "Keyless DuckDuckGo HTML search. explicitOnly=true: never auto-selected by priority and never part of the default selection; used only when the caller names it."
+
+  - id: brave
+    skill: web-search
+    status: active
+    capability: web_search
+    providerType: search-api
+    priority: 215
+    privacy: api-backed
+    configEnv: BRAVE_API_KEY
+    configRequired: true
+    recommendedEnv: BRAVE_API_KEY_1
+    providerConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup brave --wizard
+    keyConfigCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider setup brave --wizard --key-count 2
+    checkCommand: python3 <installed-arkspace-path>/scripts/arkspace.py provider check brave --capability web_search
+    missingConfigBehavior: guide-user-through-provider-manager-configuration
+    setupHint: "Brave web search needs an API key. Run python3 <installed-arkspace-path>/scripts/arkspace.py provider setup brave --wizard to set BRAVE_API_KEY."
+    authModes: api_key
+    rotationSupported: true
+    explicitOnly: false
+    outputFields: title,url,description,age,page_age,profile
+    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer,orchestrator
+    notes: "Brave Search API provider. Configured/keyed: requires BRAVE_API_KEY; accepts only the common chain arguments."

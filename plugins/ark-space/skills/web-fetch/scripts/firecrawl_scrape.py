@@ -44,6 +44,28 @@ def run_scrape(
     return {"provider": "firecrawl", "capability": "web_fetch", "urls": urls, "response": firecrawl_cli.parse_json_or_text(raw)}
 
 
+def classify_exception(exc):
+    """Map a Firecrawl provider exception to a (kind, status) failure tuple.
+
+    Configuration failures (the provider is missing/not configured, or the CLI
+    is unavailable) map to ``config``; request failures carry a status where
+    the CLI reported one and are classified through :func:`classify_failure`.
+    A CLI response that could not be interpreted as a result is treated as
+    ``invalid-response``.
+    """
+    if isinstance(exc, firecrawl_cli.FirecrawlCliError):
+        status = exc.status
+        text = str(exc).lower()
+        if status is not None:
+            kind = provider_config.classify_failure(status, text)
+        elif "invalid json" in text:
+            kind = "invalid-response"
+        else:
+            kind = provider_config.classify_failure(None, text)
+        return kind, status
+    return "config", None
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Scrape URLs through ArkSpace's Firecrawl CLI provider.")
     parser.add_argument("urls", nargs="*")
@@ -88,6 +110,10 @@ def main() -> int:
                 state_path=args.state_path,
             )
     except provider_config.ProviderConfigError as exc:
+        kind, status = classify_exception(exc)
+        provider_config.write_error_file(
+            "firecrawl", "web_fetch", kind=kind, status=status, message=str(exc)
+        )
         print(str(exc), file=sys.stderr)
         return 2
     if args.output == "json":

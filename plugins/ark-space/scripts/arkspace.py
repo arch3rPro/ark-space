@@ -1,41 +1,119 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+_PM_SCRIPTS = ROOT / "skills" / "provider-manager" / "scripts"
+if str(_PM_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_PM_SCRIPTS))
+
+from arkspace_runtime.provider_config import (  # noqa: E402  # type: ignore[reportMissingImports]
+    ERROR_FILE_ENV,
+    fallback_policy,
+    read_error_file,
+)
+
 PROVIDER_CHECK_COMMANDS = {
     ("defuddle", "web_fetch"): ["defuddle", "--version"],
-    ("arxiv", "web_search"): [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py", "--check"],
-    ("searxng", "web_search"): [sys.executable, "skills/searxng-search/scripts/searxng_search.py", "--check"],
-    ("tavily", "web_search"): [sys.executable, "skills/web-discover/scripts/tavily_search.py", "--check"],
+    ("arxiv", "web_search"): [sys.executable, "skills/web-search/scripts/arxiv_search.py", "--check"],
+    ("searxng", "web_search"): [sys.executable, "skills/web-search/scripts/searxng_search.py", "--check"],
+    ("tavily", "web_search"): [sys.executable, "skills/web-search/scripts/tavily_search.py", "--check"],
     ("tavily", "web_fetch"): [sys.executable, "skills/web-fetch/scripts/tavily_extract.py", "--check"],
     ("tavily", "web_map"): [sys.executable, "skills/web-site/scripts/tavily_map.py", "--check"],
     ("tavily", "web_crawl"): [sys.executable, "skills/web-site/scripts/tavily_crawl.py", "--check"],
     ("tavily", "deep_research"): [sys.executable, "skills/web-research/scripts/tavily_research.py", "--check"],
-    ("exa", "web_search"): [sys.executable, "skills/web-discover/scripts/exa_search.py", "--check"],
+    ("exa", "web_search"): [sys.executable, "skills/web-search/scripts/exa_search.py", "--check"],
     ("exa", "web_fetch"): [sys.executable, "skills/web-fetch/scripts/exa_contents.py", "--check"],
     ("exa", "deep_research"): [sys.executable, "skills/web-research/scripts/exa_answer.py", "--check"],
     ("exa", "code_context"): [sys.executable, "skills/code-context/scripts/exa_context.py", "--check"],
-    ("exa", "related_pages"): [sys.executable, "skills/web-discover/scripts/exa_similar.py", "--check"],
-    ("firecrawl", "web_search"): [sys.executable, "skills/web-discover/scripts/firecrawl_search.py", "--check"],
+    ("exa", "related_pages"): [sys.executable, "skills/web-search/scripts/exa_similar.py", "--check"],
+    ("firecrawl", "web_search"): [sys.executable, "skills/web-search/scripts/firecrawl_search.py", "--check"],
     ("firecrawl", "web_fetch"): [sys.executable, "skills/web-fetch/scripts/firecrawl_scrape.py", "--check"],
     ("firecrawl", "web_map"): [sys.executable, "skills/web-site/scripts/firecrawl_map.py", "--check"],
     ("firecrawl", "web_crawl"): [sys.executable, "skills/web-site/scripts/firecrawl_crawl.py", "--check"],
     ("firecrawl", "structured_extract"): [sys.executable, "skills/web-extract/scripts/firecrawl_agent.py", "--check"],
     ("firecrawl", "web_interact"): [sys.executable, "skills/web-automation/scripts/firecrawl_browser.py", "--check"],
     ("firecrawl", "web_monitor"): [sys.executable, "skills/web-automation/scripts/firecrawl_monitor.py", "--check"],
+    # Keyless-or-keyed zero-config providers accept the common chain arguments;
+    # their ``--check`` verifies configuration presence without a network call.
+    ("exa-mcp", "web_search"): [sys.executable, "skills/web-search/scripts/exa_mcp_search.py", "--check"],
+    ("jina", "web_search"): [sys.executable, "skills/web-search/scripts/jina_search.py", "--check"],
+    ("duckduckgo", "web_search"): [sys.executable, "skills/web-search/scripts/duckduckgo_search.py", "--check"],
+    ("brave", "web_search"): [sys.executable, "skills/web-search/scripts/brave_search.py", "--check"],
 }
 
 WEB_SEARCH_COMMANDS = {
-    "arxiv": [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py"],
-    "exa": [sys.executable, "skills/web-discover/scripts/exa_search.py"],
-    "firecrawl": [sys.executable, "skills/web-discover/scripts/firecrawl_search.py"],
-    "searxng": [sys.executable, "skills/searxng-search/scripts/searxng_search.py"],
-    "tavily": [sys.executable, "skills/web-discover/scripts/tavily_search.py"],
+    "arxiv": [sys.executable, "skills/web-search/scripts/arxiv_search.py"],
+    "exa": [sys.executable, "skills/web-search/scripts/exa_search.py"],
+    "firecrawl": [sys.executable, "skills/web-search/scripts/firecrawl_search.py"],
+    "searxng": [sys.executable, "skills/web-search/scripts/searxng_search.py"],
+    "tavily": [sys.executable, "skills/web-search/scripts/tavily_search.py"],
+    # Zero-config / keyless-or-keyed common-argument providers. Helpers live in
+    # ``skills/web-search/scripts/`` and accept only the common chain arguments.
+    "exa-mcp": [sys.executable, "skills/web-search/scripts/exa_mcp_search.py"],
+    "jina": [sys.executable, "skills/web-search/scripts/jina_search.py"],
+    "duckduckgo": [sys.executable, "skills/web-search/scripts/duckduckgo_search.py"],
+    "brave": [sys.executable, "skills/web-search/scripts/brave_search.py"],
 }
+
+DEFAULT_WEB_SEARCH_PROVIDER = "exa-mcp"
+
+# Arguments a provider chain is allowed to pass through to each candidate.
+CHAIN_PUBLIC_ARGUMENTS: frozenset[str] = frozenset(
+    {"query", "max_results", "timeout", "output", "config_path", "state_path"}
+)
+
+# Web-search arguments that are provider-specific and therefore rejected in
+# chain mode (they require an explicit single --provider).
+_CHAIN_PROVIDER_ONLY_ARGS: tuple[str, ...] = (
+    "search_depth",
+    "topic",
+    "time_range",
+    "include_domains",
+    "exclude_domains",
+    "include_answer",
+    "search_type",
+    "category",
+    "id_list",
+    "title",
+    "author",
+    "abstract",
+    "start",
+    "sort_by",
+    "sort_order",
+    "freshness",
+    "start_crawl_date",
+    "end_crawl_date",
+    "start_published_date",
+    "end_published_date",
+    "include_text",
+    "include_highlights",
+    "include_summary",
+    "text_max_characters",
+    "highlight_query",
+    "highlight_num_sentences",
+    "highlights_per_url",
+    "highlight_max_characters",
+    "summary_query",
+    "additional_queries",
+    "user_location",
+    "moderation",
+    "output_schema",
+    "system_prompt",
+    "stream",
+    "base_url",
+)
+
+# Providers that accept only the common chain/public arguments (their helpers
+# take no provider-specific options).
+_COMMON_ONLY_PROVIDERS: frozenset[str] = frozenset(
+    {"exa-mcp", "jina", "duckduckgo", "brave"}
+)
 
 WEB_FETCH_COMMANDS = {
     "defuddle": ["defuddle", "parse"],
@@ -45,7 +123,7 @@ WEB_FETCH_COMMANDS = {
 }
 
 WEB_SIMILAR_COMMANDS = {
-    "exa": [sys.executable, "skills/web-discover/scripts/exa_similar.py"],
+    "exa": [sys.executable, "skills/web-search/scripts/exa_similar.py"],
 }
 
 SITE_MAP_COMMANDS = {
@@ -97,7 +175,12 @@ def run_gate(label, args):
     return run(args)
 
 
-def main():
+def build_parser():
+    """Build the full ``arkspace`` argument parser without executing anything.
+
+    Exposed separately from ``main()`` so doc-command contract tests can parse
+    documented CLI examples against the real parser without running subprocesses.
+    """
     parser = argparse.ArgumentParser(prog="arkspace")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -159,7 +242,9 @@ def main():
     web_sub = web.add_subparsers(dest="web_command", required=True)
     web_search = web_sub.add_parser("search")
     web_search.add_argument("query", nargs="?", default="")
-    web_search.add_argument("--provider", required=True, choices=sorted(WEB_SEARCH_COMMANDS))
+    provider_group = web_search.add_mutually_exclusive_group()
+    provider_group.add_argument("--provider", choices=sorted(WEB_SEARCH_COMMANDS))
+    provider_group.add_argument("--providers")
     web_search.add_argument("--max-results")
     web_search.add_argument("--search-depth")
     web_search.add_argument("--topic")
@@ -444,6 +529,11 @@ def main():
     doctor = sub.add_parser("doctor")
     doctor.add_argument("--installed-host", choices=["codex", "claude-code", "all"])
 
+    return parser
+
+
+def main():
+    parser = build_parser()
     args = parser.parse_args()
     if args.command == "validate":
         return run([sys.executable, "scripts/validate-skills.py"])
@@ -452,6 +542,10 @@ def main():
     if args.command == "provider":
         return run_or_cli_error(provider_command, args)
     if args.command == "web":
+        # ``--providers`` selects chain mode by presence, including an empty
+        # string, so chain validation rejects it before any default helper runs.
+        if args.web_command == "search" and args.providers is not None:
+            return run_chain_or_cli_error(args)
         return run_or_cli_error(web_command, args)
     if args.command == "site":
         return run_or_cli_error(site_command, args)
@@ -531,7 +625,7 @@ def provider_command(args):
         command = PROVIDER_CHECK_COMMANDS.get((args.provider, capability))
         if not command:
             raise CliError(f"provider {args.provider} does not have a {capability} check")
-        if args.provider in {"tavily", "exa", "firecrawl"}:
+        if args.provider in {"tavily", "exa", "firecrawl", "brave"}:
             return append_path_flags([*command], args, include_state=True)
         return [*command]
 
@@ -577,184 +671,70 @@ def provider_command(args):
     return cmd
 
 
-def web_command(args):
-    if args.web_command == "search":
-        cmd = [*WEB_SEARCH_COMMANDS[args.provider], args.query]
-        if args.provider == "arxiv":
-            if args.base_url:
-                raise CliError("arxiv web search uses the official arXiv API and does not accept --base-url")
-            if (
-                args.search_depth
-                or args.topic
-                or args.time_range
-                or args.include_domains
-                or args.exclude_domains
-                or args.include_answer
-                or args.search_type
-                or args.freshness
-                or args.start_crawl_date
-                or args.end_crawl_date
-                or args.start_published_date
-                or args.end_published_date
-                or args.include_text
-                or args.include_highlights
-                or args.include_summary
-                or args.text_max_characters
-                or args.highlight_query
-                or args.highlight_num_sentences
-                or args.highlights_per_url
-                or args.highlight_max_characters
-                or args.summary_query
-                or args.additional_queries
-                or args.user_location
-                or args.output_schema
-                or args.system_prompt
-                or args.stream
-                or args.moderation
-                or args.config_path
-                or args.state_path
-            ):
-                raise CliError("arxiv web search supports arXiv query fields only")
-            for name in ["max_results", "category", "id_list", "title", "author", "abstract", "start", "sort_by", "sort_order", "timeout", "output"]:
-                value = getattr(args, name)
-                if value:
-                    cmd.extend([f"--{name.replace('_', '-')}", value])
-            return cmd
-        if args.provider == "searxng":
-            if (
-                args.search_depth
-                or args.topic
-                or args.include_domains
-                or args.exclude_domains
-                or args.include_answer
-                or args.search_type
-                or args.category
-                or args.id_list
-                or args.title
-                or args.author
-                or args.abstract
-                or args.start
-                or args.sort_by
-                or args.sort_order
-                or args.freshness
-                or args.start_crawl_date
-                or args.end_crawl_date
-                or args.start_published_date
-                or args.end_published_date
-                or args.include_text
-                or args.include_highlights
-                or args.include_summary
-                or args.text_max_characters
-                or args.highlight_query
-                or args.highlight_num_sentences
-                or args.highlights_per_url
-                or args.highlight_max_characters
-                or args.summary_query
-                or args.additional_queries
-                or args.user_location
-                or args.output_schema
-                or args.system_prompt
-                or args.stream
-                or args.moderation
-            ):
-                raise CliError("searxng web search does not support Exa/Tavily-specific search options")
-            cmd = append_value_flags(cmd, args, ["base_url", "time_range", "config_path", "timeout", "output"])
-            if args.max_results:
-                cmd.extend(["--limit", args.max_results])
-            return cmd
-        if args.provider == "exa":
-            if args.base_url:
-                raise CliError("exa web search does not accept --base-url; use provider setup exa --base-url <url>")
-            if args.search_depth or args.topic or args.time_range or args.include_answer:
-                raise CliError("exa web search does not support Tavily-specific search options")
-            if args.id_list or args.title or args.author or args.abstract or args.start or args.sort_by or args.sort_order:
-                raise CliError("exa web search does not support arXiv-specific search options")
-            for name in [
-                "max_results",
-                "search_type",
-                "category",
-                "freshness",
-                "include_domains",
-                "exclude_domains",
-                "start_crawl_date",
-                "end_crawl_date",
-                "start_published_date",
-                "end_published_date",
-                "text_max_characters",
-                "highlight_query",
-                "highlight_num_sentences",
-                "highlights_per_url",
-                "highlight_max_characters",
-                "summary_query",
-                "additional_queries",
-                "user_location",
-                "output_schema",
-                "system_prompt",
-                "timeout",
-                "config_path",
-                "state_path",
-                "output",
-            ]:
-                value = getattr(args, name)
-                if value:
-                    cmd.extend([f"--{name.replace('_', '-')}", value])
-            for name in ["include_text", "include_highlights", "include_summary", "stream"]:
-                if getattr(args, name):
-                    cmd.append(f"--{name.replace('_', '-')}")
-            if args.moderation:
-                cmd.append("--moderation")
-            return cmd
-        if args.provider == "firecrawl":
-            if args.base_url:
-                raise CliError("firecrawl web search does not accept --base-url; use provider setup firecrawl --base-url <url>")
-            if (
-                args.search_depth
-                or args.topic
-                or args.time_range
-                or args.include_answer
-                or args.search_type
-                or args.freshness
-                or args.id_list
-                or args.title
-                or args.author
-                or args.abstract
-                or args.start
-                or args.sort_by
-                or args.sort_order
-                or args.start_crawl_date
-                or args.end_crawl_date
-                or args.start_published_date
-                or args.end_published_date
-                or args.include_highlights
-                or args.include_summary
-                or args.text_max_characters
-                or args.highlight_query
-                or args.highlight_num_sentences
-                or args.highlights_per_url
-                or args.highlight_max_characters
-                or args.summary_query
-                or args.additional_queries
-                or args.user_location
-                or args.output_schema
-                or args.system_prompt
-                or args.stream
-                or args.moderation
-            ):
-                raise CliError("firecrawl web search does not support Exa/Tavily-specific search options")
-            for name in ["max_results", "category", "timeout", "config_path", "state_path", "output"]:
-                value = getattr(args, name)
-                if value:
-                    flag = "--categories" if name == "category" else f"--{name.replace('_', '-')}"
-                    cmd.extend([flag, value])
-            if args.include_domains or args.exclude_domains:
-                raise CliError("firecrawl web search does not support domain include/exclude filters through ArkSpace yet")
-            if args.include_text:
-                cmd.append("--include-text")
-            return cmd
+def build_web_search_command(args, provider_id):
+    """Build the argv for a web search helper for a single provider."""
+    cmd = [*WEB_SEARCH_COMMANDS[provider_id], args.query]
+    if provider_id in _COMMON_ONLY_PROVIDERS:
+        for dest in _CHAIN_PROVIDER_ONLY_ARGS:
+            if getattr(args, dest, None):
+                flag = "--" + dest.replace("_", "-")
+                raise CliError(
+                    f"{provider_id} web search does not accept {flag}; "
+                    f"use a matching --provider"
+                )
+        for name in ["max_results", "timeout", "output", "config_path", "state_path"]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        return cmd
+    if provider_id == "arxiv":
         if args.base_url:
-            raise CliError("tavily web search does not accept --base-url; use provider setup tavily --base-url <url>")
+            raise CliError("arxiv web search uses the official arXiv API and does not accept --base-url")
         if (
-            args.search_type
+            args.search_depth
+            or args.topic
+            or args.time_range
+            or args.include_domains
+            or args.exclude_domains
+            or args.include_answer
+            or args.search_type
+            or args.freshness
+            or args.start_crawl_date
+            or args.end_crawl_date
+            or args.start_published_date
+            or args.end_published_date
+            or args.include_text
+            or args.include_highlights
+            or args.include_summary
+            or args.text_max_characters
+            or args.highlight_query
+            or args.highlight_num_sentences
+            or args.highlights_per_url
+            or args.highlight_max_characters
+            or args.summary_query
+            or args.additional_queries
+            or args.user_location
+            or args.output_schema
+            or args.system_prompt
+            or args.stream
+            or args.moderation
+            or args.config_path
+            or args.state_path
+        ):
+            raise CliError("arxiv web search supports arXiv query fields only")
+        for name in ["max_results", "category", "id_list", "title", "author", "abstract", "start", "sort_by", "sort_order", "timeout", "output"]:
+            value = getattr(args, name)
+            if value:
+                cmd.extend([f"--{name.replace('_', '-')}", value])
+        return cmd
+    if provider_id == "searxng":
+        if (
+            args.search_depth
+            or args.topic
+            or args.include_domains
+            or args.exclude_domains
+            or args.include_answer
+            or args.search_type
             or args.category
             or args.id_list
             or args.title
@@ -784,14 +764,246 @@ def web_command(args):
             or args.stream
             or args.moderation
         ):
-            raise CliError("tavily web search does not support Exa-specific search options")
-        for name in ["max_results", "search_depth", "topic", "time_range", "include_domains", "exclude_domains", "timeout", "config_path", "state_path", "output"]:
+            raise CliError("searxng web search does not support Exa/Tavily-specific search options")
+        cmd = append_value_flags(cmd, args, ["base_url", "time_range", "config_path", "timeout", "output"])
+        if args.max_results:
+            cmd.extend(["--limit", args.max_results])
+        return cmd
+    if provider_id == "exa":
+        if args.base_url:
+            raise CliError("exa web search does not accept --base-url; use provider setup exa --base-url <url>")
+        if args.search_depth or args.topic or args.time_range or args.include_answer:
+            raise CliError("exa web search does not support Tavily-specific search options")
+        if args.id_list or args.title or args.author or args.abstract or args.start or args.sort_by or args.sort_order:
+            raise CliError("exa web search does not support arXiv-specific search options")
+        for name in [
+            "max_results",
+            "search_type",
+            "category",
+            "freshness",
+            "include_domains",
+            "exclude_domains",
+            "start_crawl_date",
+            "end_crawl_date",
+            "start_published_date",
+            "end_published_date",
+            "text_max_characters",
+            "highlight_query",
+            "highlight_num_sentences",
+            "highlights_per_url",
+            "highlight_max_characters",
+            "summary_query",
+            "additional_queries",
+            "user_location",
+            "output_schema",
+            "system_prompt",
+            "timeout",
+            "config_path",
+            "state_path",
+            "output",
+        ]:
             value = getattr(args, name)
             if value:
                 cmd.extend([f"--{name.replace('_', '-')}", value])
-        if args.include_answer:
-            cmd.append("--include-answer")
+        for name in ["include_text", "include_highlights", "include_summary", "stream"]:
+            if getattr(args, name):
+                cmd.append(f"--{name.replace('_', '-')}")
+        if args.moderation:
+            cmd.append("--moderation")
         return cmd
+    if provider_id == "firecrawl":
+        if args.base_url:
+            raise CliError("firecrawl web search does not accept --base-url; use provider setup firecrawl --base-url <url>")
+        if (
+            args.search_depth
+            or args.topic
+            or args.time_range
+            or args.include_answer
+            or args.search_type
+            or args.freshness
+            or args.id_list
+            or args.title
+            or args.author
+            or args.abstract
+            or args.start
+            or args.sort_by
+            or args.sort_order
+            or args.start_crawl_date
+            or args.end_crawl_date
+            or args.start_published_date
+            or args.end_published_date
+            or args.include_highlights
+            or args.include_summary
+            or args.text_max_characters
+            or args.highlight_query
+            or args.highlight_num_sentences
+            or args.highlights_per_url
+            or args.highlight_max_characters
+            or args.summary_query
+            or args.additional_queries
+            or args.user_location
+            or args.output_schema
+            or args.system_prompt
+            or args.stream
+            or args.moderation
+        ):
+            raise CliError("firecrawl web search does not support Exa/Tavily-specific search options")
+        for name in ["max_results", "category", "timeout", "config_path", "state_path", "output"]:
+            value = getattr(args, name)
+            if value:
+                flag = "--categories" if name == "category" else f"--{name.replace('_', '-')}"
+                cmd.extend([flag, value])
+        if args.include_domains or args.exclude_domains:
+            raise CliError("firecrawl web search does not support domain include/exclude filters through ArkSpace yet")
+        if args.include_text:
+            cmd.append("--include-text")
+        return cmd
+    if args.base_url:
+        raise CliError("tavily web search does not accept --base-url; use provider setup tavily --base-url <url>")
+    if (
+        args.search_type
+        or args.category
+        or args.id_list
+        or args.title
+        or args.author
+        or args.abstract
+        or args.start
+        or args.sort_by
+        or args.sort_order
+        or args.freshness
+        or args.start_crawl_date
+        or args.end_crawl_date
+        or args.start_published_date
+        or args.end_published_date
+        or args.include_text
+        or args.include_highlights
+        or args.include_summary
+        or args.text_max_characters
+        or args.highlight_query
+        or args.highlight_num_sentences
+        or args.highlights_per_url
+        or args.highlight_max_characters
+        or args.summary_query
+        or args.additional_queries
+        or args.user_location
+        or args.output_schema
+        or args.system_prompt
+        or args.stream
+        or args.moderation
+    ):
+        raise CliError("tavily web search does not support Exa-specific search options")
+    for name in ["max_results", "search_depth", "topic", "time_range", "include_domains", "exclude_domains", "timeout", "config_path", "state_path", "output"]:
+        value = getattr(args, name)
+        if value:
+            cmd.extend([f"--{name.replace('_', '-')}", value])
+    if args.include_answer:
+        cmd.append("--include-answer")
+    return cmd
+
+
+def parse_provider_chain(value):
+    """Parse a comma-separated provider chain, preserving order.
+
+    Rejects empty tokens and duplicate ids rather than silently deduplicating.
+    """
+    ids = [token.strip() for token in value.split(",")]
+    if any(not token for token in ids):
+        raise CliError("web search --providers contains an empty provider id")
+    seen = set()
+    for pid in ids:
+        if pid in seen:
+            raise CliError(f"web search --providers contains duplicate provider: {pid}")
+        seen.add(pid)
+    return ids
+
+
+def validate_provider_chain_args(args):
+    """Validate an explicit provider chain before any subprocess runs."""
+    chain = parse_provider_chain(args.providers)
+    for pid in chain:
+        if pid not in WEB_SEARCH_COMMANDS:
+            raise CliError(f"web search --providers contains unknown provider: {pid}")
+    for dest in _CHAIN_PROVIDER_ONLY_ARGS:
+        if getattr(args, dest, None):
+            flag = "--" + dest.replace("_", "-")
+            raise CliError(
+                f"{flag} requires a single --provider; it cannot be used with --providers"
+            )
+    return chain
+
+
+def _make_error_file():
+    """Create a private (0600) temporary error file, returning its path."""
+    handle = tempfile.NamedTemporaryFile(delete=False, prefix="arkspace_err_")
+    path = handle.name
+    handle.close()
+    try:
+        os.chmod(path, 0o600)
+    except OSError:
+        pass  # best-effort; matches write_error_file's chmod handling
+    return path
+
+
+def _unlink_temp_file(path):
+    try:
+        Path(path).unlink()
+    except FileNotFoundError:
+        pass
+
+
+def _chain_summary(diagnostics):
+    if not diagnostics:
+        return "web search: no providers ran"
+    return "web search: " + "; ".join(diagnostics)
+
+
+def run_web_search_chain(args):
+    """Run an explicit provider chain, buffering output and failing over.
+
+    Only the winning provider's stdout is emitted; all diagnostics go to stderr.
+    """
+    validate_provider_chain_args(args)
+    env = os.environ.copy()
+    diagnostics = []
+    for provider_id in parse_provider_chain(args.providers):
+        cmd = build_web_search_command(args, provider_id)
+        error_path = _make_error_file()
+        env[ERROR_FILE_ENV] = error_path
+        try:
+            proc = subprocess.run(
+                cmd, cwd=ROOT, capture_output=True, text=False, env=env
+            )
+            record = read_error_file(error_path)
+        except OSError as exc:
+            diagnostics.append(f"{provider_id}: launch failed ({exc})")
+            break
+        finally:
+            _unlink_temp_file(error_path)
+        if proc.returncode == 0 and record is None:
+            sys.stdout.buffer.write(proc.stdout)
+            sys.stdout.buffer.flush()
+            return 0
+        kind = record.get("kind") if isinstance(record, dict) else "unknown"
+        if kind == "config":
+            diagnostics.append(f"{provider_id}: skipped ({kind})")
+            continue
+        if kind in ("quota", "network", "transient"):
+            policy = fallback_policy(provider_id, args.config_path)
+            if kind in policy:
+                diagnostics.append(f"{provider_id}: {kind}; trying next provider")
+                continue
+            diagnostics.append(f"{provider_id}: {kind} not in fallback policy; stopping")
+            break
+        diagnostics.append(f"{provider_id}: {kind}; stopping")
+        break
+    sys.stderr.write(_chain_summary(diagnostics) + "\n")
+    return 1
+
+
+def web_command(args):
+    if args.web_command == "search":
+        provider_id = args.provider or DEFAULT_WEB_SEARCH_PROVIDER
+        return build_web_search_command(args, provider_id)
 
     if args.web_command == "fetch":
         cmd = [*WEB_FETCH_COMMANDS[args.provider], *args.urls]
@@ -1217,6 +1429,15 @@ def append_path_flags(cmd, args, *, include_state: bool):
 def run_or_cli_error(builder, args):
     try:
         return run(builder(args))
+    except CliError as exc:
+        print(f"arkspace: {exc}", file=sys.stderr)
+        return 2
+
+
+def run_chain_or_cli_error(args):
+    """Run an explicit chain (returns a status int), mapping CliError to exit 2."""
+    try:
+        return run_web_search_chain(args)
     except CliError as exc:
         print(f"arkspace: {exc}", file=sys.stderr)
         return 2

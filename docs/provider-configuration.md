@@ -7,7 +7,7 @@ ArkSpace keeps personal provider configuration outside the public package. The n
 Default paths:
 
 | Purpose | Path |
-|---|---|
+| --- | --- |
 | Provider config | `~/.config/ark-space/providers.json` |
 | Private API key values | `~/.config/ark-space/secrets.json` |
 | Runtime cooldown state | `~/.local/state/ark-space/provider-state.json` |
@@ -294,12 +294,35 @@ Only use `--secret-stdin` in an environment where stdin handling and shell histo
 For providers without setup defaults, configure the endpoint and add key references explicitly:
 
 ```bash
-python3 scripts/arkspace.py provider configure brave-search --base-url "https://api.search.brave.com"
-python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_1 --header X-Subscription-Token
-python3 scripts/arkspace.py provider add-key brave-search --env BRAVE_API_KEY_2 --header X-Subscription-Token
+python3 scripts/arkspace.py provider configure brave --base-url "https://api.search.brave.com"
+python3 scripts/arkspace.py provider add-key brave --env BRAVE_API_KEY_1 --header X-Subscription-Token
+python3 scripts/arkspace.py provider add-key brave --env BRAVE_API_KEY_2 --header X-Subscription-Token
 ```
 
 `provider add-key` stores key references only. The raw values must come from the host environment unless that provider later gets a `provider setup` default.
+
+Brave is a keyed provider: it needs a `BRAVE_API_KEY` to resolve. Prefer the guided setup flow:
+
+```bash
+python3 scripts/arkspace.py provider setup brave --wizard
+python3 scripts/arkspace.py provider check brave --capability web_search
+```
+
+## Zero-Config Providers
+
+`exa-mcp`, `jina`, and `duckduckgo` are keyless `web_search` providers with no
+configuration to create. They require no entry in `providers.json` and no API
+key: a plain `web search` command resolves them out of the box.
+
+- `exa-mcp` is the zero-config default `web_search` provider.
+- `jina` is keyless and works anonymously; a configured `JINA_API_KEY` is sent
+  only when present.
+- `duckduckgo` is keyless and explicit-only (`explicitOnly: true`): it is never
+  auto-selected and only runs when the caller names it.
+
+These providers need no `provider setup`, `provider configure`, or `add-key`
+step. Their `provider check` commands verify registration and keyless status
+without performing any network call.
 
 ## Option 3: Agent-Guided Setup
 
@@ -349,10 +372,26 @@ The shared runtime supports multiple endpoints and multiple API key references. 
 Default behavior:
 
 | Setting | Value |
-|---|---|
+| --- | --- |
 | Strategy | `round_robin` using least recently used state |
 | Retry statuses | `429,500,502,503,504` |
 | Disable statuses | `401,403` |
 | Cooldown | `300` seconds |
 
 Provider scripts should call `record_provider_result()` after API-backed requests so later calls can avoid recently failed keys.
+
+## Trusted-Local `!command` Shell Boundary
+
+A provider config value may reference a trusted local command using the
+`!command` syntax (for example `!security get api-key`). Resolving such a value
+**executes that shell command** on the machine that runs ArkSpace.
+
+This is safe only because the command comes from the (trusted) local config
+file, never from user or network input. Keep this boundary explicit:
+
+- Only put `!command` in a config file the user controls; never accept a
+  `!command` value from untrusted input.
+- Treat `!command` as arbitrary local code execution: it runs with the user's
+  privileges. Do not add a `!command` reference copied from an untrusted source.
+- Prefer `env:NAME`, `$NAME`, `${NAME}`, or a literal value unless a command is
+the only reasonable way to obtain a secret (for example a local vault CLI).

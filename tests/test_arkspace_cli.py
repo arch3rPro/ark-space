@@ -1,19 +1,37 @@
 import importlib.util
 import io
+import json
+import os
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _write_error_record(path, record):
+    """Write a version-1 error record to ``path`` for chain lifecycle tests.
+
+    Mirrors the provider runtime's on-disk record shape so the real
+    ``read_error_file`` can parse it.
+    """
+    try:
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(record, handle, ensure_ascii=False, sort_keys=True)
+    except OSError:
+        return False
+    return True
+
+
 def load_arkspace_module():
     spec = importlib.util.spec_from_file_location("arkspace_cli_test_module", ROOT / "scripts" / "arkspace.py")
+    assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
     spec.loader.exec_module(module)
     return module
 
@@ -39,7 +57,7 @@ class ArkspaceCliTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(
             calls[0],
-            [sys.executable, "skills/web-discover/scripts/tavily_search.py", "--check"],
+            [sys.executable, "skills/web-search/scripts/tavily_search.py", "--check"],
         )
 
     def test_provider_check_arxiv_delegates_to_arxiv_search_check(self):
@@ -48,7 +66,34 @@ class ArkspaceCliTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(
             calls[0],
-            [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py", "--check"],
+            [sys.executable, "skills/web-search/scripts/arxiv_search.py", "--check"],
+        )
+
+    def test_provider_check_brave_forwards_custom_config_and_state_paths(self):
+        status, calls = self.run_cli(
+            [
+                "provider",
+                "check",
+                "brave",
+                "--config-path",
+                "/tmp/providers.json",
+                "--state-path",
+                "/tmp/state.json",
+            ]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/web-search/scripts/brave_search.py",
+                "--check",
+                "--config-path",
+                "/tmp/providers.json",
+                "--state-path",
+                "/tmp/state.json",
+            ],
         )
 
     def test_provider_check_tavily_fetch_delegates_to_extract_check(self):
@@ -74,11 +119,11 @@ class ArkspaceCliTests(unittest.TestCase):
 
     def test_provider_check_exa_capabilities_delegate_to_helpers(self):
         expectations = {
-            "web_search": [sys.executable, "skills/web-discover/scripts/exa_search.py", "--check"],
+            "web_search": [sys.executable, "skills/web-search/scripts/exa_search.py", "--check"],
             "web_fetch": [sys.executable, "skills/web-fetch/scripts/exa_contents.py", "--check"],
             "deep_research": [sys.executable, "skills/web-research/scripts/exa_answer.py", "--check"],
             "code_context": [sys.executable, "skills/code-context/scripts/exa_context.py", "--check"],
-            "related_pages": [sys.executable, "skills/web-discover/scripts/exa_similar.py", "--check"],
+            "related_pages": [sys.executable, "skills/web-search/scripts/exa_similar.py", "--check"],
         }
         for capability, expected in expectations.items():
             with self.subTest(capability=capability):
@@ -103,7 +148,7 @@ class ArkspaceCliTests(unittest.TestCase):
 
     def test_provider_check_firecrawl_capabilities_delegate_to_helpers(self):
         expectations = {
-            "web_search": [sys.executable, "skills/web-discover/scripts/firecrawl_search.py", "--check"],
+            "web_search": [sys.executable, "skills/web-search/scripts/firecrawl_search.py", "--check"],
             "web_fetch": [sys.executable, "skills/web-fetch/scripts/firecrawl_scrape.py", "--check"],
             "web_map": [sys.executable, "skills/web-site/scripts/firecrawl_map.py", "--check"],
             "web_crawl": [sys.executable, "skills/web-site/scripts/firecrawl_crawl.py", "--check"],
@@ -339,7 +384,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/web-discover/scripts/tavily_search.py",
+                "skills/web-search/scripts/tavily_search.py",
                 "agent skills",
                 "--max-results",
                 "3",
@@ -368,7 +413,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/searxng-search/scripts/searxng_search.py",
+                "skills/web-search/scripts/searxng_search.py",
                 "agent skills",
                 "--base-url",
                 "https://searx.example.org",
@@ -403,7 +448,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/arxiv-search/scripts/arxiv_search.py",
+                "skills/web-search/scripts/arxiv_search.py",
                 "diffusion transformers",
                 "--max-results",
                 "3",
@@ -424,7 +469,7 @@ class ArkspaceCliTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(
             calls[0],
-            [sys.executable, "skills/arxiv-search/scripts/arxiv_search.py", "", "--id-list", "1706.03762"],
+            [sys.executable, "skills/web-search/scripts/arxiv_search.py", "", "--id-list", "1706.03762"],
         )
 
     def test_web_search_exa_delegates_to_exa_search_helper(self):
@@ -464,7 +509,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/web-discover/scripts/exa_search.py",
+                "skills/web-search/scripts/exa_search.py",
                 "agent skills",
                 "--max-results",
                 "3",
@@ -513,7 +558,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/web-discover/scripts/firecrawl_search.py",
+                "skills/web-search/scripts/firecrawl_search.py",
                 "agent skills",
                 "--max-results",
                 "3",
@@ -881,7 +926,7 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [
                 sys.executable,
-                "skills/web-discover/scripts/exa_similar.py",
+                "skills/web-search/scripts/exa_similar.py",
                 "https://example.com",
                 "--max-results",
                 "4",
@@ -1152,6 +1197,591 @@ class ArkspaceCliTests(unittest.TestCase):
             calls[0],
             [sys.executable, "scripts/smoke-test-installed-host.py", "--host", "codex"],
         )
+
+    # ------------------------------------------------------------------
+    # Task 2: explicit provider-chain orchestration
+    # ------------------------------------------------------------------
+
+    def run_chain(self, argv, proc_results, error_records=None, policies=None):
+        """Run a chain CLI invocation with mocked subprocess.run / error reader.
+
+        ``proc_results`` may contain result objects (with .returncode/.stdout/
+        .stderr) or an exception instance to raise. ``error_records`` are the
+        per-provider values returned by ``read_error_file`` in order.
+        """
+        calls = []
+        remaining_results = list(proc_results)
+        remaining_records = (
+            list(error_records) if error_records is not None else [None] * len(proc_results)
+        )
+
+        def fake_run(args, **kwargs):
+            calls.append(args)
+            if remaining_results:
+                item = remaining_results.pop(0)
+                if isinstance(item, BaseException):
+                    raise item
+                return item
+            return SimpleNamespace(returncode=0, stdout=b"", stderr=b"")
+
+        def fake_read(path):
+            if remaining_records:
+                return remaining_records.pop(0)
+            return None
+
+        def fake_policy(pid, config_path=None):
+            if policies is not None:
+                return list(policies.get(pid, ["quota", "network", "transient"]))
+            return ["quota", "network", "transient"]
+
+        stdout_buf = io.BytesIO()
+        stderr_buf = io.StringIO()
+        fake_stdout = SimpleNamespace(buffer=stdout_buf, write=stdout_buf.write)
+        with patch.object(sys, "argv", ["arkspace", *argv]), \
+            patch.object(self.arkspace.subprocess, "run", side_effect=fake_run), \
+            patch.object(self.arkspace, "read_error_file", side_effect=fake_read), \
+            patch.object(self.arkspace, "fallback_policy", side_effect=fake_policy), \
+            patch("sys.stdout", fake_stdout), \
+            patch("sys.stderr", stderr_buf):
+            status = self.arkspace.main()
+        return status, stdout_buf.getvalue(), stderr_buf.getvalue(), calls
+
+    def test_web_search_no_provider_defaults_to_exa_mcp_helper(self):
+        status, calls = self.run_cli(["web", "search", "query"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [sys.executable, "skills/web-search/scripts/exa_mcp_search.py", "query"],
+        )
+
+    def test_web_search_explicit_single_provider_unchanged(self):
+        status, calls = self.run_cli(["web", "search", "--provider", "exa", "query"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [sys.executable, "skills/web-search/scripts/exa_search.py", "query"],
+        )
+
+    def test_web_search_explicit_single_provider_jina(self):
+        status, calls = self.run_cli(
+            ["web", "search", "--provider", "jina", "--max-results", "4", "--timeout", "20", "query"]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [
+                sys.executable,
+                "skills/web-search/scripts/jina_search.py",
+                "query",
+                "--max-results",
+                "4",
+                "--timeout",
+                "20",
+            ],
+        )
+
+    def test_web_search_explicit_single_provider_duckduckgo(self):
+        status, calls = self.run_cli(["web", "search", "--provider", "duckduckgo", "query"])
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls[0],
+            [sys.executable, "skills/web-search/scripts/duckduckgo_search.py", "query"],
+        )
+
+    def test_web_search_explicit_chain_jina_duckduckgo_uses_public_args(self):
+        jina_cmd = [
+            sys.executable,
+            "skills/web-search/scripts/jina_search.py",
+            "query",
+            "--max-results",
+            "3",
+            "--timeout",
+            "15",
+            "--output",
+            "json",
+        ]
+        ddg_cmd = [
+            sys.executable,
+            "skills/web-search/scripts/duckduckgo_search.py",
+            "query",
+            "--max-results",
+            "3",
+            "--timeout",
+            "15",
+            "--output",
+            "json",
+        ]
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"e1"),
+            SimpleNamespace(returncode=0, stdout=b'{"ok":true}', stderr=b""),
+        ]
+        records = [{"kind": "quota"}, None]
+        status, out, err, calls = self.run_chain(
+            [
+                "web",
+                "search",
+                "--providers",
+                "jina,duckduckgo",
+                "--max-results",
+                "3",
+                "--timeout",
+                "15",
+                "--output",
+                "json",
+                "query",
+            ],
+            procs,
+            records,
+            policies={"jina": ["quota"]},
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls, [jina_cmd, ddg_cmd])
+        self.assertEqual(out, b'{"ok":true}')
+
+    def test_web_search_chain_rejects_provider_only_flags_for_jina(self):
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "jina,duckduckgo", "--search-type", "neural", "q"],
+            [],
+            [],
+        )
+        self.assertEqual(status, 2)
+        self.assertEqual(calls, [])
+        self.assertIn("--search-type requires a single --provider", err)
+
+
+    def test_web_search_chain_preserves_provider_order(self):
+        exa_cmd = [sys.executable, "skills/web-search/scripts/exa_search.py", "query"]
+        brave_cmd = [sys.executable, "skills/web-search/scripts/brave_search.py", "query"]
+        jina_cmd = [sys.executable, "skills/web-search/scripts/jina_search.py", "query"]
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"e1"),
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"e2"),
+            SimpleNamespace(returncode=0, stdout=b'{"ok":true}', stderr=b""),
+        ]
+        records = [{"kind": "quota"}, {"kind": "quota"}, None]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,brave,jina", "query"],
+            procs,
+            records,
+            policies={"exa": ["quota"], "brave": ["quota"]},
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls, [exa_cmd, brave_cmd, jina_cmd])
+        self.assertEqual(out, b'{"ok":true}')
+
+    def test_web_search_chain_brave_uses_public_args(self):
+        brave_cmd = [
+            sys.executable,
+            "skills/web-search/scripts/brave_search.py",
+            "query",
+            "--max-results",
+            "3",
+            "--timeout",
+            "15",
+            "--output",
+            "json",
+        ]
+        jina_cmd = [
+            sys.executable,
+            "skills/web-search/scripts/jina_search.py",
+            "query",
+            "--max-results",
+            "3",
+            "--timeout",
+            "15",
+            "--output",
+            "json",
+        ]
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"e1"),
+            SimpleNamespace(returncode=0, stdout=b'{"ok":true}', stderr=b""),
+        ]
+        records = [{"kind": "config"}, None]
+        status, out, err, calls = self.run_chain(
+            [
+                "web",
+                "search",
+                "--providers",
+                "brave,jina",
+                "--max-results",
+                "3",
+                "--timeout",
+                "15",
+                "--output",
+                "json",
+                "query",
+            ],
+            procs,
+            records,
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls, [brave_cmd, jina_cmd])
+        self.assertEqual(out, b'{"ok":true}')
+
+    def test_chain_brave_config_skips_to_next_candidate(self):
+        # A missing Brave key surfaces as a ``config`` failure; the explicit
+        # chain must skip Brave and continue to the next candidate.
+        brave_cmd = [sys.executable, "skills/web-search/scripts/brave_search.py", "query"]
+        jina_cmd = [sys.executable, "skills/web-search/scripts/jina_search.py", "query"]
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"missing key"),
+            SimpleNamespace(returncode=0, stdout=b'{"ok":true}', stderr=b""),
+        ]
+        records = [{"kind": "config"}, None]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "brave,jina", "query"], procs, records
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(calls, [brave_cmd, jina_cmd])
+        self.assertEqual(out, b'{"ok":true}')
+
+    def test_chain_rejects_provider_only_flags_for_brave(self):
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "brave,jina", "--search-type", "neural", "q"],
+            [],
+            [],
+        )
+        self.assertEqual(status, 2)
+        self.assertEqual(calls, [])
+        self.assertIn("--search-type requires a single --provider", err)
+
+    def test_provider_and_providers_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit):
+            with patch.object(
+                sys,
+                "argv",
+                ["arkspace", "web", "search", "--provider", "exa", "--providers", "exa,tavily", "q"],
+            ):
+                self.arkspace.main()
+
+    def test_empty_providers_uses_chain_validation_before_helper_execution(self):
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "", "query"], [], []
+        )
+
+        self.assertEqual(status, 2)
+        self.assertEqual(out, b"")
+        self.assertEqual(calls, [])
+        self.assertIn("contains an empty provider id", err)
+
+    def test_parse_provider_chain_rejects_empty_tokens(self):
+        with self.assertRaises(self.arkspace.CliError):
+            self.arkspace.parse_provider_chain("exa,,tavily")
+
+    def test_parse_provider_chain_rejects_duplicates(self):
+        with self.assertRaises(self.arkspace.CliError):
+            self.arkspace.parse_provider_chain("exa,exa")
+
+    def test_chain_unknown_provider_rejected_before_execution(self):
+        status, calls = self.run_cli(["web", "search", "--providers", "exa,notreal", "q"])
+
+        self.assertEqual(status, 2)
+        self.assertEqual(calls, [])
+
+    def test_chain_rejects_provider_only_flags(self):
+        cases = [
+            ["--search-type", "neural"],
+            ["--category", "cs.CV"],
+            ["--author", "Someone"],
+            ["--base-url", "https://example.org"],
+            ["--include-summary"],
+            ["--freshness", "week"],
+            ["--moderation"],
+            ["--stream"],
+        ]
+        for flag_args in cases:
+            flag = flag_args[0]
+            with self.subTest(flag=flag):
+                status, out, err, calls = self.run_chain(
+                    ["web", "search", "--providers", "exa,tavily", *flag_args, "q"],
+                    [],
+                    [],
+                )
+                self.assertEqual(status, 2)
+                self.assertEqual(calls, [])
+                self.assertIn(
+                    f"{flag} requires a single --provider; it cannot be used with --providers",
+                    err,
+                )
+
+    def test_chain_first_success_emits_stdout_and_stops(self):
+        procs = [SimpleNamespace(returncode=0, stdout=b'{"a":1}', stderr=b"")]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,tavily", "query"], procs, [None]
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            calls, [[sys.executable, "skills/web-search/scripts/exa_search.py", "query"]]
+        )
+        self.assertEqual(out, b'{"a":1}')
+
+    def test_chain_config_skips_to_next_candidate(self):
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b""),
+            SimpleNamespace(returncode=0, stdout=b'{"ok":true}', stderr=b""),
+        ]
+        records = [{"kind": "config"}, None]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,tavily", "query"], procs, records
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(out, b'{"ok":true}')
+
+    def test_chain_retryable_continues_only_if_in_policy(self):
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b""),
+            SimpleNamespace(returncode=0, stdout=b"ok", stderr=b""),
+        ]
+        records = [{"kind": "quota"}, None]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,tavily", "query"],
+            procs,
+            records,
+            policies={"exa": ["quota"]},
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(len(calls), 2)
+
+    def test_chain_retryable_not_in_policy_stops(self):
+        procs = [SimpleNamespace(returncode=1, stdout=b"", stderr=b"")]
+        records = [{"kind": "quota"}]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,tavily", "query"],
+            procs,
+            records,
+            policies={"exa": []},
+        )
+
+        self.assertEqual(status, 1)
+        self.assertEqual(len(calls), 1)
+        self.assertIn("quota", err)
+
+    def test_chain_terminal_kinds_stop(self):
+        for kind in ["auth", "invalid-request", "invalid-response", "unknown"]:
+            with self.subTest(kind=kind):
+                procs = [SimpleNamespace(returncode=1, stdout=b"", stderr=b"")]
+                records = [{"kind": kind}]
+                status, out, err, calls = self.run_chain(
+                    ["web", "search", "--providers", "exa,tavily", "query"],
+                    procs,
+                    records,
+                )
+                self.assertEqual(status, 1)
+                self.assertEqual(len(calls), 1)
+                self.assertIn(kind, err)
+
+    def test_chain_absent_error_record_stops_conservatively(self):
+        procs = [SimpleNamespace(returncode=1, stdout=b"", stderr=b"")]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,tavily", "query"], procs, [None]
+        )
+
+        self.assertEqual(status, 1)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(out, b"")
+
+    def test_chain_all_failures_redacted_summary_nonzero(self):
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"secret-token-here"),
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"other-secret"),
+        ]
+        records = [{"kind": "quota"}, {"kind": "unknown"}]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,tavily", "query"],
+            procs,
+            records,
+            policies={"exa": ["quota"]},
+        )
+
+        self.assertEqual(status, 1)
+        self.assertEqual(out, b"")
+        self.assertNotIn("secret-token-here", err)
+        self.assertNotIn("other-secret", err)
+        self.assertIn("web search", err)
+
+    def test_chain_diagnostics_never_enter_stdout(self):
+        procs = [
+            SimpleNamespace(returncode=1, stdout=b"", stderr=b"err1"),
+            SimpleNamespace(returncode=0, stdout=b'{"win":1}', stderr=b"err2"),
+        ]
+        records = [{"kind": "config"}, None]
+        status, out, err, calls = self.run_chain(
+            ["web", "search", "--providers", "exa,tavily", "query"], procs, records
+        )
+
+        self.assertEqual(status, 0)
+        self.assertEqual(out, b'{"win":1}')
+        self.assertNotIn(b"err1", out)
+
+    def test_chain_temp_files_removed_after_success(self):
+        created = []
+        real_ntf = tempfile.NamedTemporaryFile
+
+        def spy_ntf(*a, **k):
+            f = real_ntf(*a, **k)
+            created.append(f.name)
+            return f
+
+        with patch.object(self.arkspace.tempfile, "NamedTemporaryFile", side_effect=spy_ntf):
+            status, out, err, calls = self.run_chain(
+                ["web", "search", "--providers", "exa,tavily", "query"],
+                [SimpleNamespace(returncode=0, stdout=b"x", stderr=b"")],
+                [None],
+            )
+
+        self.assertEqual(status, 0)
+        self.assertTrue(created)
+        for path in created:
+            self.assertFalse(os.path.exists(path))
+
+    def test_chain_temp_files_removed_on_subprocess_exception(self):
+        created = []
+        real_ntf = tempfile.NamedTemporaryFile
+
+        def spy_ntf(*a, **k):
+            f = real_ntf(*a, **k)
+            created.append(f.name)
+            return f
+
+        with patch.object(self.arkspace.tempfile, "NamedTemporaryFile", side_effect=spy_ntf):
+            status, out, err, calls = self.run_chain(
+                ["web", "search", "--providers", "exa,tavily", "query"],
+                [OSError("boom")],
+            )
+
+        self.assertEqual(status, 1)
+        self.assertTrue(created)
+        for path in created:
+            self.assertFalse(os.path.exists(path))
+
+    def test_chain_real_error_file_lifecycle_config_continuation(self):
+        """Real _make_error_file + real read_error_file must observe a real
+        version-1 record written by the mocked child.
+
+        Guards against the lifecycle bug where the temp file was unlinked in a
+        ``finally`` before ``read_error_file`` ran, so every real failed
+        candidate appeared as ``unknown`` and fallback never ran. Here a
+        ``config`` record on the first candidate must skip to the second, which
+        then succeeds; all temp files must be removed.
+        """
+        created = []
+        real_ntf = tempfile.NamedTemporaryFile
+        stdout_buf = io.BytesIO()
+        stderr_buf = io.StringIO()
+        fake_stdout = SimpleNamespace(buffer=stdout_buf, write=stdout_buf.write)
+        calls = []
+        count = [0]
+
+        def spy_ntf(*a, **k):
+            f = real_ntf(*a, **k)
+            created.append(f.name)
+            return f
+
+        def fake_run(args, **kwargs):
+            calls.append(args)
+            env = kwargs.get("env", os.environ)
+            count[0] += 1
+            if count[0] == 1:
+                _write_error_record(
+                    env[self.arkspace.ERROR_FILE_ENV],
+                    {
+                        "version": 1,
+                        "provider": "exa",
+                        "capability": "web_search",
+                        "kind": "config",
+                        "message": "needs config",
+                    },
+                )
+                return SimpleNamespace(returncode=1, stdout=b"", stderr=b"")
+            return SimpleNamespace(returncode=0, stdout=b'{"ok":true}', stderr=b"")
+
+        with patch.object(self.arkspace.tempfile, "NamedTemporaryFile", side_effect=spy_ntf), \
+            patch.object(
+                sys,
+                "argv",
+                ["arkspace", "web", "search", "--providers", "exa,tavily", "query"],
+            ), \
+            patch.object(self.arkspace.subprocess, "run", side_effect=fake_run), \
+            patch("sys.stdout", fake_stdout), \
+            patch("sys.stderr", stderr_buf):
+            status = self.arkspace.main()
+
+        self.assertEqual(status, 0)
+        self.assertEqual(len(calls), 2)  # config skipped to the next candidate
+        self.assertEqual(stdout_buf.getvalue(), b'{"ok":true}')
+        self.assertTrue(created)
+        for path in created:
+            self.assertFalse(os.path.exists(path))
+
+    def test_chain_real_error_file_lifecycle_retryable_continuation(self):
+        """A real ``quota`` record on the first candidate continues only when
+        that provider's fallback policy allows it; the second candidate then
+        succeeds and every temp file is cleaned up.
+        """
+        created = []
+        real_ntf = tempfile.NamedTemporaryFile
+        stdout_buf = io.BytesIO()
+        stderr_buf = io.StringIO()
+        fake_stdout = SimpleNamespace(buffer=stdout_buf, write=stdout_buf.write)
+        calls = []
+        count = [0]
+
+        def spy_ntf(*a, **k):
+            f = real_ntf(*a, **k)
+            created.append(f.name)
+            return f
+
+        def fake_run(args, **kwargs):
+            calls.append(args)
+            env = kwargs.get("env", os.environ)
+            count[0] += 1
+            if count[0] == 1:
+                _write_error_record(
+                    env[self.arkspace.ERROR_FILE_ENV],
+                    {
+                        "version": 1,
+                        "provider": "exa",
+                        "capability": "web_search",
+                        "kind": "quota",
+                        "message": "rate limited",
+                    },
+                )
+                return SimpleNamespace(returncode=1, stdout=b"", stderr=b"")
+            return SimpleNamespace(returncode=0, stdout=b'{"win":1}', stderr=b"")
+
+        def fake_policy(pid, config_path=None):
+            return ["quota"]
+
+        with patch.object(self.arkspace.tempfile, "NamedTemporaryFile", side_effect=spy_ntf), \
+            patch.object(
+                sys,
+                "argv",
+                ["arkspace", "web", "search", "--providers", "exa,tavily", "query"],
+            ), \
+            patch.object(self.arkspace.subprocess, "run", side_effect=fake_run), \
+            patch.object(self.arkspace, "fallback_policy", side_effect=fake_policy), \
+            patch("sys.stdout", fake_stdout), \
+            patch("sys.stderr", stderr_buf):
+            status = self.arkspace.main()
+
+        self.assertEqual(status, 0)
+        self.assertEqual(len(calls), 2)  # quota continued to the next candidate
+        self.assertEqual(stdout_buf.getvalue(), b'{"win":1}')
+        self.assertTrue(created)
+        for path in created:
+            self.assertFalse(os.path.exists(path))
 
 
 if __name__ == "__main__":

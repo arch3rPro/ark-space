@@ -14,6 +14,10 @@ from . import provider_config
 
 DEFAULT_BASE_URL = "https://api.firecrawl.dev"
 
+# The official Firecrawl CLI works without an API key for exactly these two
+# capabilities. Every other Firecrawl capability remains key-required.
+FIRECRAWL_KEYLESS_CAPABILITIES = frozenset({"web_search", "web_fetch"})
+
 
 class FirecrawlCliError(provider_config.ProviderConfigError):
     def __init__(self, message: str, status: int | None = None):
@@ -27,13 +31,38 @@ def resolve_firecrawl(
     config_path: str | None = None,
     state_path: str | None = None,
 ) -> dict[str, Any]:
+    require_secret = capability not in FIRECRAWL_KEYLESS_CAPABILITIES
+    config = provider_config.load_config(config_path)
+    entry = provider_config.provider_entry(config, "firecrawl")
+    if not require_secret and (entry is None or not entry.get("enabled", True)):
+        # No provider entry exists for a keyless capability: fall back to a safe
+        # default resolution against the official base URL with no auth.
+        return _keyless_default_resolution(capability, config_path, state_path)
     return provider_config.resolve_provider(
         "firecrawl",
         capability=capability,
         config_path=config_path,
         state_path=state_path,
-        require_secret=True,
+        require_secret=require_secret,
     )
+
+
+def _keyless_default_resolution(
+    capability: str,
+    config_path: str | None,
+    state_path: str | None,
+) -> dict[str, Any]:
+    return {
+        "provider": "firecrawl",
+        "capability": capability,
+        "config_path": str(provider_config.default_config_path(config_path)),
+        "state_path": str(provider_config.default_state_path(state_path)),
+        "endpoint": {"id": "default", "base_url": DEFAULT_BASE_URL, "weight": 100},
+        "auth": {"type": "none"},
+        "rotation": provider_config.default_rotation(),
+        "fallback_on": list(provider_config.DEFAULT_FALLBACK_ON),
+        "explicit_only": False,
+    }
 
 
 def cli_command() -> list[str]:
@@ -49,10 +78,9 @@ def cli_command() -> list[str]:
 
 def env_for(resolved: dict[str, Any]) -> dict[str, str]:
     auth = resolved.get("auth") or {}
-    if auth.get("type") != "api_key" or not auth.get("value"):
-        raise provider_config.ProviderConfigError("provider firecrawl has no available API key")
     env = os.environ.copy()
-    env["FIRECRAWL_API_KEY"] = str(auth["value"])
+    if auth.get("type") == "api_key" and auth.get("value"):
+        env["FIRECRAWL_API_KEY"] = str(auth["value"])
     endpoint = resolved.get("endpoint") or {}
     if endpoint.get("base_url"):
         env["FIRECRAWL_API_URL"] = str(endpoint["base_url"])

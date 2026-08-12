@@ -2,7 +2,7 @@ adapters:
   - id: exa-search
     provider: exa
     capability: web_search
-    implementation: skills/web-discover/scripts/exa_search.py
+    implementation: skills/web-search/scripts/exa_search.py
     sourceId: exa
     upstreamPath: docs/reference/search
     syncMode: adapted
@@ -30,14 +30,14 @@ adapters:
   - id: exa-related-pages
     provider: exa
     capability: related_pages
-    implementation: skills/web-discover/scripts/exa_similar.py
+    implementation: skills/web-search/scripts/exa_similar.py
     sourceId: exa-similar
     upstreamPath: docs/reference/find-similar-links
     syncMode: adapted
   - id: tavily-search
     provider: tavily
     capability: web_search
-    implementation: skills/web-discover/scripts/tavily_search.py
+    implementation: skills/web-search/scripts/tavily_search.py
     sourceId: tavily-agent-skills
     upstreamPath: search
     syncMode: adapted
@@ -72,7 +72,7 @@ adapters:
   - id: firecrawl-search
     provider: firecrawl
     capability: web_search
-    implementation: skills/web-discover/scripts/firecrawl_search.py
+    implementation: skills/web-search/scripts/firecrawl_search.py
     sourceId: firecrawl-cli
     upstreamPath: search
     syncMode: adapted
@@ -124,4 +124,32 @@ adapters:
     implementation: skills/web-automation/scripts/firecrawl_monitor.py
     sourceId: firecrawl-cli
     upstreamPath: monitor
+    syncMode: adapted
+  - id: exa-mcp-search
+    provider: exa-mcp
+    capability: web_search
+    implementation: skills/web-search/scripts/exa_mcp_search.py
+    sourceId: exa-mcp
+    upstreamPath: mcp
+    syncMode: adapted
+  - id: jina-search
+    provider: jina
+    capability: web_search
+    implementation: skills/web-search/scripts/jina_search.py
+    sourceId: jina-reader
+    upstreamPath: reader
+    syncMode: adapted
+  - id: duckduckgo-search
+    provider: duckduckgo
+    capability: web_search
+    implementation: skills/web-search/scripts/duckduckgo_search.py
+    sourceId: duckduckgo
+    upstreamPath: html
+    syncMode: adapted
+  - id: brave-search
+    provider: brave
+    capability: web_search
+    implementation: skills/web-search/scripts/brave_search.py
+    sourceId: brave-search
+    upstreamPath: web-search
     syncMode: adapted

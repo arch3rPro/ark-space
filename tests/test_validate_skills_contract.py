@@ -1,4 +1,5 @@
 import importlib.util
+import re
 import unittest
 from pathlib import Path
 
@@ -11,14 +12,37 @@ def load_validate_module():
         "validate_skills_contract_module",
         ROOT / "scripts" / "validate-skills.py",
     )
-    module = importlib.util.module_from_spec(spec)
-    assert spec.loader is not None
-    spec.loader.exec_module(module)
+    module = importlib.util.module_from_spec(spec)  # type: ignore[reportArgumentType]
+    assert spec.loader is not None  # type: ignore[reportOptionalMemberAccess]
+    spec.loader.exec_module(module)  # type: ignore[reportOptionalMemberAccess]
     return module
 
 
 def is_public_true(value):
-    return value is True or value == "true"
+    return value is True or value == "true"  # pi-lens-ignore: no-identity-operator-on-literals
+
+
+def load_arkspace_module():
+    spec = importlib.util.spec_from_file_location(
+        "arkspace_contract_module",
+        ROOT / "scripts" / "arkspace.py",
+    )
+    module = importlib.util.module_from_spec(spec)  # type: ignore[reportArgumentType]
+    assert spec.loader is not None  # type: ignore[reportOptionalMemberAccess]
+    spec.loader.exec_module(module)  # type: ignore[reportOptionalMemberAccess]
+    return module
+
+
+# Documented search-selection policy identifiers. Higher registry ``priority``
+# breaks ties only; it never overrides an explicit provider request and never
+# controls ``--providers`` order. ``explicit-only`` means the provider is used
+# only when the caller names it.
+SEARCH_POLICY_ALLOW_LIST = {"role-first-provider-second", "priority-first", "explicit-only"}
+PRIORITY_RANGE = range(1, 1001)
+
+# Zero-config/explicit web_search providers added in the fallback-providers plan.
+KEYLESS_WEB_SEARCH_PROVIDERS = ("exa-mcp", "jina", "duckduckgo")
+KEYED_WEB_SEARCH_PROVIDERS = ("brave",)
 
 
 class ValidateSkillsContractTests(unittest.TestCase):
@@ -33,9 +57,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "orchestrator",
             "skill-manager",
             "provider-manager",
-            "searxng-search",
-            "arxiv-search",
-            "web-discover",
+            "web-search",
             "web-fetch",
             "web-site",
             "web-research",
@@ -54,9 +76,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
         by_name = {item["name"]: item for item in skills}
 
         for name in [
-            "searxng-search",
-            "arxiv-search",
-            "web-discover",
+            "web-search",
             "web-fetch",
             "web-site",
             "web-research",
@@ -84,8 +104,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
         orchestrator_skills = self.validate.split_csv(agents_by_id["orchestrator"]["skills"])
 
         for name in [
-            "arxiv-search",
-            "web-discover",
+            "web-search",
             "web-fetch",
             "web-site",
             "web-extract",
@@ -175,7 +194,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
     def test_tavily_extended_capabilities_are_provider_registered(self):
         expectations = {
-            "search-providers.yaml": ("web-discover", "web_search"),
+            "search-providers.yaml": ("web-search", "web_search"),
             "web-fetch-providers.yaml": ("web-fetch", "web_fetch"),
             "web-map-providers.yaml": ("web-site", "web_map"),
             "web-crawl-providers.yaml": ("web-site", "web_crawl"),
@@ -198,11 +217,11 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
     def test_exa_capabilities_are_provider_registered(self):
         expectations = {
-            "search-providers.yaml": ("web-discover", "web_search"),
+            "search-providers.yaml": ("web-search", "web_search"),
             "web-fetch-providers.yaml": ("web-fetch", "web_fetch"),
             "deep-research-providers.yaml": ("web-research", "deep_research"),
             "code-context-providers.yaml": ("code-context", "code_context"),
-            "related-page-providers.yaml": ("web-discover", "related_pages"),
+            "related-page-providers.yaml": ("web-search", "related_pages"),
         }
         for registry_name, (skill, capability) in expectations.items():
             with self.subTest(registry=registry_name):
@@ -216,7 +235,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
         providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / "search-providers.yaml", "providers")
         arxiv = next(item for item in providers if item.get("id") == "arxiv")
 
-        self.assertEqual(arxiv.get("skill"), "arxiv-search")
+        self.assertEqual(arxiv.get("skill"), "web-search")
         self.assertEqual(arxiv.get("capability"), "web_search")
         self.assertEqual(arxiv.get("configRequired"), "false")
         self.assertIn("--capability web_search", arxiv.get("checkCommand", ""))
@@ -224,7 +243,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
     def test_firecrawl_capabilities_are_provider_registered(self):
         expectations = {
-            "search-providers.yaml": ("web-discover", "web_search"),
+            "search-providers.yaml": ("web-search", "web_search"),
             "web-fetch-providers.yaml": ("web-fetch", "web_fetch"),
             "web-map-providers.yaml": ("web-site", "web_map"),
             "web-crawl-providers.yaml": ("web-site", "web_crawl"),
@@ -241,6 +260,89 @@ class ValidateSkillsContractTests(unittest.TestCase):
                 self.assertIn(f"--capability {capability}", firecrawl.get("checkCommand", ""))
                 self.assertIn("provider setup firecrawl --wizard", firecrawl.get("providerConfigCommand", ""))
 
+    def test_firecrawl_search_and_fetch_are_keyless_other_capabilities_required(self):
+        keyless = {"search-providers.yaml", "web-fetch-providers.yaml"}
+        required = {
+            "web-map-providers.yaml",
+            "web-crawl-providers.yaml",
+            "structured-extract-providers.yaml",
+            "web-interact-providers.yaml",
+            "web-monitor-providers.yaml",
+        }
+        for registry_name in keyless | required:
+            with self.subTest(registry=registry_name):
+                providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / registry_name, "providers")
+                firecrawl = next(item for item in providers if item.get("id") == "firecrawl")
+                if registry_name in keyless:
+                    self.assertEqual(firecrawl.get("configRequired"), "false")
+                else:
+                    self.assertEqual(firecrawl.get("configRequired"), "true")
+
+    def test_new_keyless_and_keyed_providers_are_provider_registered(self):
+        providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / "search-providers.yaml", "providers")
+        by_id = {item.get("id"): item for item in providers}
+        for provider_id in KEYLESS_WEB_SEARCH_PROVIDERS:
+            with self.subTest(provider=provider_id):
+                item = by_id[provider_id]
+                self.assertEqual(item.get("skill"), "web-search")
+                self.assertEqual(item.get("capability"), "web_search")
+                self.assertEqual(item.get("status"), "active")
+                self.assertEqual(item.get("configRequired"), "false")
+                self.assertIn("docs/web-researcher", item.get("roles", ""))
+        for provider_id in KEYED_WEB_SEARCH_PROVIDERS:
+            with self.subTest(provider=provider_id):
+                item = by_id[provider_id]
+                self.assertEqual(item.get("skill"), "web-search")
+                self.assertEqual(item.get("capability"), "web_search")
+                self.assertEqual(item.get("status"), "active")
+                self.assertEqual(item.get("configRequired"), "true")
+                self.assertEqual(item.get("explicitOnly"), "false")
+                self.assertIn("docs/web-researcher", item.get("roles", ""))
+
+    def test_new_search_providers_have_check_dispatch(self):
+        arkspace = load_arkspace_module()
+        for provider_id in KEYLESS_WEB_SEARCH_PROVIDERS + KEYED_WEB_SEARCH_PROVIDERS:
+            with self.subTest(provider=provider_id):
+                self.assertIn((provider_id, "web_search"), arkspace.PROVIDER_CHECK_COMMANDS)
+                self.assertIn(provider_id, arkspace.WEB_SEARCH_COMMANDS)
+
+    def test_new_search_providers_have_adapters_referencing_sources_and_files(self):
+        adapters = self.validate.parse_simple_yaml_list(ROOT / "registry" / "provider-adapters.yaml", "adapters")
+        sources = self.validate.parse_simple_yaml_list(ROOT / "registry" / "sources.yaml", "sources")
+        source_ids = {item.get("id") for item in sources if item.get("id")}
+        for provider_id in KEYLESS_WEB_SEARCH_PROVIDERS + KEYED_WEB_SEARCH_PROVIDERS:
+            with self.subTest(provider=provider_id):
+                matches = [a for a in adapters if a.get("provider") == provider_id and a.get("capability") == "web_search"]
+                self.assertEqual(len(matches), 1, f"expected one adapter for {provider_id}/web_search")
+                adapter = matches[0]
+                self.assertIn(adapter.get("sourceId"), source_ids)
+                self.assertTrue((ROOT / adapter["implementation"]).is_file())
+
+    def test_default_search_policy_belongs_to_allow_list(self):
+        text = (ROOT / "registry" / "search-providers.yaml").read_text(encoding="utf-8")
+        match = re.search(r"^defaultSearchPolicy:\s*(\S+)$", text, re.MULTILINE)
+        policy = match.group(1) if match else ""
+        self.assertIn(policy, SEARCH_POLICY_ALLOW_LIST)
+
+    def test_provider_priorities_are_integers_in_documented_range(self):
+        providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / "search-providers.yaml", "providers")
+        for item in providers:
+            priority = str(item.get("priority", "")).strip()
+            self.assertTrue(
+                priority.isdigit(),
+                f"provider {item.get('id')} priority must be an integer, got {item.get('priority')!r}",
+            )
+            self.assertIn(int(priority), PRIORITY_RANGE, f"provider {item.get('id')} priority {priority} out of range")
+
+    def test_explicit_only_is_boolean_like_and_duckduckgo_is_true(self):
+        providers = self.validate.parse_simple_yaml_list(ROOT / "registry" / "search-providers.yaml", "providers")
+        by_id = {item.get("id"): item for item in providers}
+        for item in providers:
+            if "explicitOnly" in item:
+                value = item["explicitOnly"]
+                self.assertIn(str(value).strip().lower(), {"true", "false"}, f"explicitOnly must be boolean-like for {item.get('id')}")
+        self.assertIn(str(by_id["duckduckgo"]["explicitOnly"]).strip().lower(), {"true"})
+
     def test_runtime_instructions_use_installed_arkspace_path(self):
         runtime_paths = [
             ROOT / "registry" / "search-providers.yaml",
@@ -248,9 +350,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
             ROOT / "registry" / "code-context-providers.yaml",
             ROOT / "registry" / "related-page-providers.yaml",
             ROOT / "skills" / "provider-manager" / "SKILL.md",
-            ROOT / "skills" / "arxiv-search" / "SKILL.md",
-            ROOT / "skills" / "searxng-search" / "SKILL.md",
-            ROOT / "skills" / "web-discover" / "SKILL.md",
+            ROOT / "skills" / "web-search" / "SKILL.md",
             ROOT / "skills" / "web-fetch" / "SKILL.md",
             ROOT / "skills" / "web-site" / "SKILL.md",
             ROOT / "skills" / "web-research" / "SKILL.md",
@@ -299,7 +399,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
 
     def test_canonical_provider_skills_delegate_setup_to_provider_manager(self):
         for skill_name in [
-            "web-discover",
+            "web-search",
             "web-fetch",
             "web-site",
             "web-research",
@@ -363,7 +463,7 @@ class ValidateSkillsContractTests(unittest.TestCase):
         )
 
     def test_public_skill_contract_requires_capabilities_and_categories(self):
-        self.validate.find_readme_included_skill_names = lambda: {"example"}
+        self.validate.find_readme_included_skill_names = lambda: {"example"}  # type: ignore[reportAttributeAccessIssue]
 
         missing_capabilities = [
             {

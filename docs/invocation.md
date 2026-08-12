@@ -9,10 +9,9 @@ Invocation is part of the agent-loop contract. A public skill is not usable just
 Use a direct skill path when the caller knows the task capability. Provider selection is optional and only needed for an explicit provider request or provider-specific control:
 
 ```text
-/ark-space:web-discover search claude-code-everything
-/ark-space:web-discover find pages related to https://example.com/article
-/ark-space:searxng-search search claude-code-everything
-/ark-space:arxiv-search search diffusion transformers
+/ark-space:web-search search claude-code-everything
+/ark-space:web-search find pages related to https://example.com/article
+/ark-space:web-search search diffusion transformers
 /ark-space:web-fetch extract https://example.com/article
 /ark-space:web-site map https://docs.example.com
 /ark-space:web-site crawl https://docs.example.com/docs
@@ -49,7 +48,7 @@ Routable public skills declare `orchestratorInvocation` in `registry/skills.yaml
 ## Capability Split
 
 | Capability | Input | Output | Registry |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `web_search` | Query | Candidate URLs, snippets, source metadata | `registry/search-providers.yaml` |
 | `web_fetch` | URL | Extracted page content, Markdown/text, metadata | `registry/web-fetch-providers.yaml` |
 | `web_map` | Site URL | Discovered URLs and site structure | `registry/web-map-providers.yaml` |

@@ -2,7 +2,7 @@ defaultRelatedPagesPolicy: url-first-provider-second
 
 providers:
   - id: exa
-    skill: web-discover
+    skill: web-search
     status: active
     capability: related_pages
     providerType: similar-links-api

@@ -50,7 +50,7 @@ sources:
     documentation: https://info.arxiv.org/help/api/user-manual.html
     license: arXiv Terms of Use
     syncPolicy: adapted
-    notes: "Official arXiv API used for arxiv-search paper discovery, fielded queries, Atom parsing, and API pacing."
+    notes: "Official arXiv API used for web-search arXiv paper discovery, fielded queries, Atom parsing, and API pacing."
 
   - id: hermes-agent-arxiv
     type: documentation
@@ -152,3 +152,34 @@ sources:
     license: unknown
     syncPolicy: adapted
     notes: "Migrated from the local AI-Native PRD Create skill archive; adapted to ArkSpace role routing and source governance."
+
+  - id: exa-mcp
+    type: documentation
+    url: https://mcp.exa.ai/mcp
+    documentation: https://exa.ai/docs/mcp-server
+    license: unknown
+    syncPolicy: adapted
+    notes: "Official Exa MCP server used for the zero-config exa-mcp web-search provider."
+
+  - id: jina-reader
+    type: documentation
+    url: https://jina.ai/reader/
+    documentation: https://jina.ai/reader/
+    license: unknown
+    syncPolicy: adapted
+    notes: "Official Jina Reader used for the keyless jina web-search provider."
+
+  - id: duckduckgo
+    type: documentation
+    url: https://duckduckgo.com/
+    license: unknown
+    syncPolicy: adapted
+    notes: "DuckDuckGo HTML search endpoint used for the keyless, explicit-only duckduckgo web-search provider."
+
+  - id: brave-search
+    type: documentation
+    url: https://api.search.brave.com/
+    documentation: https://brave.com/search/api/
+    license: unknown
+    syncPolicy: adapted
+    notes: "Official Brave Search API used for the keyed brave web-search provider."

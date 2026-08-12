@@ -5,7 +5,7 @@ Web providers are selected after role routing. ArkSpace provider registries are 
 ## Capabilities
 
 | Capability | Input | Output |
-|---|---|---|
+| --- | --- | --- |
 | `web_search` | Query | Candidate URLs, snippets, and source metadata |
 | `web_fetch` | URL | Readable page content, Markdown or text, and extraction metadata |
 | `web_map` | Site URL | Discovered URLs and site structure |
@@ -31,19 +31,39 @@ Web providers are selected after role routing. ArkSpace provider registries are 
 ## Provider Fit
 
 | Provider | Best fit |
-|---|---|
+| --- | --- |
+| Exa MCP (`exa-mcp`) | Zero-config default web search: general queries, no key or setup |
 | SearXNG | Self-hosted or private metasearch where the endpoint is controlled by the user |
 | Exa | Semantic search, technical docs, repositories, concept discovery, domain/date filtered search, concise cited answers, code context, similar-page discovery |
-| Firecrawl | CLI-backed search, scraping, site mapping, crawling, structured extraction, browser interaction, and monitoring for JS-heavy or bot-protected pages |
+| Firecrawl | CLI-backed search, scraping, site mapping, crawling, structured extraction, browser interaction, and monitoring for JS-heavy or bot-protected pages; `web_search` and `web_fetch` are keyless |
 | Tavily | Broad current web search, JavaScript-heavy extraction, site mapping, crawling, and long-form research reports |
+| Jina (`jina`) | Keyless general web search when no key is configured; anonymous Reader-backed results |
+| DuckDuckGo (`duckduckgo`) | Keyless, explicit-only web search; used only when the caller names it, never auto-selected |
+| Brave (`brave`) | Keyed web search when a `BRAVE_API_KEY` is configured |
 | Defuddle | Local URL extraction when no API provider is needed |
+
+## Provider Selection Notes
+
+- `exa-mcp` is the zero-config default `web_search` provider. A plain `web
+  search` command resolves it with no key or setup and no hidden fallback: if
+  the chosen provider is unreachable, the command fails rather than silently
+  switching.
+- The keyless providers `exa-mcp`, `jina`, and `duckduckgo` accept only the
+  common chain arguments (`query`, `--max-results`, `--timeout`, `--output`).
+  Provider-specific flags are rejected; use an explicit matching `--provider`
+  for those options.
+- `duckduckgo` is `explicitOnly: true`: it is never part of the default or
+  priority selection and runs only when the caller names it.
+- `brave` is keyed and requires `BRAVE_API_KEY`. A live Brave run uses a
+  dedicated test credential; an unconfigured Brave never invalidates
+  deterministic checks.
 
 ## Registry Authority
 
 Use these registries before executing web capabilities:
 
 | Capability | Registry |
-|---|---|
+| --- | --- |
 | `web_search` | `registry/search-providers.yaml` |
 | `web_fetch` | `registry/web-fetch-providers.yaml` |
 | `web_map` | `registry/web-map-providers.yaml` |

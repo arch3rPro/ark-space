@@ -26,6 +26,7 @@ from arkspace_runtime.provider_config import (
 
 
 DEFAULT_CAPABILITIES = {
+    "brave": "web_search",
     "searxng": "web_search",
     "tavily": ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"],
     "exa": ["web_search", "web_fetch", "deep_research", "code_context", "related_pages"],
@@ -41,6 +42,12 @@ DEFAULT_CAPABILITIES = {
 }
 
 SETUP_DEFAULTS = {
+    "brave": {
+        "base_url": "https://api.search.brave.com",
+        "capabilities": ["web_search"],
+        "auth_header": "X-Subscription-Token",
+        "auth_prefix": "",
+    },
     "tavily": {
         "base_url": "https://api.tavily.com",
         "capabilities": ["web_search", "web_fetch", "web_map", "web_crawl", "deep_research"],
@@ -198,7 +205,7 @@ def can_collect_interactive_secret() -> bool:
 
 
 def wizard_secret_names(provider: str, key_count: int) -> list[str]:
-    if provider not in {"tavily", "exa", "firecrawl"}:
+    if provider not in {"tavily", "exa", "firecrawl", "brave"}:
         raise ProviderConfigError(f"provider {provider} does not have a setup wizard")
     if key_count < 1:
         raise ProviderConfigError("--key-count must be at least 1")
@@ -206,6 +213,7 @@ def wizard_secret_names(provider: str, key_count: int) -> list[str]:
         "exa": "EXA_API_KEY",
         "firecrawl": "FIRECRAWL_API_KEY",
         "tavily": "TAVILY_API_KEY",
+        "brave": "BRAVE_API_KEY",
     }
     prefix = prefixes[provider]
     if key_count == 1:
@@ -261,6 +269,7 @@ def command_setup(args: argparse.Namespace) -> int:
             "exa": "EXA_API_KEY",
             "firecrawl": "FIRECRAWL_API_KEY",
             "tavily": "TAVILY_API_KEY",
+            "brave": "BRAVE_API_KEY",
         }
         default_key = default_keys.get(args.provider, f"{args.provider.upper()}_API_KEY")
         print(

@@ -6,6 +6,10 @@ This project uses human-readable release notes. Dates use `YYYY-MM-DD`.
 
 ## Unreleased
 
+- Web search gains fallback providers: zero-config `exa-mcp` (default), `jina`, explicit-only `duckduckgo`, and keyed `brave`, with `provider check` support and provider reference docs under `skills/web-search/docs/`.
+- `web search` with no `--provider` now resolves the zero-config `exa-mcp` default; the keyless providers accept only common chain arguments, and `duckduckgo` is explicit-only (never auto-selected).
+- Firecrawl `web_search` and `web_fetch` are now keyless, while map/crawl/extract/interact/monitor remain keyed.
+- Provider configuration docs document the trusted-local `!command` shell boundary and zero-config provider behavior.
 - Codex marketplace packaging now uses a real `plugins/ark-space/` package directory instead of an invalid repository-root source or symlink wrapper.
 - Validation now checks the Codex package directory for required files, symlinks, and stale copies against canonical root sources.
 - `python3 scripts/arkspace.py package-codex` now rebuilds the Codex marketplace package from canonical root files.

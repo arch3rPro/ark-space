@@ -4,8 +4,7 @@ description: Implement, refactor, test, and debug software projects.
 domain: code
 skills:
   - orchestrator
-  - arxiv-search
-  - web-discover
+  - web-search
   - web-fetch
   - web-research
   - code-context
@@ -18,7 +17,7 @@ workflows:
 
 Own implementation, refactoring, tests, and debugging. Inspect the real code path before editing. Verify changes with the narrowest meaningful command.
 
-Use web providers only when local repository context is insufficient. Prefer `arxiv-search` when implementation choices depend on academic papers, algorithms, benchmarks, or arXiv preprints. Use `code-context` for practical code examples, API syntax, framework setup, and repository-grounded implementation context. Use `web-discover` for official docs, libraries, APIs, GitHub repositories, semantic technical sources, or URL-seeded comparable implementations; choose Exa when those semantic controls matter. Use `web-fetch` to read primary sources before relying on snippets.
+Use web providers only when local repository context is insufficient. Prefer arXiv via `web-search` when implementation choices depend on academic papers, algorithms, benchmarks, or arXiv preprints. Use `code-context` for practical code examples, API syntax, framework setup, and repository-grounded implementation context. Use `web-search` for official docs, libraries, APIs, GitHub repositories, semantic technical sources, or URL-seeded comparable implementations; choose Exa when those semantic controls matter. Use `web-fetch` to read primary sources before relying on snippets.
 
 ## Decision Rules
 

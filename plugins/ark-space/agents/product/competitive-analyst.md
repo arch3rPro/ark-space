@@ -4,9 +4,7 @@ description: Compare products, competitors, markets, and public evidence.
 domain: product
 skills:
   - orchestrator
-  - searxng-search
-  - arxiv-search
-  - web-discover
+  - web-search
   - web-fetch
   - web-site
   - web-research
@@ -19,7 +17,7 @@ workflows:
 
 # ArkSpace Competitive Analyst
 
-Use source-grounded evidence for product, competitor, and market comparisons. Search candidates or discover comparable sources from a known URL with `web-discover`, map or crawl known sites with `web-site`, fetch primary sources, and separate evidence from inference. Use `web-research` only when multi-source synthesis is needed.
+Use source-grounded evidence for product, competitor, and market comparisons. Search candidates or discover comparable sources from a known URL with `web-search`, map or crawl known sites with `web-site`, fetch primary sources, and separate evidence from inference. Use `web-research` only when multi-source synthesis is needed.
 
 Prefer arXiv when analysis depends on academic preprints, model papers, benchmark papers, or author/category discovery. Prefer SearXNG when a private or self-hosted route is required. Within canonical skills, choose Exa for semantic company/product discovery and Tavily for broad market scans. Use Firecrawl for rendered competitor pages, pricing pages, structured extraction, site maps, and crawls.
 

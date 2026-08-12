@@ -12,8 +12,8 @@ Use ArkSpace from an AI-agent session with slash invocation.
 
 ```text
 /ark-space:orchestrator search for the claude-code-everything project
-/ark-space:arxiv-search search diffusion transformers
-/ark-space:web-discover search Claude Code plugin docs
+/ark-space:web-search search diffusion transformers
+/ark-space:web-search search Claude Code plugin docs
 /ark-space:web-research research the AI coding agents market
 /ark-space:web-fetch extract https://example.com
 ```
@@ -21,7 +21,7 @@ Use ArkSpace from an AI-agent session with slash invocation.
 Choose the entry path by intent:
 
 | Path | Use When |
-|---|---|
+| --- | --- |
 | `/ark-space:orchestrator ...` | You want ArkSpace to choose the role, workflow, capability, and provider. |
 | `/ark-space:<skill-name> ...` | You know the task capability; select a provider only when its distinctive behavior matters. |
 | `agents/*` | The host supports callable agents/subagents and should use a role-specific behavior profile. |
@@ -40,7 +40,7 @@ Personal execution examples:
 ArkSpace has four host-neutral layers:
 
 | Layer | Purpose |
-|---|---|
+| --- | --- |
 | `skills/` | Canonical Agent Skills. Each public skill lives at `skills/<name>/SKILL.md`. |
 | `agents/` | Callable role definitions that compose skills and workflows without duplicating skill bodies. |
 | `workflows/` | Routing, handoff, provider selection, and quality-gate protocols. |
@@ -49,7 +49,7 @@ ArkSpace has four host-neutral layers:
 Host-specific files are adapters:
 
 | Path | Purpose |
-|---|---|
+| --- | --- |
 | `.claude-plugin/` | Claude Code plugin metadata. |
 | `.codex-plugin/` | Codex plugin metadata. |
 | `integrations/` | Generated host-native agent outputs. |
@@ -60,7 +60,7 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 ## Callable Agents
 
 | Agent | Owns |
-|---|---|
+| --- | --- |
 | `orchestrator` | Lightweight routing, provider setup routing, workflow selection. |
 | `code-engineer` | Implementation, refactoring, tests, debugging. |
 | `code-reviewer` | Bug, regression, risk, and test-gap review. |
@@ -78,7 +78,7 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 ### Core And Governance
 
 | Skill | Purpose |
-|---|---|
+| --- | --- |
 | `orchestrator` | Route work to the smallest useful role, workflow, capability, and provider. |
 | `skill-manager` | Create, adapt, validate, source-track, and govern ArkSpace skills. |
 | `provider-manager` | Configure and inspect provider URLs, key references, readiness, and rotation. |
@@ -98,11 +98,9 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 ### Search, Fetch, And Research
 
 | Skill | Purpose |
-|---|---|
-| `searxng-search` | Query a configured self-hosted SearXNG instance. |
-| `arxiv-search` | Search arXiv papers by keyword, author, title, category, or ID. |
+| --- | --- |
+| `web-search` | Search public sources, papers, or self-hosted metasearch; or find pages related to a known URL. Zero-config default is Exa MCP; also supports Exa, Tavily, Firecrawl, Jina, DuckDuckGo, Brave, SearXNG, and arXiv. |
 | `defuddle` | Extract clean Markdown from normal web pages through Defuddle CLI. |
-| `web-discover` | Search public sources or find pages related to a known URL. |
 | `web-fetch` | Extract URL content through Exa, Tavily, or Firecrawl. |
 | `web-site` | Map a site or crawl a requested site section. |
 | `web-research` | Produce cited research through Exa or Tavily. |
@@ -115,7 +113,7 @@ Provider-specific implementations are internal adapters. Public skills remain ca
 ### Knowledge And Obsidian Tools
 
 | Skill | Purpose |
-|---|---|
+| --- | --- |
 | `json-canvas` | Create and edit JSON Canvas files. |
 | `obsidian-bases` | Create and edit Obsidian Bases. |
 | `obsidian-cli` | Interact with Obsidian through the CLI. |
@@ -131,7 +129,8 @@ ArkSpace keeps private provider configuration outside the public repository. Whe
 Provider setup supports:
 
 - self-hosted service URLs such as SearXNG
-- API-backed providers such as Exa, Tavily, and Firecrawl
+- API-backed providers such as Exa, Tavily, Firecrawl, and Brave
+- zero-config keyless providers such as Exa MCP, Jina, and DuckDuckGo (no setup needed)
 - multiple API keys with rotation
 - local private secret storage or environment-variable references
 
@@ -140,7 +139,7 @@ See [docs/provider-configuration.md](docs/provider-configuration.md) for command
 ## Documentation
 
 | Document | Purpose |
-|---|---|
+| --- | --- |
 | [docs/invocation.md](docs/invocation.md) | Slash invocation, direct skills, Orchestrator routing, capability split. |
 | [docs/provider-configuration.md](docs/provider-configuration.md) | Provider URLs, API keys, multi-key rotation, setup recovery. |
 | [docs/roadmap.md](docs/roadmap.md) | Project roadmap, development workstreams, and release readiness checks. |

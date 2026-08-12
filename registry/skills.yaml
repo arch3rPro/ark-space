@@ -45,42 +45,16 @@ skills:
     categories: docs,research,web,fetch
     roles: docs/web-researcher,product/competitive-analyst
 
-  - name: searxng-search
-    path: skills/searxng-search
-    status: active
-    public: true
-    capabilities: web_search
-    providers: searxng
-    directInvocation: "/ark-space:searxng-search search claude-code-everything"
-    orchestratorInvocation: "/ark-space:orchestrator use SearXNG to search claude-code-everything"
-    syncMode: local
-    upstreamId: searxng
-    categories: research,web,search
-    roles: docs/web-researcher,product/competitive-analyst
-
-  - name: arxiv-search
-    path: skills/arxiv-search
-    status: active
-    public: true
-    capabilities: web_search
-    providers: arxiv
-    directInvocation: "/ark-space:arxiv-search search diffusion transformers"
-    orchestratorInvocation: "/ark-space:orchestrator search arXiv papers about diffusion transformers"
-    syncMode: adapted
-    upstreamId: arxiv-api
-    categories: research,web,search,academic,papers
-    roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
-
-  - name: web-discover
-    path: skills/web-discover
+  - name: web-search
+    path: skills/web-search
     status: active
     public: true
     capabilities: web_search,related_pages
-    providers: exa,tavily,firecrawl
-    directInvocation: "/ark-space:web-discover search Claude Code plugin docs"
-    orchestratorInvocation: "/ark-space:orchestrator discover public sources"
+    providers: arxiv,searxng,exa,tavily,firecrawl,exa-mcp,jina,duckduckgo,brave
+    directInvocation: "/ark-space:web-search search Claude Code plugin docs"
+    orchestratorInvocation: "/ark-space:orchestrator search the web"
     syncMode: local
-    categories: research,web,discovery
+    categories: research,web,search,discovery,academic,papers
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
   - name: web-fetch

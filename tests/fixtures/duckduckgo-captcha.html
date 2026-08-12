@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Anomaly</title>
+</head>
+<body>
+  <div class="challenge-wrap">
+    <div id="challenge" class="challenge">
+      <h1>Anomaly</h1>
+      <p>We have detected unusual traffic coming from your network.</p>
+      <p>Please verify you are a human by completing the CAPTCHA challenge below.</p>
+      <form id="captcha-form" action="/challenge" method="post">
+        <input type="hidden" name="id" value="challenge">
+        <button type="submit">Verify</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
