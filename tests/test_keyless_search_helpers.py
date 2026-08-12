@@ -98,6 +98,14 @@ class ExaMCPHelperTests(unittest.TestCase):
         body = f"event: message\ndata: {payload}\n\n".encode()
         return 200, {"content-type": "text/event-stream"}, body
 
+    def _text_tool_response(self, text):
+        result = {"content": [{"type": "text", "text": text}], "isError": False}
+        return (
+            200,
+            {"content-type": "application/json"},
+            json.dumps({"jsonrpc": "2.0", "id": 2, "result": result}).encode(),
+        )
+
     def _read_error_record(self):
         return json.loads(Path(self.error_path).read_text(encoding="utf-8"))
 
@@ -200,6 +208,90 @@ class ExaMCPHelperTests(unittest.TestCase):
         self.assertEqual(res["results"][0]["author"], "ann")
         # No generic success envelope.
         self.assertNotIn("ok", res)
+
+    def test_real_text_response_normalizes_multiple_results(self):
+        text = """Title: ArkSpace agent skills
+URL: https://arkspace.example/skills
+Published: 2026-08-12
+Author: ArkSpace Team
+Highlights:
+Build reusable skills for agents.
+Keep this second highlight line.
+
+Title: Exa MCP protocol guide
+URL: https://docs.exa.example/mcp
+Published: 2026-08-11
+Author: Exa
+Highlights:
+Use Streamable HTTP for MCP tools.
+"""
+        t = self._transport(
+            [self._init_response(), self._notification_response(), self._text_tool_response(text)]
+        )
+
+        res = self.m.run_search("agent skills", request_mcp=t)
+
+        self.assertEqual(
+            res["results"],
+            [
+                {
+                    "title": "ArkSpace agent skills",
+                    "url": "https://arkspace.example/skills",
+                    "snippet": "Build reusable skills for agents.\nKeep this second highlight line.",
+                    "score": None,
+                    "published": "2026-08-12",
+                    "id": None,
+                    "image": None,
+                    "favicon": None,
+                    "author": "ArkSpace Team",
+                },
+                {
+                    "title": "Exa MCP protocol guide",
+                    "url": "https://docs.exa.example/mcp",
+                    "snippet": "Use Streamable HTTP for MCP tools.",
+                    "score": None,
+                    "published": "2026-08-11",
+                    "id": None,
+                    "image": None,
+                    "favicon": None,
+                    "author": "Exa",
+                },
+            ],
+        )
+
+    def test_real_text_response_tolerates_missing_optional_fields(self):
+        text = """Title: URL-only Exa result
+URL: https://exa.example/valid
+"""
+        t = self._transport(
+            [self._init_response(), self._notification_response(), self._text_tool_response(text)]
+        )
+
+        res = self.m.run_search("q", request_mcp=t)
+
+        self.assertEqual(len(res["results"]), 1)
+        self.assertEqual(res["results"][0]["title"], "URL-only Exa result")
+        self.assertEqual(res["results"][0]["url"], "https://exa.example/valid")
+        self.assertEqual(res["results"][0]["snippet"], "")
+        self.assertIsNone(res["results"][0]["published"])
+        self.assertIsNone(res["results"][0]["author"])
+
+    def test_unrecognizable_nonempty_content_is_invalid_response(self):
+        t = self._transport(
+            [
+                self._init_response(),
+                self._notification_response(),
+                self._text_tool_response("Exa returned a human-readable message without result records."),
+            ]
+        )
+
+        with self.assertRaises(self.m.MCPError) as ctx:
+            self.m.run_search("q", request_mcp=t)
+
+        self.assertEqual(ctx.exception.kind, "invalid-response")
+        record = self._read_error_record()
+        self.assertEqual(record["version"], 1)
+        self.assertEqual(record["kind"], "invalid-response")
 
     def test_sse_response_decoding(self):
         items = [{"title": "FromSSE", "url": "https://s.example", "text": "sse"}]

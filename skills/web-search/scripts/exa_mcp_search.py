@@ -316,6 +316,67 @@ def _normalize_item(item: Any) -> dict[str, Any] | None:
     }
 
 
+def _is_exa_record_start(lines: list[str], index: int) -> bool:
+    """Return whether ``lines[index]`` begins a Title/URL Exa text record."""
+    if not lines[index].strip().startswith("Title:"):
+        return False
+    for line in lines[index + 1 :]:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        return stripped.startswith("URL:")
+    return False
+
+
+def _parse_exa_text(text: str) -> list[dict[str, Any]]:
+    """Normalize Exa's line-oriented human-readable tool results.
+
+    A record starts only when a top-level ``Title:`` is immediately followed by
+    a ``URL:`` (ignoring blank lines), so Title-like highlight text is retained.
+    """
+    lines = (text or "").splitlines()
+    results: list[dict[str, Any]] = []
+    candidate: dict[str, Any] | None = None
+    highlights: list[str] = []
+    capturing_highlights = False
+
+    def finalize() -> None:
+        nonlocal candidate, highlights, capturing_highlights
+        if candidate is not None and candidate["url"]:
+            candidate["text"] = "\n".join(highlights).strip()
+            normalized = _normalize_item(candidate)
+            if normalized is not None:
+                results.append(normalized)
+        candidate = None
+        highlights = []
+        capturing_highlights = False
+
+    for index, line in enumerate(lines):
+        stripped = line.strip()
+        if _is_exa_record_start(lines, index):
+            finalize()
+            candidate = {"title": stripped.removeprefix("Title:").strip(), "url": ""}
+            continue
+        if candidate is None:
+            continue
+        if capturing_highlights:
+            highlights.append(line)
+            continue
+        if stripped.startswith("URL:"):
+            candidate["url"] = stripped.removeprefix("URL:").strip()
+        elif stripped.startswith("Published:"):
+            candidate["publishedDate"] = stripped.removeprefix("Published:").strip()
+        elif stripped.startswith("Author:"):
+            candidate["author"] = stripped.removeprefix("Author:").strip()
+        elif stripped.startswith("Highlights:"):
+            capturing_highlights = True
+            inline_highlight = stripped.removeprefix("Highlights:").strip()
+            if inline_highlight:
+                highlights.append(inline_highlight)
+    finalize()
+    return results
+
+
 def _build_result(query: str, data: Mapping[str, Any]) -> dict[str, Any]:
     """Build the provider-specific success dict from a tools/call JSON-RPC object."""
     result = data.get("result")
@@ -332,13 +393,21 @@ def _build_result(query: str, data: Mapping[str, Any]) -> dict[str, Any]:
     for block in content:
         if not isinstance(block, dict) or block.get("type") != "text":
             continue
-        parsed = _try_json(block.get("text", ""))
+        text = block.get("text", "")
+        parsed = _try_json(text)
         if parsed is None:
+            results.extend(_parse_exa_text(text))
             continue
         for item in _extract_items(parsed):
             normalized = _normalize_item(item)
             if normalized is not None:
                 results.append(normalized)
+    if not results:
+        _fail(
+            "invalid-response",
+            None,
+            "web_search_exa: MCP response contained no recognizable results",
+        )
     return {
         "provider": "exa-mcp",
         "capability": "web_search",
