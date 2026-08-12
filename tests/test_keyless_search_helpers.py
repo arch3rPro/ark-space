@@ -259,6 +259,41 @@ Use Streamable HTTP for MCP tools.
             ],
         )
 
+    def test_indented_record_fields_in_highlights_do_not_start_a_result(self):
+        text = """Title: Parent result
+URL: https://parent.example/result
+Highlights:
+This highlight quotes a nested result:
+  Title: Quoted result title
+  URL: https://quoted.example/result
+The quoted fields belong to this snippet.
+
+Title: Second result
+URL: https://second.example/result
+Highlights:
+Second result snippet.
+"""
+        t = self._transport(
+            [self._init_response(), self._notification_response(), self._text_tool_response(text)]
+        )
+
+        res = self.m.run_search("q", request_mcp=t)
+
+        self.assertEqual(
+            [(item["title"], item["url"], item["snippet"]) for item in res["results"]],
+            [
+                (
+                    "Parent result",
+                    "https://parent.example/result",
+                    "This highlight quotes a nested result:\n"
+                    "  Title: Quoted result title\n"
+                    "  URL: https://quoted.example/result\n"
+                    "The quoted fields belong to this snippet.",
+                ),
+                ("Second result", "https://second.example/result", "Second result snippet."),
+            ],
+        )
+
     def test_real_text_response_tolerates_missing_optional_fields(self):
         text = """Title: URL-only Exa result
 URL: https://exa.example/valid

@@ -317,14 +317,13 @@ def _normalize_item(item: Any) -> dict[str, Any] | None:
 
 
 def _is_exa_record_start(lines: list[str], index: int) -> bool:
-    """Return whether ``lines[index]`` begins a Title/URL Exa text record."""
-    if not lines[index].strip().startswith("Title:"):
+    """Return whether ``lines[index]`` begins a top-level Title/URL record."""
+    if not lines[index].startswith("Title:"):
         return False
     for line in lines[index + 1 :]:
-        stripped = line.strip()
-        if not stripped:
+        if not line.strip():
             continue
-        return stripped.startswith("URL:")
+        return line.startswith("URL:")
     return False
 
 
