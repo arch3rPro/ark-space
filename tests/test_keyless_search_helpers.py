@@ -294,6 +294,39 @@ Second result snippet.
             ],
         )
 
+    def test_real_text_response_accepts_url_minimum_records_with_metadata_before_url(self):
+        text = """URL: https://exa.example/titleless
+Highlights:
+A valid record needs no title.
+
+Title: Metadata before URL
+Published: 2026-08-12
+Author: Exa
+URL: https://exa.example/metadata-first
+Highlights:
+The URL may follow optional metadata.
+"""
+        t = self._transport(
+            [self._init_response(), self._notification_response(), self._text_tool_response(text)]
+        )
+
+        res = self.m.run_search("q", request_mcp=t)
+
+        self.assertEqual(
+            [(item["title"], item["url"], item["snippet"], item["published"], item["author"])
+            for item in res["results"]],
+            [
+                ("", "https://exa.example/titleless", "A valid record needs no title.", None, None),
+                (
+                    "Metadata before URL",
+                    "https://exa.example/metadata-first",
+                    "The URL may follow optional metadata.",
+                    "2026-08-12",
+                    "Exa",
+                ),
+            ],
+        )
+
     def test_real_text_response_tolerates_missing_optional_fields(self):
         text = """Title: URL-only Exa result
 URL: https://exa.example/valid
@@ -317,6 +350,23 @@ URL: https://exa.example/valid
                 self._init_response(),
                 self._notification_response(),
                 self._text_tool_response("Exa returned a human-readable message without result records."),
+            ]
+        )
+
+        with self.assertRaises(self.m.MCPError) as ctx:
+            self.m.run_search("q", request_mcp=t)
+
+        self.assertEqual(ctx.exception.kind, "invalid-response")
+        record = self._read_error_record()
+        self.assertEqual(record["version"], 1)
+        self.assertEqual(record["kind"], "invalid-response")
+
+    def test_non_string_mcp_text_block_is_invalid_response(self):
+        t = self._transport(
+            [
+                self._init_response(),
+                self._notification_response(),
+                self._text_tool_response({"unexpected": "object"}),
             ]
         )
 

@@ -317,21 +317,25 @@ def _normalize_item(item: Any) -> dict[str, Any] | None:
 
 
 def _is_exa_record_start(lines: list[str], index: int) -> bool:
-    """Return whether ``lines[index]`` begins a top-level Title/URL record."""
+    """Return whether ``lines[index]`` begins a credible top-level record."""
     if not lines[index].startswith("Title:"):
         return False
     for line in lines[index + 1 :]:
         if not line.strip():
             continue
-        return line.startswith("URL:")
+        if line.startswith("URL:"):
+            return True
+        if not (line.startswith("Published:") or line.startswith("Author:")):
+            return False
     return False
 
 
 def _parse_exa_text(text: str) -> list[dict[str, Any]]:
     """Normalize Exa's line-oriented human-readable tool results.
 
-    A record starts only when a top-level ``Title:`` is immediately followed by
-    a ``URL:`` (ignoring blank lines), so Title-like highlight text is retained.
+    ``URL:`` is the only required field. Top-level title, publication, and
+    author fields may appear before it; indented field-like highlight text never
+    starts a record.
     """
     lines = (text or "").splitlines()
     results: list[dict[str, Any]] = []
@@ -350,24 +354,40 @@ def _parse_exa_text(text: str) -> list[dict[str, Any]]:
         highlights = []
         capturing_highlights = False
 
+    def start_candidate() -> dict[str, Any]:
+        return {"title": "", "url": ""}
+
     for index, line in enumerate(lines):
         stripped = line.strip()
         if _is_exa_record_start(lines, index):
             finalize()
-            candidate = {"title": stripped.removeprefix("Title:").strip(), "url": ""}
-            continue
-        if candidate is None:
+            candidate = start_candidate()
+            candidate["title"] = stripped.removeprefix("Title:").strip()
             continue
         if capturing_highlights:
-            highlights.append(line)
+            if line.startswith("URL:"):
+                finalize()
+                candidate = start_candidate()
+                candidate["url"] = stripped.removeprefix("URL:").strip()
+            else:
+                highlights.append(line)
             continue
-        if stripped.startswith("URL:"):
+        if not line.startswith(("Title:", "URL:", "Published:", "Author:", "Highlights:")):
+            continue
+        if candidate is None:
+            candidate = start_candidate()
+        if line.startswith("Title:"):
+            candidate["title"] = stripped.removeprefix("Title:").strip()
+        elif line.startswith("URL:"):
+            if candidate["url"]:
+                finalize()
+                candidate = start_candidate()
             candidate["url"] = stripped.removeprefix("URL:").strip()
-        elif stripped.startswith("Published:"):
+        elif line.startswith("Published:"):
             candidate["publishedDate"] = stripped.removeprefix("Published:").strip()
-        elif stripped.startswith("Author:"):
+        elif line.startswith("Author:"):
             candidate["author"] = stripped.removeprefix("Author:").strip()
-        elif stripped.startswith("Highlights:"):
+        elif line.startswith("Highlights:"):
             capturing_highlights = True
             inline_highlight = stripped.removeprefix("Highlights:").strip()
             if inline_highlight:
@@ -392,7 +412,9 @@ def _build_result(query: str, data: Mapping[str, Any]) -> dict[str, Any]:
     for block in content:
         if not isinstance(block, dict) or block.get("type") != "text":
             continue
-        text = block.get("text", "")
+        text = block.get("text")
+        if not isinstance(text, str):
+            _fail("invalid-response", None, "web_search_exa: MCP text block is malformed")
         parsed = _try_json(text)
         if parsed is None:
             results.extend(_parse_exa_text(text))
