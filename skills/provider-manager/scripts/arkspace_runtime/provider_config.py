@@ -9,6 +9,7 @@ import re
 import subprocess
 import time
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 CONFIG_ENV = "ARKSPACE_PROVIDER_CONFIG"
@@ -261,6 +262,9 @@ FAILURE_KINDS: frozenset[str] = frozenset({
 # Failure kinds that trigger cross-provider fallback by default. ``invalid-response``
 # is excluded to avoid burning paid calls on unparseable-but-200 responses.
 DEFAULT_FALLBACK_ON: tuple[str, ...] = ("quota", "network", "transient")
+PROVIDER_DEFAULT_FALLBACK_ON = MappingProxyType({
+    "exa-mcp": DEFAULT_FALLBACK_ON + ("invalid-response",),
+})
 
 
 def fallback_policy(provider_id: str, config_path: str | None = None) -> list[str]:
@@ -273,7 +277,7 @@ def fallback_policy(provider_id: str, config_path: str | None = None) -> list[st
     config = load_config(config_path)
     entry = provider_entry(config, provider_id)
     if entry is None or "fallback_on" not in entry:
-        return list(DEFAULT_FALLBACK_ON)
+        return list(PROVIDER_DEFAULT_FALLBACK_ON.get(provider_id, DEFAULT_FALLBACK_ON))
     value = entry["fallback_on"]
     if not isinstance(value, list):
         raise ProviderConfigError(f"provider {provider_id} fallback_on must be a list")

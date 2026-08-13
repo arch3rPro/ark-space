@@ -818,6 +818,22 @@ class ProviderConfigTests(unittest.TestCase):
             with self.subTest(status=status, error=error):
                 self.assertEqual(provider_config.classify_failure(status, error), expected)
 
+    def test_exa_mcp_default_policy_allows_invalid_response(self):
+        self.assertEqual(
+            provider_config.fallback_policy("exa-mcp", str(self.config_path)),
+            ["quota", "network", "transient", "invalid-response"],
+        )
+
+    def test_unrelated_default_policy_excludes_invalid_response(self):
+        self.assertEqual(
+            provider_config.fallback_policy("tavily", str(self.config_path)),
+            ["quota", "network", "transient"],
+        )
+
+    def test_exa_mcp_explicit_empty_policy_disables_fallback(self):
+        self.write_config({"providers": {"exa-mcp": {"fallback_on": []}}})
+        self.assertEqual(provider_config.fallback_policy("exa-mcp", str(self.config_path)), [])
+
     def test_fallback_policy_defaults_when_provider_missing(self):
         self.write_config({})
         self.assertEqual(
