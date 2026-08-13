@@ -54,6 +54,47 @@ class FirecrawlCliTests(unittest.TestCase):
         self.assertEqual(self.firecrawl_cli.http_status_from_message("HTTP 500 from upstream"), 500)
         self.assertIsNone(self.firecrawl_cli.http_status_from_message("invalid CLI argument"))
 
+    def test_run_capability_command_resolves_runs_and_parses_once(self):
+        resolved = {"provider": "firecrawl"}
+        payload = {"links": ["https://example.com/about"]}
+        command = ["map", "https://example.com", "--json"]
+        with patch.object(self.firecrawl_cli, "resolve_firecrawl", return_value=resolved) as resolve, patch.object(
+            self.firecrawl_cli, "run_cli", return_value='{"links": ["https://example.com/about"]}'
+        ) as run, patch.object(self.firecrawl_cli, "parse_json_or_text", return_value=payload) as parse:
+            result = self.firecrawl_cli.run_capability_command(
+                "web_map", command, timeout=90, config_path="providers.json", state_path="state.json"
+            )
+
+        self.assertEqual(result, payload)
+        resolve.assert_called_once_with(
+            capability="web_map", config_path="providers.json", state_path="state.json"
+        )
+        run.assert_called_once_with(
+            resolved, command, timeout=90, config_path="providers.json", state_path="state.json"
+        )
+        parse.assert_called_once_with('{"links": ["https://example.com/about"]}')
+
+    def test_run_capability_command_preserves_text_payload(self):
+        with patch.object(self.firecrawl_cli, "resolve_firecrawl", return_value={"provider": "firecrawl"}), patch.object(
+            self.firecrawl_cli, "run_cli", return_value="plain text response"
+        ), patch.object(self.firecrawl_cli, "parse_json_or_text", return_value="plain text response") as parse:
+            result = self.firecrawl_cli.run_capability_command("web_fetch", ["scrape", "https://example.com"], timeout=30)
+
+        self.assertEqual(result, "plain text response")
+        parse.assert_called_once_with("plain text response")
+
+    def test_classify_exception_uses_existing_failure_taxonomy(self):
+        cases = (
+            (self.firecrawl_cli.provider_config.ProviderConfigError("missing config"), ("config", None)),
+            (self.firecrawl_cli.FirecrawlCliError("rate limited", status=429), ("quota", 429)),
+            (self.firecrawl_cli.FirecrawlCliError("received invalid JSON body", status=200), ("invalid-response", 200)),
+            (self.firecrawl_cli.FirecrawlCliError("connection timed out"), ("network", None)),
+        )
+
+        for exc, expected in cases:
+            with self.subTest(exc=exc):
+                self.assertEqual(self.firecrawl_cli.classify_exception(exc), expected)
+
 
 class FirecrawlSearchErrorTests(unittest.TestCase):
     def setUp(self):
