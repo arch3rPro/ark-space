@@ -6,7 +6,7 @@ agents:
     domain: meta
     default: true
     skills: orchestrator,skill-manager,provider-manager
-    workflows: lightweight-routing,provider-capabilities,handoff-template,quality-gates
+    workflows: lightweight-routing,web-capability-routing,provider-capabilities,handoff-template,quality-gates
     hosts: claude-code,codex
 
   - id: code-engineer

@@ -940,6 +940,26 @@ class ProviderConfigTests(unittest.TestCase):
         self.assertNotIn("!op", stored)
         self.assertNotIn("aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789", stored)
 
+    def test_safe_message_and_error_file_redact_short_labeled_credentials(self):
+        self._set_error_env()
+        message = (
+            "HTTP 429 token=fc-123456 api_key=vkey apikey=vapi secret=vsecret password=vpass "
+            "Authorization: Bearer auth; Bearer bearer-token status retry"
+        )
+
+        safe = provider_config.safe_message(message)
+        provider_config.write_error_file("firecrawl", "web_map", kind="quota", status=429, message=message)
+        stored = provider_config.read_error_file(self.error_path)["message"]
+
+        for credential in ("fc-123456", "vkey", "vapi", "vsecret", "vpass", "auth", "bearer-token"):
+            with self.subTest(credential=credential):
+                self.assertNotIn(credential, safe)
+                self.assertNotIn(credential, stored)
+        self.assertIn("HTTP 429", safe)
+        self.assertIn("status retry", safe)
+        self.assertIn("HTTP 429", stored)
+        self.assertIn("status retry", stored)
+
     def test_error_file_read_returns_none_for_corrupt_and_unknown_version(self):
         path = str(Path(self.tmpdir.name) / "bad.json")
         Path(path).write_text("{ not json", encoding="utf-8")

@@ -191,6 +191,26 @@ class FirecrawlAdapterTests(unittest.TestCase):
                 self.assertNotIn("Traceback", stderr.getvalue())
                 self.assertNotIn(secret, json.loads(error_path.read_text(encoding="utf-8"))["message"])
 
+    def test_map_masks_short_labeled_credential_in_stderr_and_error_file(self):
+        module = self.load_adapter("map")
+        error_path = Path(self.tmpdir.name) / "map-short-credential.json"
+        with patch.dict(os.environ, {"ARKSPACE_ERROR_FILE": str(error_path)}, clear=False), \
+             patch.object(
+                 module.firecrawl_cli,
+                 "run_capability_command",
+                 side_effect=module.firecrawl_cli.FirecrawlCliError("HTTP 429 token=fc-123456", status=429),
+             ), \
+             patch.object(sys, "argv", ["prog", *ADAPTERS["map"]["argv"]]):
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                rc = module.main()
+
+        self.assertEqual(rc, 2)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("HTTP 429", stderr.getvalue())
+        self.assertNotIn("fc-123456", stderr.getvalue())
+        self.assertNotIn("fc-123456", json.loads(error_path.read_text(encoding="utf-8"))["message"])
+
     def test_main_writes_typed_records_for_controlled_failures(self):
         failures = (
             ("config", "missing configuration", lambda module: module.provider_config.ProviderConfigError("missing configuration")),

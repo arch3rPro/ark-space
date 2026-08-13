@@ -195,7 +195,8 @@ def check_static():
     status |= require_text(
         ROOT / "agents" / "orchestrator.md",
         [
-            "provider-capabilities",
+            "web-capability-routing",
+            "For web work, select the role first, then follow `workflows/web-capability-routing.md` before provider selection.",
             "Provider registries are part of the route, not an optional enhancement",
         ],
     )
@@ -203,22 +204,35 @@ def check_static():
     status |= require_regex(
         ROOT / "registry" / "agents.yaml",
         [
-            r"id: orchestrator.*workflows: lightweight-routing,provider-capabilities,handoff-template,quality-gates",
+            r"id: orchestrator.*workflows: lightweight-routing,web-capability-routing,provider-capabilities,handoff-template,quality-gates",
         ],
     )
     status |= require_regex(
         ROOT / "registry" / "workflows.yaml",
         [
             r"id: provider-capabilities.*usedBy: orchestrator,web-researcher,competitive-analyst",
+            r"id: web-capability-routing.*usedBy: orchestrator,web-researcher",
         ],
     )
 
     generated_codex = ROOT / "integrations" / "codex" / "agents" / "orchestrator.toml"
     generated_claude = ROOT / "integrations" / "claude-code" / "agents" / "orchestrator.md"
     if generated_codex.exists():
-        status |= require_text(generated_codex, ["Provider registries are part of the route"])
+        status |= require_text(
+            generated_codex,
+            [
+                "workflows/web-capability-routing.md` before provider selection",
+                "Provider registries are part of the route",
+            ],
+        )
     if generated_claude.exists():
-        status |= require_text(generated_claude, ["Provider registries are part of the route"])
+        status |= require_text(
+            generated_claude,
+            [
+                "workflows/web-capability-routing.md` before provider selection",
+                "Provider registries are part of the route",
+            ],
+        )
 
     status |= check_registry_route_examples()
 

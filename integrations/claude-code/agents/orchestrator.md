@@ -15,7 +15,7 @@ Select the smallest useful callable agent and skill set for the user's request.
 
 Follow `workflows/lightweight-routing.md`.
 
-For web work, select the role first, then follow `workflows/provider-capabilities.md` before using search or fetch. Provider registries are part of the route, not an optional enhancement.
+For web work, select the role first, then follow `workflows/web-capability-routing.md` before provider selection. Next, follow `workflows/provider-capabilities.md` before using search or fetch. Provider registries are part of the route, not an optional enhancement.
 
 Use the host agent loop as the execution environment. Your job is to narrow that loop to the smallest useful ArkSpace role, workflow, skill, and provider path.
 

@@ -17,4 +17,4 @@ workflows:
 
   - id: web-capability-routing
     path: workflows/web-capability-routing.md
-    usedBy: web-researcher
+    usedBy: orchestrator,web-researcher

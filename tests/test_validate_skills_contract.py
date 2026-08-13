@@ -121,6 +121,24 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("obsidian-markdown", doc_writer_skills)
         self.validate.validate_registry_files()
 
+    def test_default_orchestrator_routes_web_capabilities_before_provider_selection(self):
+        agent_path = ROOT / "agents" / "orchestrator.md"
+        agent = agent_path.read_text(encoding="utf-8")
+        frontmatter = self.validate.parse_frontmatter(agent_path)
+        pointer = "For web work, select the role first, then follow `workflows/web-capability-routing.md` before provider selection."
+
+        self.assertIn("web-capability-routing", frontmatter["workflows"])
+        self.assertIn(pointer, agent)
+        self.assertLess(agent.index(pointer), agent.index("workflows/provider-capabilities.md"))
+
+        agents = self.validate.parse_simple_yaml_list(ROOT / "registry" / "agents.yaml", "agents")
+        orchestrator = next(item for item in agents if item["id"] == "orchestrator")
+        self.assertIn("web-capability-routing", self.validate.split_csv(orchestrator["workflows"]))
+
+        workflows = self.validate.parse_simple_yaml_list(ROOT / "registry" / "workflows.yaml", "workflows")
+        web_routing = next(item for item in workflows if item["id"] == "web-capability-routing")
+        self.assertIn("orchestrator", self.validate.split_csv(web_routing["usedBy"]))
+
     def test_personal_assistant_registry_contract(self):
         agents = self.validate.parse_simple_yaml_list(ROOT / "registry" / "agents.yaml", "agents")
         roles = self.validate.parse_simple_yaml_list(ROOT / "registry" / "roles.yaml", "roles")

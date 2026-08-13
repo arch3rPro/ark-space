@@ -540,18 +540,33 @@ def safe_message(message: str) -> str:
     and diagnostic context.
 
     Removes key-ref syntax (``env:``, ``$``, ``!``), sensitive header values,
-    URL-embedded credentials, and long opaque tokens (API keys / base64 / JWTs).
+    credential-labeled assignments (including short values), URL-embedded credentials,
+    and long opaque tokens (API keys / base64 / JWTs).
     The caller supplies a concise human message; this is a defensive last line.
     """
     if not message:
         return ""
-    # Redact sensitive header values ("Authorization: Bearer x").
+    # Redact explicit credential assignments regardless of value length. Labels make
+    # these safe to redact without obscuring ordinary short status words.
+    text = re.sub(
+        r"(?i)\b(token|api_key|apikey|secret|password)\s*=\s*(?:\"[^\"]*\"|'[^']*'|[^\s,;]+)",
+        r"\1=[redacted]",
+        message,
+    )
+    # Redact sensitive header values ("Authorization: Bearer x") and explicit
+    # authorization/bearer forms before the generic opaque-token safeguard below.
     text = re.sub(
         r"(?i)\b(authorization|proxy-authorization|x-api-key|api-key|x-subscription-token|"
         r"cookie|set-cookie|x-auth-token|auth-token):\s*[^,;]+",
         r"\1: [redacted]",
-        message,
+        text,
     )
+    text = re.sub(
+        r"(?i)\b(authorization|proxy-authorization)\s*=\s*(?:bearer\s+)?[^\s,;]+",
+        r"\1=[redacted]",
+        text,
+    )
+    text = re.sub(r"(?i)\bbearer\s+[^\s,;]+", "Bearer [redacted]", text)
     # Remove URL-embedded credentials: scheme://user:pass@host.
     text = re.sub(r"://([^/@\s]+):[^/@\s]*@", r"://\1@", text)
     # Remove key-ref / command syntax: env:NAME, ${NAME}, $NAME, !command.
