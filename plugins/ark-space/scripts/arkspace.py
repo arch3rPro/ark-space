@@ -980,6 +980,8 @@ def run_web_search_chain(args):
         finally:
             _unlink_temp_file(error_path)
         if proc.returncode == 0 and record is None:
+            if diagnostics:
+                sys.stderr.write(_chain_summary(diagnostics) + "\n")
             sys.stdout.buffer.write(proc.stdout)
             sys.stdout.buffer.flush()
             return 0
@@ -987,7 +989,7 @@ def run_web_search_chain(args):
         if kind == "config":
             diagnostics.append(f"{provider_id}: skipped ({kind})")
             continue
-        if kind in ("quota", "network", "transient"):
+        if kind in ("quota", "network", "transient", "invalid-response"):
             policy = fallback_policy(provider_id, args.config_path)
             if kind in policy:
                 diagnostics.append(f"{provider_id}: {kind}; trying next provider")
