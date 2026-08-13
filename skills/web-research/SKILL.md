@@ -1,11 +1,11 @@
 ---
 name: web-research
-description: Use when answering a focused research question or producing a cited multi-source synthesis; optionally select Exa or Tavily.
+description: Synthesize a cited answer across multiple public sources; optionally select Exa or Tavily.
 ---
 
 # Web Research
 
-Run cited research through the configured provider selected by `registry/deep-research-providers.yaml`. Accept a research prompt plus portable source, domain, timeout, and output controls. Report the actual provider, citations, request ID when supplied, and any fallback.
+Synthesize cited research across multiple public sources through the configured provider selected by `registry/deep-research-providers.yaml`. For ambiguous web intent, apply `workflows/web-capability-routing.md`. Accept a research prompt plus portable source, domain, timeout, and output controls. Report the actual provider, citations, request ID when supplied, and any fallback.
 
 - Prefer Tavily for broad or long-form research synthesis.
 - Prefer Exa for concise, focused cited answers.

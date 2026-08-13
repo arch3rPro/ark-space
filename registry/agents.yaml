@@ -34,7 +34,7 @@ agents:
     path: agents/docs/web-researcher.md
     domain: docs
     skills: orchestrator,web-search,web-fetch,web-site,web-research,web-extract,web-automation,code-context,defuddle
-    workflows: provider-capabilities,quality-gates
+    workflows: web-capability-routing,provider-capabilities,quality-gates
     hosts: claude-code,codex
 
   - id: knowledge-manager

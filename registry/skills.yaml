@@ -58,6 +58,7 @@ skills:
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
   - name: web-fetch
+    description: Read supplied URL(s) into readable content.
     path: skills/web-fetch
     status: active
     public: true
@@ -70,6 +71,7 @@ skills:
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer,code/code-reviewer
 
   - name: web-site
+    description: Discover or crawl a known site.
     path: skills/web-site
     status: active
     public: true
@@ -82,6 +84,7 @@ skills:
     roles: docs/web-researcher,product/competitive-analyst
 
   - name: web-research
+    description: Synthesize a cited answer across multiple public sources.
     path: skills/web-research
     status: active
     public: true
@@ -94,6 +97,7 @@ skills:
     roles: docs/web-researcher,product/competitive-analyst,code/code-engineer
 
   - name: web-extract
+    description: Extract requested structured fields or schema from supplied URL(s).
     path: skills/web-extract
     status: active
     public: true
@@ -106,6 +110,7 @@ skills:
     roles: docs/web-researcher,product/competitive-analyst
 
   - name: web-automation
+    description: Interact with public pages or manage monitors.
     path: skills/web-automation
     status: active
     public: true

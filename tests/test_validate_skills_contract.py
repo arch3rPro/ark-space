@@ -462,6 +462,43 @@ class ValidateSkillsContractTests(unittest.TestCase):
             "Use when searching technical documentation through ArkSpace routing and returning compact source evidence.",
         )
 
+    def test_web_capability_routing_contract_is_authoritative_and_distinct(self):
+        expected = {
+            "web-fetch": ("supplied URL", "readable content"),
+            "web-extract": ("fields", "schema"),
+            "web-research": ("multiple public sources", "cited"),
+            "web-site": ("known site", "map", "crawl"),
+            "web-automation": ("interact", "monitor"),
+        }
+        for skill, terms in expected.items():
+            with self.subTest(skill=skill):
+                text = (ROOT / "skills" / skill / "SKILL.md").read_text(encoding="utf-8").lower()
+                for term in terms:
+                    self.assertIn(term.lower(), text)
+
+        fetch = (ROOT / "skills" / "web-fetch" / "SKILL.md").read_text(encoding="utf-8").lower()
+        extract = (ROOT / "skills" / "web-extract" / "SKILL.md").read_text(encoding="utf-8").lower()
+        self.assertNotIn("when extracting readable", fetch)
+        self.assertIn("structured fields", extract)
+        self.assertIn("schema", extract)
+
+        workflow = (ROOT / "workflows" / "web-capability-routing.md").read_text(encoding="utf-8")
+        decision_rows = [
+            "find sources/pages -> web-search",
+            "read supplied URL(s) -> web-fetch",
+            "extract requested fields/schema from supplied URL(s) -> web-extract",
+            "synthesize cited answer across sources -> web-research",
+            "discover/crawl a known site -> web-site",
+            "interact or manage monitors -> web-automation",
+        ]
+        for row in decision_rows:
+            with self.subTest(row=row):
+                self.assertEqual(workflow.count(row), 1)
+        workflow_lower = workflow.lower()
+        self.assertIn("skill-level provider omission is allowed after capability resolution", workflow_lower)
+        self.assertIn("raw cli receives explicit `--provider`", workflow_lower)
+        self.assertIn("monitor mutation requires confirmation", workflow_lower)
+
     def test_public_skill_contract_requires_capabilities_and_categories(self):
         self.validate.find_readme_included_skill_names = lambda: {"example"}  # type: ignore[reportAttributeAccessIssue]
 

@@ -1,11 +1,11 @@
 ---
 name: web-extract
-description: Use when extracting structured facts from public URLs with a natural-language goal and optional JSON schema.
+description: Extract requested structured fields or schema from supplied public URL(s) with a natural-language goal.
 ---
 
 # Web Extract
 
-Extract structured data through the configured provider selected by `registry/structured-extract-providers.yaml`. Accept a prompt, URLs, schema, model, budget, wait, and output controls. Preserve asynchronous status and cancellation semantics; report the actual provider and request ID.
+Extract requested structured fields or schema from supplied URL(s) through the configured provider selected by `registry/structured-extract-providers.yaml`. For ambiguous web intent, apply `workflows/web-capability-routing.md`. Accept a prompt, URLs, schema, model, budget, wait, and output controls. Preserve asynchronous status and cancellation semantics; report the actual provider and request ID.
 
 ## Run
 

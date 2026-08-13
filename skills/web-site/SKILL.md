@@ -1,11 +1,11 @@
 ---
 name: web-site
-description: Use when discovering a known public site's URL structure or collecting content from many pages in one site section; optionally select Tavily or Firecrawl.
+description: Discover or crawl a known public site; optionally select Tavily or Firecrawl.
 ---
 
 # Web Site
 
-Operate on a known site through the configured provider registries. Select one explicit mode:
+Operate on a known site through the configured provider registries. For ambiguous web intent, apply `workflows/web-capability-routing.md`. Select one explicit mode:
 
 - `map`: discover URLs and structure through `registry/web-map-providers.yaml`.
 - `crawl`: collect many pages through `registry/web-crawl-providers.yaml`.
