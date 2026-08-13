@@ -30,7 +30,6 @@ def run_crawl(
     config_path: str | None = None,
     state_path: str | None = None,
 ) -> dict[str, Any]:
-    resolved = firecrawl_cli.resolve_firecrawl(capability="web_crawl", config_path=config_path, state_path=state_path)
     command = ["crawl", url, "--wait", "--json"]
     if include_paths:
         command.extend(["--include-paths", include_paths])
@@ -40,8 +39,10 @@ def run_crawl(
         command.extend(["--max-depth", str(max_depth)])
     if limit:
         command.extend(["--limit", str(limit)])
-    raw = firecrawl_cli.run_cli(resolved, command, timeout=timeout, config_path=config_path, state_path=state_path)
-    return {"provider": "firecrawl", "capability": "web_crawl", "url": url, "response": firecrawl_cli.parse_json_or_text(raw)}
+    response = firecrawl_cli.run_capability_command(
+        "web_crawl", command, timeout=timeout, config_path=config_path, state_path=state_path
+    )
+    return {"provider": "firecrawl", "capability": "web_crawl", "url": url, "response": response}
 
 
 def parse_args() -> argparse.Namespace:
@@ -88,6 +89,10 @@ def main() -> int:
                 state_path=args.state_path,
             )
     except provider_config.ProviderConfigError as exc:
+        kind, status = firecrawl_cli.classify_exception(exc)
+        provider_config.write_error_file(
+            "firecrawl", "web_crawl", kind=kind, status=status, message=str(exc)
+        )
         print(str(exc), file=sys.stderr)
         return 2
     if args.output == "json":

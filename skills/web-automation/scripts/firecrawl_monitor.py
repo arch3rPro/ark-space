@@ -20,11 +20,6 @@ def check_config(config_path: str | None = None, state_path: str | None = None) 
 
 
 def run_monitor(args: argparse.Namespace) -> dict[str, Any]:
-    resolved = firecrawl_cli.resolve_firecrawl(
-        capability="web_monitor",
-        config_path=args.config_path,
-        state_path=args.state_path,
-    )
     command = ["monitor", args.monitor_action]
     for value in [args.monitor_id, args.check_id, args.file]:
         if value:
@@ -53,8 +48,8 @@ def run_monitor(args: argparse.Namespace) -> dict[str, Any]:
             command.extend([f"--{name.replace('_', '-')}", str(value)])
     if args.pretty:
         command.append("--pretty")
-    raw = firecrawl_cli.run_cli(
-        resolved,
+    response = firecrawl_cli.run_capability_command(
+        "web_monitor",
         command,
         timeout=args.timeout,
         config_path=args.config_path,
@@ -64,7 +59,7 @@ def run_monitor(args: argparse.Namespace) -> dict[str, Any]:
         "provider": "firecrawl",
         "capability": "web_monitor",
         "action": args.monitor_action,
-        "response": firecrawl_cli.parse_json_or_text(raw),
+        "response": response,
     }
 
 
@@ -120,6 +115,10 @@ def main() -> int:
                 raise provider_config.ProviderConfigError("monitor action is required")
             result = run_monitor(args)
     except provider_config.ProviderConfigError as exc:
+        kind, status = firecrawl_cli.classify_exception(exc)
+        provider_config.write_error_file(
+            "firecrawl", "web_monitor", kind=kind, status=status, message=str(exc)
+        )
         print(str(exc), file=sys.stderr)
         return 2
     if args.output == "json":

@@ -28,14 +28,15 @@ def run_map(
     config_path: str | None = None,
     state_path: str | None = None,
 ) -> dict[str, Any]:
-    resolved = firecrawl_cli.resolve_firecrawl(capability="web_map", config_path=config_path, state_path=state_path)
     command = ["map", url, "--json"]
     if search:
         command.extend(["--search", search])
     if limit:
         command.extend(["--limit", str(limit)])
-    raw = firecrawl_cli.run_cli(resolved, command, timeout=timeout, config_path=config_path, state_path=state_path)
-    return {"provider": "firecrawl", "capability": "web_map", "url": url, "response": firecrawl_cli.parse_json_or_text(raw)}
+    response = firecrawl_cli.run_capability_command(
+        "web_map", command, timeout=timeout, config_path=config_path, state_path=state_path
+    )
+    return {"provider": "firecrawl", "capability": "web_map", "url": url, "response": response}
 
 
 def parse_args() -> argparse.Namespace:
@@ -71,6 +72,10 @@ def main() -> int:
                 raise provider_config.ProviderConfigError("url is required")
             result = run_map(args.url, search=args.search, limit=args.limit, timeout=args.timeout, config_path=args.config_path, state_path=args.state_path)
     except provider_config.ProviderConfigError as exc:
+        kind, status = firecrawl_cli.classify_exception(exc)
+        provider_config.write_error_file(
+            "firecrawl", "web_map", kind=kind, status=status, message=str(exc)
+        )
         print(str(exc), file=sys.stderr)
         return 2
     if args.output == "json":
