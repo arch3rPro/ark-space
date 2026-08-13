@@ -37,11 +37,6 @@ def run_agent(
     config_path: str | None = None,
     state_path: str | None = None,
 ) -> dict[str, Any]:
-    resolved = firecrawl_cli.resolve_firecrawl(
-        capability="structured_extract",
-        config_path=config_path,
-        state_path=state_path,
-    )
     command = ["agent", prompt, "--json"]
     for name, value in [
         ("urls", urls),
@@ -58,8 +53,8 @@ def run_agent(
     for flag, enabled in [("status", status), ("cancel", cancel), ("wait", wait)]:
         if enabled:
             command.append(f"--{flag}")
-    raw = firecrawl_cli.run_cli(
-        resolved,
+    response = firecrawl_cli.run_capability_command(
+        "structured_extract",
         command,
         timeout=run_timeout,
         config_path=config_path,
@@ -69,7 +64,7 @@ def run_agent(
         "provider": "firecrawl",
         "capability": "structured_extract",
         "prompt": prompt,
-        "response": firecrawl_cli.parse_json_or_text(raw),
+        "response": response,
     }
 
 

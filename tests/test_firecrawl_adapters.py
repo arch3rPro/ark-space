@@ -145,6 +145,52 @@ class FirecrawlAdapterTests(unittest.TestCase):
                 self.assertEqual(result["response"], response)
                 self.assertNotIn("ok", result)
 
+    def test_main_hides_provider_supplied_configured_secret_from_stderr(self):
+        secret = "fc_adapter_test_secret_0123456789"
+        config_path = str(Path(self.tmpdir.name) / "providers.json")
+        state_path = str(Path(self.tmpdir.name) / "state.json")
+        os.environ["FIRECRAWL_ADAPTER_TEST_KEY"] = secret
+        self.addCleanup(os.environ.pop, "FIRECRAWL_ADAPTER_TEST_KEY", None)
+
+        for name, expected in ADAPTERS.items():
+            with self.subTest(adapter=name):
+                module = self.load_adapter(name)
+                module.provider_config.set_provider_endpoint(
+                    "firecrawl",
+                    capability=expected["capability"],
+                    capabilities=[expected["capability"]],
+                    base_url="https://api.firecrawl.dev",
+                    config_path=config_path,
+                )
+                module.provider_config.add_key_ref(
+                    "firecrawl",
+                    key_ref="env:FIRECRAWL_ADAPTER_TEST_KEY",
+                    auth_header="x-api-key",
+                    auth_prefix="",
+                    config_path=config_path,
+                )
+                error_path = Path(self.tmpdir.name) / f"{name}-secret.json"
+                provider_message = f"HTTP 429 provider rejected token {secret}"
+                with patch.dict(os.environ, {"ARKSPACE_ERROR_FILE": str(error_path)}, clear=False), \
+                     patch.object(
+                         module.firecrawl_cli,
+                         "run_capability_command",
+                         side_effect=module.firecrawl_cli.FirecrawlCliError(provider_message, status=429),
+                     ), \
+                     patch.object(sys, "argv", [
+                         "prog", *expected["argv"], "--config-path", config_path, "--state-path", state_path,
+                     ]):
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                        rc = module.main()
+
+                self.assertEqual(rc, 2)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertIn("HTTP 429", stderr.getvalue())
+                self.assertNotIn(secret, stderr.getvalue())
+                self.assertNotIn("Traceback", stderr.getvalue())
+                self.assertNotIn(secret, json.loads(error_path.read_text(encoding="utf-8"))["message"])
+
     def test_main_writes_typed_records_for_controlled_failures(self):
         failures = (
             ("config", "missing configuration", lambda module: module.provider_config.ProviderConfigError("missing configuration")),
@@ -175,6 +221,51 @@ class FirecrawlAdapterTests(unittest.TestCase):
                     self.assertEqual(record["provider"], "firecrawl")
                     self.assertEqual(record["capability"], expected["capability"])
                     self.assertEqual(record["kind"], kind)
+
+    def test_agent_delegates_job_lifecycle_command_to_shared_helper(self):
+        agent_path = ROOT / "skills/web-extract/scripts/firecrawl_agent.py"
+        spec = importlib.util.spec_from_file_location("firecrawl_agent_adapter_test", agent_path)
+        if spec is None or spec.loader is None:
+            self.fail("could not load firecrawl agent adapter")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        response = {"jobId": "job_123", "status": "completed"}
+        command = [
+            "agent", "extract pricing", "--json", "--urls", "https://example.com/pricing",
+            "--schema", '{"type":"object"}', "--schema-file", "schema.json", "--model", "spark-1-mini",
+            "--max-credits", "5", "--webhook", "https://example.com/hook", "--poll-interval", "1.5",
+            "--timeout", "30.0", "--status", "--cancel", "--wait",
+        ]
+        with patch.object(module.firecrawl_cli, "run_capability_command", return_value=response) as run, \
+             patch.object(module.firecrawl_cli, "resolve_firecrawl", side_effect=AssertionError("legacy resolution should not run")), \
+             patch.object(module.firecrawl_cli, "run_cli", side_effect=AssertionError("legacy execution should not run")):
+            result = module.run_agent(
+                "extract pricing",
+                urls="https://example.com/pricing",
+                schema='{"type":"object"}',
+                schema_file="schema.json",
+                model="spark-1-mini",
+                max_credits=5,
+                webhook="https://example.com/hook",
+                status=True,
+                cancel=True,
+                wait=True,
+                poll_interval=1.5,
+                timeout=30.0,
+                run_timeout=240,
+                config_path="providers.json",
+                state_path="state.json",
+            )
+
+        run.assert_called_once_with(
+            "structured_extract", command, timeout=240, config_path="providers.json", state_path="state.json"
+        )
+        self.assertEqual(result, {
+            "provider": "firecrawl",
+            "capability": "structured_extract",
+            "prompt": "extract pricing",
+            "response": response,
+        })
 
 
 if __name__ == "__main__":

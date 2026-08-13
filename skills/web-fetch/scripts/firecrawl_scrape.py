@@ -93,7 +93,7 @@ def main() -> int:
         provider_config.write_error_file(
             "firecrawl", "web_fetch", kind=kind, status=status, message=str(exc)
         )
-        print(str(exc), file=sys.stderr)
+        print(provider_config.safe_message(str(exc)), file=sys.stderr)
         return 2
     if args.output == "json":
         print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
