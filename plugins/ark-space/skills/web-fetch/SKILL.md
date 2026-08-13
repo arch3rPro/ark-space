@@ -1,11 +1,11 @@
 ---
 name: web-fetch
-description: Use when extracting readable content, metadata, or links from one or more public URLs; optionally select Exa, Tavily, or Firecrawl.
+description: Read supplied public URL(s) into readable content, metadata, or links; optionally select Exa, Tavily, or Firecrawl.
 ---
 
 # Web Fetch
 
-Fetch supplied URLs through the configured provider selected by `registry/web-fetch-providers.yaml`. Accept portable controls for URLs, output format, main-content extraction, wait time, and content limits. Report the actual provider and any fallback.
+Read supplied URL(s) through the configured provider selected by `registry/web-fetch-providers.yaml`. For ambiguous web intent, apply `workflows/web-capability-routing.md`. Accept portable controls for URLs, output format, main-content extraction, wait time, and content limits. Report the actual provider and any fallback.
 
 - Prefer Firecrawl for rendered or difficult pages.
 - Prefer Exa for Exa result IDs, highlights, summaries, or related content.

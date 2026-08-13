@@ -30,7 +30,6 @@ def run_scrape(
     config_path: str | None = None,
     state_path: str | None = None,
 ) -> dict[str, Any]:
-    resolved = firecrawl_cli.resolve_firecrawl(capability="web_fetch", config_path=config_path, state_path=state_path)
     command = ["scrape", *urls, "--json"]
     if formats:
         command.extend(["--format", formats])
@@ -40,30 +39,10 @@ def run_scrape(
         command.extend(["--query", query])
     if wait_for is not None:
         command.extend(["--wait-for", str(wait_for)])
-    raw = firecrawl_cli.run_cli(resolved, command, timeout=timeout, config_path=config_path, state_path=state_path)
-    return {"provider": "firecrawl", "capability": "web_fetch", "urls": urls, "response": firecrawl_cli.parse_json_or_text(raw)}
-
-
-def classify_exception(exc):
-    """Map a Firecrawl provider exception to a (kind, status) failure tuple.
-
-    Configuration failures (the provider is missing/not configured, or the CLI
-    is unavailable) map to ``config``; request failures carry a status where
-    the CLI reported one and are classified through :func:`classify_failure`.
-    A CLI response that could not be interpreted as a result is treated as
-    ``invalid-response``.
-    """
-    if isinstance(exc, firecrawl_cli.FirecrawlCliError):
-        status = exc.status
-        text = str(exc).lower()
-        if status is not None:
-            kind = provider_config.classify_failure(status, text)
-        elif "invalid json" in text:
-            kind = "invalid-response"
-        else:
-            kind = provider_config.classify_failure(None, text)
-        return kind, status
-    return "config", None
+    response = firecrawl_cli.run_capability_command(
+        "web_fetch", command, timeout=timeout, config_path=config_path, state_path=state_path
+    )
+    return {"provider": "firecrawl", "capability": "web_fetch", "urls": urls, "response": response}
 
 
 def parse_args() -> argparse.Namespace:
@@ -110,11 +89,11 @@ def main() -> int:
                 state_path=args.state_path,
             )
     except provider_config.ProviderConfigError as exc:
-        kind, status = classify_exception(exc)
+        kind, status = firecrawl_cli.classify_exception(exc)
         provider_config.write_error_file(
             "firecrawl", "web_fetch", kind=kind, status=status, message=str(exc)
         )
-        print(str(exc), file=sys.stderr)
+        print(provider_config.safe_message(str(exc)), file=sys.stderr)
         return 2
     if args.output == "json":
         print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))

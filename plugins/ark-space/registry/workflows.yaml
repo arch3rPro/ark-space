@@ -14,3 +14,7 @@ workflows:
   - id: provider-capabilities
     path: workflows/provider-capabilities.md
     usedBy: orchestrator,web-researcher,competitive-analyst
+
+  - id: web-capability-routing
+    path: workflows/web-capability-routing.md
+    usedBy: web-researcher

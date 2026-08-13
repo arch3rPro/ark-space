@@ -1,11 +1,11 @@
 ---
 name: web-automation
-description: Use when interacting with live public pages or creating and managing recurring monitors for public web targets.
+description: Interact with public pages or manage recurring monitors for public web targets.
 ---
 
 # Web Automation
 
-Run stateful web operations through `registry/web-interact-providers.yaml` or `registry/web-monitor-providers.yaml`. Select one explicit mode:
+Run stateful web operations through `registry/web-interact-providers.yaml` or `registry/web-monitor-providers.yaml`. For ambiguous web intent, apply `workflows/web-capability-routing.md`. Select one explicit mode:
 
 - `interact`: use browser actions or a scrape-bound session.
 - `monitor`: create, inspect, update, run, or remove a recurring monitor.

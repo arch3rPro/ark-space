@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: Use when a user invokes ArkSpace, asks for general help, a cross-domain task, role selection, skill selection, provider routing, web search/fetch through ArkSpace, or when task scope is unclear.
+description: Route ArkSpace requests that need role, skill, provider, or web capability selection, including unclear or cross-domain tasks.
 ---
 
 # Orchestrator
@@ -31,7 +31,7 @@ For any capability represented by a provider registry, use that registry as the 
 
 1. Identify the primary task domain: code, docs, product, project, personal execution, skills, knowledge management, research, or cross-domain.
 2. Select the smallest useful role set from `roles/`.
-3. For web tasks, choose the role first, then use `workflows/provider-capabilities.md` and the provider registry before execution.
+3. For web tasks, choose the role first, apply `workflows/web-capability-routing.md`, then use `workflows/provider-capabilities.md` and the matching provider registry before execution.
 4. Use one role for simple work.
 5. Use multiple roles only when the task naturally crosses domains.
 6. Ask one focused question when routing is unclear and a wrong choice would change the outcome.
@@ -59,22 +59,7 @@ For any capability represented by a provider registry, use that registry as the 
 
 ## Web Capability Selection
 
-Web and research work splits into provider capabilities:
-
-| Capability | Input | Output | Registry |
-|---|---|---|---|
-| `web_search` | Query | Candidate URLs, snippets, source metadata | `registry/search-providers.yaml` |
-| `web_fetch` | URL | Readable page content, Markdown/text, metadata | `registry/web-fetch-providers.yaml` |
-| `web_map` | Site URL | Discovered URLs and site structure | `registry/web-map-providers.yaml` |
-| `web_crawl` | Site URL | Extracted content from many pages | `registry/web-crawl-providers.yaml` |
-| `structured_extract` | Prompt, URLs, optional schema | Schema-shaped extracted data or async job status | `registry/structured-extract-providers.yaml` |
-| `web_interact` | Browser instruction or scrape ID | Browser action output, session metadata, or live view links | `registry/web-interact-providers.yaml` |
-| `web_monitor` | Monitor target, schedule, goal | Monitor IDs, checks, statuses, and change results | `registry/web-monitor-providers.yaml` |
-| `deep_research` | Research prompt | Cited synthesized report or async task status | `registry/deep-research-providers.yaml` |
-| `code_context` | Coding query | Repository-grounded examples, API syntax, framework usage, code snippets | `registry/code-context-providers.yaml` |
-| `related_pages` | URL | Similar pages, adjacent resources, comparable projects, related sources | `registry/related-page-providers.yaml` |
-
-These capabilities are often chained: use `web_search` to discover candidate URLs, `related_pages` when a known URL should seed adjacent discovery, `web_map` to find specific pages on a known site, `web_fetch` to read selected primary sources, `web_crawl` to collect many pages from a site section, `structured_extract` when the user needs schema-shaped data, `web_interact` when the page must be operated in a browser or an existing scrape session, `web_monitor` for recurring checks, `deep_research` when the requested output is a cited synthesis rather than a source list, and `code_context` when a coding task needs examples or API usage context beyond the local repository.
+For ambiguous web intent, apply `workflows/web-capability-routing.md` before selecting a provider. It is the authoritative capability decision matrix; provider registries remain authoritative for provider readiness and selection.
 
 Selection order:
 

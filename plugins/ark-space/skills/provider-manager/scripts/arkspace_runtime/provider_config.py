@@ -532,8 +532,12 @@ _SENSITIVE_HEADERS = frozenset({
 })
 
 
-def _redact_message(message: str) -> str:
-    """Bound length and strip common secrets from a failure message before recording.
+def safe_message(message: str) -> str:
+    """Return a human-readable, bounded provider failure message without secrets.
+
+    This is the shared safe display and persistence path for provider-supplied
+    failures. It intentionally removes credentials while retaining useful status
+    and diagnostic context.
 
     Removes key-ref syntax (``env:``, ``$``, ``!``), sensitive header values,
     URL-embedded credentials, and long opaque tokens (API keys / base64 / JWTs).
@@ -588,7 +592,7 @@ def write_error_file(
         "provider": provider_id,
         "capability": capability,
         "kind": kind,
-        "message": _redact_message(message),
+        "message": safe_message(message),
     }
     if status is not None:
         record["status"] = status

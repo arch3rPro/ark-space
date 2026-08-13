@@ -28,19 +28,20 @@ def run_browser(
     config_path: str | None = None,
     state_path: str | None = None,
 ) -> dict[str, Any]:
-    resolved = firecrawl_cli.resolve_firecrawl(capability="web_interact", config_path=config_path, state_path=state_path)
     command = ["browser", instruction, "--json"]
     if profile:
         command.extend(["--profile", profile])
     if not save_changes:
         command.append("--no-save-changes")
-    raw = firecrawl_cli.run_cli(resolved, command, timeout=timeout, config_path=config_path, state_path=state_path)
+    response = firecrawl_cli.run_capability_command(
+        "web_interact", command, timeout=timeout, config_path=config_path, state_path=state_path
+    )
     return {
         "provider": "firecrawl",
         "capability": "web_interact",
         "mode": "browser",
         "instruction": instruction,
-        "response": firecrawl_cli.parse_json_or_text(raw),
+        "response": response,
     }
 
 
@@ -84,7 +85,11 @@ def main() -> int:
                 state_path=args.state_path,
             )
     except provider_config.ProviderConfigError as exc:
-        print(str(exc), file=sys.stderr)
+        kind, status = firecrawl_cli.classify_exception(exc)
+        provider_config.write_error_file(
+            "firecrawl", "web_interact", kind=kind, status=status, message=str(exc)
+        )
+        print(provider_config.safe_message(str(exc)), file=sys.stderr)
         return 2
     if args.output == "json":
         print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))

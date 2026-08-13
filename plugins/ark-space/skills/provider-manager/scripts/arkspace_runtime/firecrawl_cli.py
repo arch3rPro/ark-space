@@ -189,3 +189,32 @@ def parse_json_or_text(text: str) -> Any:
         return json.loads(value)
     except json.JSONDecodeError:
         return value
+
+
+def run_capability_command(
+    capability: str,
+    command: list[str],
+    *,
+    timeout: int,
+    config_path: str | None = None,
+    state_path: str | None = None,
+) -> Any:
+    """Resolve and execute one Firecrawl capability command."""
+    resolved = resolve_firecrawl(capability=capability, config_path=config_path, state_path=state_path)
+    raw = run_cli(resolved, command, timeout=timeout, config_path=config_path, state_path=state_path)
+    return parse_json_or_text(raw)
+
+
+def classify_exception(exc: Exception) -> tuple[str, int | None]:
+    """Map Firecrawl CLI and configuration exceptions to failure records."""
+    if isinstance(exc, FirecrawlCliError):
+        status = exc.status
+        text = str(exc).lower()
+        if status is not None:
+            kind = provider_config.classify_failure(status, text)
+        elif "invalid json" in text:
+            kind = "invalid-response"
+        else:
+            kind = provider_config.classify_failure(None, text)
+        return kind, status
+    return "config", None

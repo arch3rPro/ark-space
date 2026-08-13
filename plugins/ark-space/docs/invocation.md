@@ -22,7 +22,7 @@ Use a direct skill path when the caller knows the task capability. Provider sele
 /ark-space:code-context find React hooks state management examples
 ```
 
-Direct invocation is declared in `registry/skills.yaml` with `directInvocation` and must include `/ark-space:<skill-name>`. Slash invocation is the public contract for user-facing examples and host smoke tests.
+Direct invocation is declared in `registry/skills.yaml` with `directInvocation` and must include `/ark-space:<skill-name>`. Slash invocation is the public contract for user-facing examples and host smoke tests. For ambiguous web intent, apply `workflows/web-capability-routing.md` before selecting a capability.
 
 ## Orchestrator Path
 
@@ -45,22 +45,9 @@ Use the Orchestrator path when ArkSpace should choose the role, workflow, or cap
 
 Routable public skills declare `orchestratorInvocation` in `registry/skills.yaml`. The Orchestrator selects the role, capability, then provider policy. It must not silently replace a user-requested provider.
 
-## Capability Split
+## Capability Routing
 
-| Capability | Input | Output | Registry |
-| --- | --- | --- | --- |
-| `web_search` | Query | Candidate URLs, snippets, source metadata | `registry/search-providers.yaml` |
-| `web_fetch` | URL | Extracted page content, Markdown/text, metadata | `registry/web-fetch-providers.yaml` |
-| `web_map` | Site URL | Discovered URLs and site structure | `registry/web-map-providers.yaml` |
-| `web_crawl` | Site URL | Extracted content from many pages | `registry/web-crawl-providers.yaml` |
-| `structured_extract` | Prompt, URLs, optional schema | Schema-shaped extracted data or async job status | `registry/structured-extract-providers.yaml` |
-| `web_interact` | Browser instruction or scrape ID | Browser action output, session metadata, or live view links | `registry/web-interact-providers.yaml` |
-| `web_monitor` | Monitor target, schedule, goal | Monitor IDs, checks, statuses, and change results | `registry/web-monitor-providers.yaml` |
-| `deep_research` | Research prompt | Cited synthesized report or async task status | `registry/deep-research-providers.yaml` |
-| `code_context` | Coding query | Repository-grounded examples and API usage context | `registry/code-context-providers.yaml` |
-| `related_pages` | URL | Similar pages, adjacent resources, comparable projects, related sources | `registry/related-page-providers.yaml` |
-
-Use `web_search` to discover sources from a query. Use `related_pages` when the user provides a URL and wants similar pages or comparable resources. Use `web_fetch` to read a known URL or a URL selected from search/map/similar results. Use `web_map` when the site is known but the exact URL is not. Use `web_crawl` when the user needs many pages from a site section. Use `structured_extract` when the user needs schema-shaped data. Use `web_interact` when the page must be operated in a browser or an existing scrape session. Use `web_monitor` for recurring checks. Use `deep_research` when the requested output is a report or comparison. Use `code_context` when a coding task needs examples or API usage context beyond the local repository.
+`workflows/web-capability-routing.md` is the authoritative web capability matrix. Apply it to separate source/page discovery, reading supplied URLs, structured fields/schema extraction, cited synthesis, known-site map/crawl work, and interaction or monitors. Capability selection precedes provider selection. Resolve providers in the capability registries, including `registry/web-map-providers.yaml`, `registry/web-crawl-providers.yaml`, `registry/deep-research-providers.yaml`, and `registry/code-context-providers.yaml`.
 
 ## Configuration
 
