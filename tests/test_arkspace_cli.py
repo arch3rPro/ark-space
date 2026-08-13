@@ -1721,14 +1721,16 @@ class ArkspaceCliTests(unittest.TestCase):
         self.assertEqual(status, 0)
         self.assertEqual(len(calls), 2)  # config skipped to the next candidate
         self.assertEqual(stdout_buf.getvalue(), b'{"ok":true}')
+        self.assertIn("exa: skipped (config)", stderr_buf.getvalue())
         self.assertTrue(created)
         for path in created:
             self.assertFalse(os.path.exists(path))
 
-    def test_chain_real_error_file_lifecycle_retryable_continuation(self):
-        """A real ``quota`` record on the first candidate continues only when
-        that provider's fallback policy allows it; the second candidate then
-        succeeds and every temp file is cleaned up.
+    def test_chain_real_error_file_lifecycle_invalid_response_continuation(self):
+        """An ``exa-mcp`` invalid response continues when its policy allows it.
+
+        The fallback must preserve the winner's stdout bytes while reporting
+        the prior candidate's retryable failure on stderr.
         """
         created = []
         real_ntf = tempfile.NamedTemporaryFile
@@ -1752,23 +1754,23 @@ class ArkspaceCliTests(unittest.TestCase):
                     env[self.arkspace.ERROR_FILE_ENV],
                     {
                         "version": 1,
-                        "provider": "exa",
+                        "provider": "exa-mcp",
                         "capability": "web_search",
-                        "kind": "quota",
-                        "message": "rate limited",
+                        "kind": "invalid-response",
+                        "message": "malformed MCP response",
                     },
                 )
                 return SimpleNamespace(returncode=1, stdout=b"", stderr=b"")
             return SimpleNamespace(returncode=0, stdout=b'{"win":1}', stderr=b"")
 
         def fake_policy(pid, config_path=None):
-            return ["quota"]
+            return ["invalid-response"]
 
         with patch.object(self.arkspace.tempfile, "NamedTemporaryFile", side_effect=spy_ntf), \
             patch.object(
                 sys,
                 "argv",
-                ["arkspace", "web", "search", "--providers", "exa,tavily", "query"],
+                ["arkspace", "web", "search", "--providers", "exa-mcp,tavily", "query"],
             ), \
             patch.object(self.arkspace.subprocess, "run", side_effect=fake_run), \
             patch.object(self.arkspace, "fallback_policy", side_effect=fake_policy), \
@@ -1777,8 +1779,11 @@ class ArkspaceCliTests(unittest.TestCase):
             status = self.arkspace.main()
 
         self.assertEqual(status, 0)
-        self.assertEqual(len(calls), 2)  # quota continued to the next candidate
+        self.assertEqual(len(calls), 2)
         self.assertEqual(stdout_buf.getvalue(), b'{"win":1}')
+        self.assertIn(
+            "exa-mcp: invalid-response; trying next provider", stderr_buf.getvalue()
+        )
         self.assertTrue(created)
         for path in created:
             self.assertFalse(os.path.exists(path))
