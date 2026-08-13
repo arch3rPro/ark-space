@@ -499,6 +499,23 @@ class ValidateSkillsContractTests(unittest.TestCase):
         self.assertIn("raw cli receives explicit `--provider`", workflow_lower)
         self.assertIn("monitor mutation requires confirmation", workflow_lower)
 
+    def test_web_researcher_defers_capability_branches_to_authoritative_workflow(self):
+        text = (ROOT / "agents" / "docs" / "web-researcher.md").read_text(encoding="utf-8")
+        web_work = text.split("## Web Work", 1)[1].split("## Decision Rules", 1)[0]
+        decision_rules = text.split("## Decision Rules", 1)[1].split("## Output", 1)[0]
+
+        pointer = "For web capability routing, follow `workflows/web-capability-routing.md` before provider selection."
+        self.assertEqual(web_work.count(pointer), 1)
+        self.assertLess(web_work.index(pointer), web_work.index("Prefer arXiv"))
+        self.assertNotIn("the workflow selects the distinct", web_work)
+        self.assertNotRegex(decision_rules, r"Execute directly for .*source discovery")
+        self.assertNotIn("Use a provider workflow before execution", decision_rules)
+        decision_rule_lines = [line for line in decision_rules.splitlines() if line.startswith("- ")]
+        self.assertTrue(
+            all(line.startswith(("- Hand off", "- Stop and report")) for line in decision_rule_lines),
+            "Decision Rules must contain role-specific exceptions, not capability execution branches.",
+        )
+
     def test_public_skill_contract_requires_capabilities_and_categories(self):
         self.validate.find_readme_included_skill_names = lambda: {"example"}  # type: ignore[reportAttributeAccessIssue]
 
