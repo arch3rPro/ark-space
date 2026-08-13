@@ -12,7 +12,7 @@ from typing import Any
 RUNTIME_DIR = Path(__file__).resolve().parents[2] / "provider-manager" / "scripts"
 sys.path.insert(0, str(RUNTIME_DIR))
 
-from arkspace_runtime import firecrawl_cli, provider_config
+from arkspace_runtime import firecrawl_cli, provider_config  # noqa: E402  # type: ignore[reportMissingImports]
 
 
 def check_config(config_path: str | None = None, state_path: str | None = None) -> dict[str, Any]:
