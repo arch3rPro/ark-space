@@ -93,7 +93,7 @@ Claude Code, Codex, and future hosts consume the same skill files through adapte
 
 | Skill | Purpose |
 |---|---|
-| `prd-create` | Write R&D-ready PRDs from accessible products or prototypes, confirmed workflows, and review decisions. |
+| `prd-create` | Keep standard R&D PRD sections and functional-page fields/constraints while writing workflows as concise screenshot-first requirements. |
 
 ### Search, Fetch, And Research
 

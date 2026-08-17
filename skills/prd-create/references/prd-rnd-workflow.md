@@ -1,4 +1,6 @@
-# R&D PRD Workflow Reference
+# Detailed R&D PRD Workflow Reference
+
+Use this reference when a module needs detail beyond its default screenshot, requirement description, and functional-page field table. Preserve functional-page fields and field restrictions in either format; do not add branches, interaction constraints, page flows, or similar workflow prose merely for completeness.
 
 ## Bundled Templates And Tools
 
@@ -6,8 +8,8 @@ Use these bundled resources instead of recreating templates or validators:
 
 | Resource | Purpose |
 |---|---|
-| `assets/prd-template.md` | Full R&D PRD shell |
-| `assets/module-workflow-template.md` | Module workflow confirmation and implementation spec |
+| `assets/prd-template.md` | Standard R&D PRD shell |
+| `assets/module-workflow-template.md` | Screenshot-first module specification with functional-page fields and optional expanded workflow detail |
 | `assets/decision-checklist-template.md` | Review conflict and product decision tracking |
 | `references/evidence-levels.md` | Evidence limits for local app, demo, staging, prototype, static screenshots, or requirements-only work |
 | `scripts/validate-prd-images.js` | Markdown image link validation |

@@ -117,6 +117,27 @@ class PrdCreateGateTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("missing 'Controls'", result.stderr)
 
+    def test_chinese_step_labels_pass_readiness(self):
+        with tempfile.TemporaryDirectory() as directory:
+            prd, checklist = self.write_ready_fixture(Path(directory))
+            replacements = {
+                "Operation": "操作",
+                "Page response": "页面响应",
+                "Controls": "控件",
+                "R&D requirements": "研发要求",
+                "Constraints": "约束",
+                "Exceptions": "异常",
+                "Evidence status: observed": "证据状态：已观察",
+            }
+            content = prd.read_text(encoding="utf-8")
+            for english, chinese in replacements.items():
+                content = content.replace(english, chinese)
+            prd.write_text(content, encoding="utf-8")
+            result = self.run_verifier(prd, checklist)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["ready"], True)
+
     def test_active_module_must_pass_before_advancing(self):
         with tempfile.TemporaryDirectory() as directory:
             prd, checklist = self.write_ready_fixture(Path(directory))

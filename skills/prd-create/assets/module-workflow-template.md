@@ -7,83 +7,69 @@
 - Excluded scope:
 - Evidence mode:
 
-### {Section Number}.2 Workflow Confirmation
+### {Section Number}.2 Requirements
 
-| Item | Confirmed detail |
-|---|---|
-| Role |  |
-| Entry points |  |
-| Main workflow |  |
-| Branch workflows |  |
-| Subpages |  |
-| Controls |  |
-| Data result |  |
-| Async behavior |  |
-| Recovery behavior |  |
-| Open questions status | confirmed / non-blocking / blocking |
-| Confirmation source | User / authoritative product source |
-| Decision checklist | Path or none |
-| Product access authorized | yes / no |
+#### {Screen or Scenario Name}
 
-### {Section Number}.3 Page Entry
+![short alt](assets/product-screenshots/{image-name}.png)
+
+**需求描述**
+
+- 用户执行：
+- 系统应当：
+
+**页面字段与限制**
+
+| 字段 | 控件/类型 | 必填/默认值 | 限制与校验 | 联动/权限/持久化 |
+|---|---|---|---|---|
+|  |  |  |  |  |
+
+#### {Next Screen or Scenario Name}
+
+![short alt](assets/product-screenshots/{image-name}.png)
+
+**需求描述**
+
+- 用户执行：
+- 系统应当：
+
+**页面字段与限制**
+
+| 字段 | 控件/类型 | 必填/默认值 | 限制与校验 | 联动/权限/持久化 |
+|---|---|---|---|---|
+|  |  |  |  |  |
+
+### Optional: Page Entry
 
 | Entry | User action | Page response | R&D requirement |
 |---|---|---|---|
 
-### {Section Number}.4 Main Workflow: {Workflow Name}
-
-#### Step 1: {Step Name}
-
-![short alt](assets/product-screenshots/{image-name}.png)
-
-- Precondition:
-- Operation:
-- Page response:
-- Controls:
-- R&D requirements:
-- Constraints:
-- Exceptions:
-- Evidence status: {observed | required | unverified | decision needed}
-
-#### Step 2: {Step Name}
-
-![short alt](assets/product-screenshots/{image-name}.png)
-
-- Precondition:
-- Operation:
-- Page response:
-- Controls:
-- R&D requirements:
-- Constraints:
-- Exceptions:
-- Evidence status: {observed | required | unverified | decision needed}
-
-### {Section Number}.5 Branch Workflows
+### Optional: Branch Workflows
 
 | Branch | Trigger | Page response | R&D requirement | Recovery |
 |---|---|---|---|---|
 
-### {Section Number}.6 Interaction Constraints
+### Optional: Interaction Constraints
 
 | Stage | Allowed | Forbidden | R&D handling |
 |---|---|---|---|
 
-### {Section Number}.7 Page Flow
+### Optional: Page Flow
 
 | Order | Page state | Trigger | Must show | Next |
 |---|---|---|---|---|
 
-### {Section Number}.8 Data Writes
+### Optional: Data Writes
 
 | Object | Timing | Required fields | Forbidden writes |
 |---|---|---|---|
 
-### {Section Number}.9 Error And Recovery
+### Optional: Error And Recovery
 
 | Scenario | Page behavior | Recovery |
 |---|---|---|
 
-### {Section Number}.10 Design Closure Check
+### Optional: Design Closure Check
 
 | Check | Result | R&D note |
 |---|---|---|
@@ -98,7 +84,7 @@
 | Empty state |  |  |
 | Error state |  |  |
 
-### {Section Number}.11 Acceptance Checklist
+### Optional: Acceptance Checklist
 
 | Group | Acceptance item | Evidence |
 |---|---|---|

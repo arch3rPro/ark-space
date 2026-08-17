@@ -151,7 +151,7 @@ sources:
     localPath: ../../WorkStation/AI-Native/docs/product/prd-create-skill-dist-20260724-100249.zip
     license: unknown
     syncPolicy: adapted
-    notes: "Migrated from the local AI-Native PRD Create skill archive; adapted to ArkSpace role routing and source governance."
+    notes: "Migrated from the local AI-Native PRD Create skill archive; adapted to ArkSpace role routing and source governance, with a screenshot-first lightweight PRD as the default and the upstream-style detailed procedure retained for complex work."
 
   - id: exa-mcp
     type: documentation

@@ -211,8 +211,8 @@ skills:
     status: active
     public: true
     capabilities: product_requirements
-    directInvocation: "/ark-space:prd-create write an R&D-ready PRD from this prototype"
-    orchestratorInvocation: "/ark-space:orchestrator write an R&D-ready PRD from this prototype"
+    directInvocation: "/ark-space:prd-create write a screenshot-first PRD for this feature"
+    orchestratorInvocation: "/ark-space:orchestrator write a screenshot-first PRD for this feature"
     syncMode: adapted
     upstreamId: ai-native-prd-create
     categories: product,prd,requirements,rnd

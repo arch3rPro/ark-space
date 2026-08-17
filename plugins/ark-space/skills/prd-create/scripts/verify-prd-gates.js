@@ -15,14 +15,27 @@ const REQUIRED_GATES = [
   "Review decisions were synchronized into the PRD, or no review decision was applicable.",
 ];
 const REQUIRED_STEP_FIELDS = [
-  "Operation",
-  "Page response",
-  "Controls",
-  "R&D requirements",
-  "Constraints",
-  "Exceptions",
-  "Evidence status",
+  { canonical: "Operation", labels: ["Operation", "操作"] },
+  { canonical: "Page response", labels: ["Page response", "页面响应", "页面反馈"] },
+  { canonical: "Controls", labels: ["Controls", "控件"] },
+  { canonical: "R&D requirements", labels: ["R&D requirements", "研发要求", "研发需求"] },
+  { canonical: "Constraints", labels: ["Constraints", "约束", "限制"] },
+  { canonical: "Exceptions", labels: ["Exceptions", "例外", "异常"] },
+  { canonical: "Evidence status", labels: ["Evidence status", "证据状态"] },
 ];
+const VALID_EVIDENCE_STATUSES = new Set([
+  "observed",
+  "已观察",
+  "已观察到",
+  "required",
+  "需要实现",
+  "需求",
+  "unverified",
+  "未验证",
+  "decision needed",
+  "需要决策",
+  "待决策",
+]);
 const MODULE_GATES = [
   "Module workflow record is complete for the active module.",
   "Screenshots are captured for every active-module workflow step.",
@@ -235,12 +248,12 @@ function validateWorkflows(prd, failures) {
         failures.push(`${label} has no screenshot`);
       }
       for (const field of REQUIRED_STEP_FIELDS) {
-        if (!new RegExp(`^- ${escapeRegExp(field)}:\s*.+$`, "mi").test(stepText)) {
-          failures.push(`${label} is missing '${field}'`);
+        if (!stepFieldPattern(field.labels).test(stepText)) {
+          failures.push(`${label} is missing '${field.canonical}'`);
         }
       }
-      const evidence = stepText.match(/^- Evidence status:\s*(.+)$/mi);
-      if (evidence && !/^(observed|required|unverified|decision needed)$/i.test(evidence[1].trim())) {
+      const evidence = stepText.match(stepFieldPattern(["Evidence status", "证据状态"]));
+      if (evidence && !VALID_EVIDENCE_STATUSES.has(evidence[1].trim().toLowerCase())) {
         failures.push(`${label} has invalid Evidence status '${evidence[1].trim()}'`);
       }
     }
@@ -257,4 +270,9 @@ function validateImages(prdPath, failures) {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function stepFieldPattern(labels) {
+  const alternatives = labels.map(escapeRegExp).join("|");
+  return new RegExp(`^-\\s*(?:${alternatives})\\s*[:：]\\s*(.+)$`, "mi");
 }
